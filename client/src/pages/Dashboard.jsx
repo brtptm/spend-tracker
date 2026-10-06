@@ -87,8 +87,8 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <section className="panel !p-0 overflow-hidden grid lg:grid-cols-2 lg:h-[clamp(520px,calc(100dvh-296px),720px)]" aria-label="Where your money went">
-        <div className="relative isolate min-h-[350px] sm:min-h-[440px] border-b lg:border-b-0 lg:border-r border-line">
+      <section className="grid lg:grid-cols-2 gap-5 lg:h-[clamp(520px,calc(100dvh-296px),720px)]" aria-label="Where your money went">
+        <div className="panel !p-0 relative isolate overflow-hidden min-h-[340px] sm:min-h-[440px]">
           <Ring segments={segments} onSelect={(id) => id && nav(`/category/${id}`)} className="-z-10">
             <div className="text-center">
               <div className="eyebrow">Spent · {s.label.toLowerCase()}</div>
@@ -98,7 +98,7 @@ export default function Dashboard() {
             </div>
           </Ring>
         </div>
-        <div className="p-6 sm:p-7 flex flex-col min-h-0">
+        <div className="panel p-6 sm:p-7 flex flex-col min-h-0">
           <div className="flex items-center justify-between"><h2 className="text-lg">Categories</h2><span className="text-xs text-ink-3">vs previous period</span></div>
           <ul className="mt-2 flex flex-col">
             {s.byCategory.filter((c) => c.amount > 0).map((c) => {
@@ -118,12 +118,12 @@ export default function Dashboard() {
             })}
           </ul>
           {s.byMerchant?.length > 0 && (
-            <div className="mt-auto pt-5 border-t border-line hidden lg:block">
+            <div className="mt-auto pt-5 border-t border-line">
               <div className="flex items-center justify-between"><span className="eyebrow">Where it went</span><MiniLink to="/transactions">All payments</MiniLink></div>
-              <ul className="mt-3 grid grid-cols-4 gap-2">
+              <ul className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {s.byMerchant.slice(0, 4).map((m) => (
                   <li key={m.id || m.name}>
-                    <Link to={`/merchant/${m.id || encodeURIComponent(m.name)}`} className="flex flex-col items-start gap-2 rounded-xl p-2.5 -m-0.5 hover:bg-surface-2 transition-colors">
+                    <Link to={`/merchant/${m.id || encodeURIComponent(m.name)}`} className="flex items-center gap-2.5 sm:flex-col sm:items-start sm:gap-2 rounded-xl p-2.5 -m-0.5 hover:bg-surface-2 transition-colors">
                       <BrandLogo id={m.id} name={m.name} category={m.category} size={30} />
                       <div className="min-w-0 w-full"><div className="text-[12px] text-ink-2 truncate">{m.name}</div><div className="num text-[14px]">{inrShort(m.amount)}</div></div>
                     </Link>

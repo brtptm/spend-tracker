@@ -21,6 +21,15 @@ const Settings = lazy(() => import('./pages/Settings.jsx'));
 
 const S = (el) => <Suspense fallback={<Spinner />}>{el}</Suspense>;
 
+// Warm every page chunk once the app is idle, so switching pages never waits on a download.
+const PAGES = [() => import('./pages/Dashboard.jsx'), () => import('./pages/Category.jsx'), () => import('./pages/Merchant.jsx'), () => import('./pages/Trends.jsx'),
+  () => import('./pages/Recommendations.jsx'), () => import('./pages/Offers.jsx'), () => import('./pages/Budget.jsx'), () => import('./pages/Transactions.jsx'),
+  () => import('./pages/Alerts.jsx'), () => import('./pages/Partner.jsx'), () => import('./pages/Settings.jsx')];
+if (typeof window !== 'undefined') {
+  const warm = () => PAGES.forEach((load) => load().catch(() => {}));
+  (window.requestIdleCallback || ((f) => setTimeout(f, 1200)))(warm);
+}
+
 function Gate() {
   const loc = useLocation();
   const { data, isLoading, error, refetch } = useMe();

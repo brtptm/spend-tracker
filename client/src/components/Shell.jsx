@@ -9,6 +9,7 @@ import {
 } from 'react-icons/pi';
 import { api, auth, useMe, useHealth } from '../lib/api.js';
 import { Logo, SourceTag, ThemeToggle } from './ui.jsx';
+import PageBoundary from './PageBoundary.jsx';
 
 const NAV = [
   { to: '/dashboard', label: 'Overview', icon: PiSquaresFourLight, mobile: true },
@@ -116,11 +117,13 @@ export default function Shell() {
 
       <main className="min-w-0 px-4 sm:px-6 lg:px-10 py-6 lg:py-9 pb-28 lg:pb-12">
         <div className="max-w-[1480px] mx-auto">
-          <AnimatePresence mode="wait">
-            <motion.div key={loc.pathname} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
+          {/* Enter-only fade keyed by path. No exit animation: an exiting <Outlet/> already
+              renders the next route, and with lazy pages that race could leave a blank area. */}
+          <motion.div key={loc.pathname} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2, ease: 'easeOut' }}>
+            <PageBoundary key={loc.pathname}>
               <Outlet context={{ openAsk: () => setAsk(true), firstName: first }} />
-            </motion.div>
-          </AnimatePresence>
+            </PageBoundary>
+          </motion.div>
         </div>
       </main>
 

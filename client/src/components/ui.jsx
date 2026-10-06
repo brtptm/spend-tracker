@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { animate, motion, useInView, AnimatePresence } from 'motion/react';
-import { FiAlertTriangle, FiInbox, FiX, FiLoader, FiCheck } from 'react-icons/fi';
+import { FiAlertTriangle, FiInbox, FiX, FiCheck } from 'react-icons/fi';
 import { PiForkKnifeFill, PiShoppingBagFill, PiCarProfileFill, PiFilmSlateFill, PiLightningFill, PiHeartbeatFill, PiUsersFill, PiWalletFill } from 'react-icons/pi';
 import { inr } from '../lib/format.js';
 import { useTheme } from '../lib/theme.js';
@@ -62,8 +62,19 @@ export const SEVERITY = {
   positive: { color: 'var(--positive)', label: 'Doing well' },
 };
 
+/** Page loader: a thin rotating arc (echoing the logo), fixed to the centre of the screen. */
 export function Spinner({ label = 'Loading' }) {
-  return <div className="grid place-items-center py-20 text-ink-3" role="status"><FiLoader className="spin" size={22} /><span className="mt-3 text-sm">{label}</span></div>;
+  return (
+    <div className="fixed inset-0 z-20 grid place-items-center pointer-events-none" role="status" aria-live="polite">
+      <div className="flex flex-col items-center gap-3.5 text-ink-3">
+        <svg width="34" height="34" viewBox="0 0 34 34" className="spin" style={{ animationDuration: '.9s' }} aria-hidden="true">
+          <circle cx="17" cy="17" r="14" fill="none" stroke="currentColor" strokeOpacity=".15" strokeWidth="2.5" />
+          <circle cx="17" cy="17" r="14" fill="none" stroke="var(--ink)" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="22 88" />
+        </svg>
+        <span className="text-[13px]">{label}</span>
+      </div>
+    </div>
+  );
 }
 export function Skeleton({ h = 120, className = '' }) { return <div className={`skeleton ${className}`} style={{ height: h }} />; }
 
