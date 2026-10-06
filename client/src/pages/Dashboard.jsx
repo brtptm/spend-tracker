@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { formatDistanceToNowStrict } from 'date-fns';
 import { Link, useNavigate, useOutletContext } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'motion/react';
@@ -38,11 +39,11 @@ function Stat({ label, value, sub, tone }) {
 }
 
 function Briefing() {
-  const q = useQuery({ queryKey: ['briefing'], queryFn: () => api.insights(true), staleTime: 10 * 60_000 });
+  const q = useQuery({ queryKey: ['briefing'], queryFn: () => api.insights(true), staleTime: Infinity });
   const b = q.data?.briefing;
   return (
     <section className="panel p-7" aria-labelledby="brief-h">
-      <div className="flex items-center justify-between gap-3"><span className="eyebrow">Your briefing</span><SourceTag source={b?.source} /></div>
+      <div className="flex items-center justify-between gap-3"><span className="eyebrow">Your briefing</span><span className="flex items-center gap-2">{b?.generatedAt && <span className="text-[11px] text-ink-3">Updated {formatDistanceToNowStrict(new Date(b.generatedAt), { addSuffix: true })}<span className="hidden sm:inline"> · refreshes when your payments change</span></span>}<SourceTag source={b?.source} /></span></div>
       {q.isLoading ? (
         <div className="mt-4 grid gap-3"><Skeleton h={28} className="w-2/3" /><Skeleton h={16} /><Skeleton h={16} className="w-5/6" /></div>
       ) : q.error ? <div className="mt-3"><ErrorNote error={q.error} onRetry={q.refetch} /></div> : b && (

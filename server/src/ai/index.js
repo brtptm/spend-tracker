@@ -13,24 +13,35 @@ const J = (v) => JSON.stringify(v);
 const str = (v, fb) => (typeof v === 'string' && v.trim() ? v.trim() : fb);
 const arr = (v, fb = []) => (Array.isArray(v) ? v.filter((x) => typeof x === 'string' && x.trim()) : fb);
 
-function cacheGet(key) {
+function cacheGet(key, ttl = TTL_MS) {
   const r = db.prepare('SELECT value, created_at FROM ai_cache WHERE key = ?').get(key);
-  if (!r || Date.now() - new Date(r.created_at + 'Z').getTime() > TTL_MS) return null;
-  return json.parse(r.value);
+  if (!r || Date.now() - new Date(r.created_at + 'Z').getTime() > ttl) return null;
+  return { value: json.parse(r.value), at: new Date(r.created_at.replace(' ', 'T') + 'Z').toISOString() };
+}
+
+/**
+ * Fingerprint of the user's underlying data: every transaction's id, category and
+ * status, plus their learned merchant rules. It only changes when payments are
+ * imported/deleted or re-categorised — not as the clock moves rolling windows.
+ */
+export function dataFingerprint(userId) {
+  const tx = db.prepare('SELECT id, category, sub, status FROM transactions WHERE user_id = ? ORDER BY id').all(userId);
+  const rules = db.prepare('SELECT merchant_key, category, sub FROM merchant_rules WHERE user_id = ? ORDER BY merchant_key').all(userId);
+  return hash(tx.map((t) => `${t.id}:${t.category}:${t.sub}:${t.status}`), rules);
 }
 const cacheSet = (key, value) => db.prepare("INSERT INTO ai_cache (key, value, created_at) VALUES (?, ?, datetime('now')) ON CONFLICT(key) DO UPDATE SET value = excluded.value, created_at = excluded.created_at").run(key, json.str(value));
 
 const inflight = new Map();
-async function withAI(label, key, base, fn) {
+async function withAI(label, key, base, fn, { ttl } = {}) {
   if (!aiStatus().enabled) return { data: base, source: 'engine' };
-  const hit = key && cacheGet(key);
-  if (hit) return { data: hit, source: 'claude', cached: true };
+  const hit = key && cacheGet(key, ttl);
+  if (hit) return { data: hit.value, source: 'claude', cached: true, generatedAt: hit.at };
   if (inflight.has(key)) return inflight.get(key);
   const p = (async () => {
     try {
       const data = await fn();
       if (key) cacheSet(key, data);
-      return { data, source: 'claude' };
+      return { data, source: 'claude', generatedAt: new Date().toISOString() };
     } catch (err) {
       console.warn(`[ai] ${label} fell back to engine: ${err.message.split('\n')[0]}`);
       return { data: base, source: 'engine' };
@@ -84,7 +95,8 @@ export async function aiNarrative(user, A, recs, profile, baseInsights) {
     summary: `Your last 30 days came to ₹${A.s30.totalSpending.toLocaleString('en-IN')} across ${A.s30.transactionCount} payments. ${baseInsights[0]?.title || ''}`.trim(),
     observations: baseInsights.slice(0, 3).map((i) => i.description), personality: `${profile.spenderLabel}: ${profile.patterns.peakTimes.join(' & ')} is when you spend most.`,
   };
-  return withAI('narrative', hash('narr', user.id, ctx), base, async () => {
+  // Re-written only when the user's data changes (new/removed payments, re-categorisation).
+  return withAI('narrative', hash('narr-v2', user.id, dataFingerprint(user.id)), base, async () => {
     const r = await askJSON(`Write the top-of-dashboard briefing for this Paytm user from their aggregated data.
 
 Data: ${J(ctx)}
@@ -95,7 +107,7 @@ Return JSON:
  "observations": ["3 sharp, specific observations a friend would notice (patterns, times, merchants)"],
  "personality": "1 sentence describing their spending personality kindly"}`, { effort: 'low', maxTokens: 2500 });
     return { headline: str(r.headline, base.headline), summary: str(r.summary, base.summary), observations: arr(r.observations, base.observations).slice(0, 4), personality: str(r.personality, base.personality) };
-  });
+  }, { ttl: Infinity });
 }
 
 export async function askMoney(user, A, recs, profile, question) {
