@@ -1,0 +1,14 @@
+{
+  "name": "spend-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI spending analytics with behaviour-based offers and partner APIs",
+  "packageManager": "pnpm@11.22.0",
+  "engines": { "node": ">=24", "pnpm": ">=10" },
+  "scripts": {
+    "dev": "pnpm --parallel --filter ./server --filter ./client dev",
+    "build": "pnpm --filter ./client build",
+    "start": "pnpm --filter ./server start",
+    "seed": "pnpm --filter ./server seed"
+  }
+}
