@@ -9,7 +9,7 @@ export default function Ring({ segments, className = '', children, onSelect, int
   const total = segments.reduce((a, s) => a + s.amount, 0);
   return (
     <div className={`absolute inset-0 grid place-items-center p-6 sm:p-10 ${className}`} style={{ containerType: 'size' }}>
-      <div style={{ width: 'min(100cqw, 100cqh, 520px)' }}>
+      <div style={{ width: 'min(100cqw, 100cqh, 580px)' }}>
         <OrbitDial segments={segments} total={total} onSelect={onSelect} interactive={interactive}>{children}</OrbitDial>
       </div>
     </div>

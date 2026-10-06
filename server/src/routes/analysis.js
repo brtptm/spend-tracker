@@ -11,6 +11,15 @@ const r = Router();
 r.use(requireAuth);
 const r0 = Math.round;
 
+// Same-length window immediately before the selected one, for "vs previous" context.
+function previousPeriod(txns, S) {
+  const start = new Date(S.start), end = new Date(S.end), len = end - start;
+  const R = { start: new Date(start - len), end: new Date(start - 1), monthsEq: len / (30.44 * 864e5) };
+  const P = summarize(txns, R);
+  const change = P.totalSpending ? Math.round(((S.totalSpending - P.totalSpending) / P.totalSpending) * 100) : null;
+  return { totalSpending: P.totalSpending, change, byCategory: Object.fromEntries(P.byCategory.map((c) => [c.id, c.amount])) };
+}
+
 r.get('/dashboard', (req, res) => {
   const ctx = context(req.user, { period: req.query.period });
   syncAlerts(ctx);
@@ -19,6 +28,7 @@ r.get('/dashboard', (req, res) => {
   res.json({
     user: publicUser(ctx.user),
     summary: ctx.A.summary,
+    previous: previousPeriod(ctx.txns, ctx.A.summary),
     series,
     insights: ctx.insights.slice(0, 5),
     offers: ctx.offers.top,

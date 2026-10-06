@@ -9,6 +9,21 @@ import { Ticker, Bar, Spinner, ErrorNote, PeriodPicker, Skeleton, SourceTag, Cat
 import { InsightCard, MiniLink, OfferCarousel } from '../components/cards.jsx';
 import { MonthlyStack } from '../components/charts.jsx';
 import Ring from '../components/three/Ring.jsx';
+import BrandLogo from '../components/BrandLogo.jsx';
+
+/** Spending change: up is amber (spending more), down is green (spending less). */
+function Delta({ change, pill, suffix = '' }) {
+  if (change == null) return null;
+  const up = change > 0, flat = Math.abs(change) < 1;
+  const color = flat ? 'var(--ink-3)' : up ? 'var(--warning)' : 'var(--positive)';
+  // Past +100%, a multiplier reads faster than a big percentage ("2.3×", not "+128%").
+  const mult = (1 + change / 100);
+  const amount = change >= 100 ? `${mult >= 10 ? Math.round(mult) : mult.toFixed(1)}×` : `${Math.abs(change)}%`;
+  const txt = `${flat ? '' : up ? '↑ ' : '↓ '}${amount}${suffix}`;
+  return pill
+    ? <span className="inline-flex items-center rounded-full px-2.5 py-1 text-[12px] font-medium" style={{ color, background: `color-mix(in srgb, ${color} 12%, transparent)` }}>{txt}</span>
+    : <span className="text-[11.5px] font-medium tabular-nums" style={{ color }}>{txt}</span>;
+}
 
 function greeting() { const h = new Date().getHours(); return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'; }
 
@@ -51,6 +66,7 @@ export default function Dashboard() {
   if (isLoading && !data) return <Spinner label="Loading your overview" />;
   if (error && !data) return <ErrorNote error={error} onRetry={refetch} />;
   const s = data.summary;
+  const prev = data.previous;
   const segments = s.byCategory.map((c) => ({ id: c.id, name: c.name, color: c.color, amount: c.amount }));
   const sv = data.savingsPotential;
   const mo = data.series.months;
@@ -70,32 +86,51 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <section className="panel !p-0 overflow-hidden grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:h-[clamp(500px,calc(100dvh-296px),780px)]" aria-label="Where your money went">
+      <section className="panel !p-0 overflow-hidden grid lg:grid-cols-2 lg:h-[clamp(520px,calc(100dvh-296px),720px)]" aria-label="Where your money went">
         <div className="relative isolate min-h-[350px] sm:min-h-[440px] border-b lg:border-b-0 lg:border-r border-line">
           <Ring segments={segments} onSelect={(id) => id && nav(`/category/${id}`)} className="-z-10">
             <div className="text-center">
               <div className="eyebrow">Spent · {s.label.toLowerCase()}</div>
-              <div className="num text-[2.6rem] sm:text-[3rem] mt-1 leading-none"><Ticker value={s.totalSpending} /></div>
-              <div className="text-xs text-ink-3 mt-2">{plural(s.transactionCount, 'payment')}</div>
+              <div className="num text-[2.6rem] sm:text-[3.1rem] mt-1 leading-none"><Ticker value={s.totalSpending} /></div>
+              {prev?.change != null && <div className="mt-3 flex justify-center"><Delta change={prev.change} pill suffix={` vs previous ${s.period === 'month' || s.period === 'last_month' ? 'period' : s.label.replace(/^Last /, '')}`} /></div>}
+              <div className="text-[11px] text-ink-3 mt-2">{plural(s.transactionCount, 'payment')}</div>
             </div>
           </Ring>
         </div>
         <div className="p-6 sm:p-7 flex flex-col min-h-0">
-          <div className="flex items-center justify-between"><h2 className="text-lg">Categories</h2><span className="text-xs text-ink-3">Tap to explore</span></div>
-          <ul className="mt-3 lg:flex-1 lg:min-h-0 flex flex-col lg:justify-around">
-            {s.byCategory.map((c) => (
-              <li key={c.id}>
-                <Link to={`/category/${c.id}`} className="flex items-center gap-3.5 py-2.5 lg:py-2 -mx-2 px-2 rounded-xl hover:bg-surface-2/70 transition-colors group">
-                  <CategoryIcon id={c.id} color={c.color} size={15} />
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-baseline justify-between gap-3"><span className="font-medium truncate">{c.name}</span><span className="num text-[15px]">{inr(c.amount)}</span></div>
-                    <div className="mt-1.5 flex items-center gap-3"><div className="flex-1"><Bar value={c.percentage} max={s.byCategory[0].percentage} color={c.color} height={3} label={`${c.name} share`} /></div><span className="text-[11px] text-ink-3 w-8 text-right">{c.percentage}%</span></div>
-                  </div>
-                  <FiChevronRight className="text-ink-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </Link>
-              </li>
-            ))}
+          <div className="flex items-center justify-between"><h2 className="text-lg">Categories</h2><span className="text-xs text-ink-3">vs previous period</span></div>
+          <ul className="mt-2 flex flex-col">
+            {s.byCategory.filter((c) => c.amount > 0).map((c) => {
+              const before = prev?.byCategory?.[c.id] || 0;
+              const ch = before ? Math.round(((c.amount - before) / before) * 100) : null;
+              return (
+                <li key={c.id}>
+                  <Link to={`/category/${c.id}`} className="flex items-center gap-3.5 py-2 -mx-2 px-2 rounded-xl hover:bg-surface-2 transition-colors group">
+                    <CategoryIcon id={c.id} color={c.color} size={14} />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-baseline gap-3"><span className="font-medium truncate flex-1">{c.name}</span>{ch != null ? <Delta change={ch} /> : <span className="text-[11px] text-ink-3">new</span>}<span className="num text-[15px] w-[5.2rem] text-right">{inr(c.amount)}</span></div>
+                      <div className="mt-1.5"><Bar value={c.amount} max={s.byCategory[0].amount} color={c.color} height={4} label={`${c.name}: ${c.percentage}% of spend`} /></div>
+                    </div>
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
+          {s.byMerchant?.length > 0 && (
+            <div className="mt-auto pt-5 border-t border-line hidden lg:block">
+              <div className="flex items-center justify-between"><span className="eyebrow">Where it went</span><MiniLink to="/transactions">All payments</MiniLink></div>
+              <ul className="mt-3 grid grid-cols-4 gap-2">
+                {s.byMerchant.slice(0, 4).map((m) => (
+                  <li key={m.id || m.name}>
+                    <Link to={`/merchant/${m.id || encodeURIComponent(m.name)}`} className="flex flex-col items-start gap-2 rounded-xl p-2.5 -m-0.5 hover:bg-surface-2 transition-colors">
+                      <BrandLogo id={m.id} name={m.name} category={m.category} size={30} />
+                      <div className="min-w-0 w-full"><div className="text-[12px] text-ink-2 truncate">{m.name}</div><div className="num text-[14px]">{inrShort(m.amount)}</div></div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       </section>
 

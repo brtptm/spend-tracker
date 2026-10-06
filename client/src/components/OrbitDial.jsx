@@ -49,8 +49,7 @@ export default function OrbitDial({ segments, total, label = 'Spent', sub, onSel
 
         {/* Faint orbits + two slow satellites (the only ambient motion). */}
         <circle cx={C} cy={C} r={R} fill="none" stroke="var(--fg)" strokeOpacity=".06" strokeWidth={12} />
-        <circle cx={C} cy={C} r={194} fill="none" stroke="var(--fg)" strokeOpacity=".07" strokeDasharray="1 6" />
-        <g className="dial-orbit" style={{ transformOrigin: '300px 300px', animationDuration: '80s' }}><circle cx={C} cy={C - 194} r={2.2} fill="var(--fg)" fillOpacity=".8" /></g>
+
 
         {/* Category arcs */}
         {segs.map((s) => {
