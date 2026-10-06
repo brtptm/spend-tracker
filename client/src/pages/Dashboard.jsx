@@ -23,7 +23,7 @@ function Delta({ change, pill, suffix = '' }) {
   const amount = change >= 100 ? `${mult >= 10 ? Math.round(mult) : mult.toFixed(1)}×` : `${Math.abs(change)}%`;
   const txt = `${flat ? '' : up ? '↑ ' : '↓ '}${amount}${suffix}`;
   return pill
-    ? <span className="inline-flex items-center rounded-full px-2.5 py-1 text-[12px] font-medium" style={{ color, background: `color-mix(in srgb, ${color} 12%, transparent)` }}>{txt}</span>
+    ? <span className="tag inline-flex items-center rounded-full px-2.5 py-1 text-[12px] font-medium" style={{ color, background: `color-mix(in srgb, ${color} 12%, transparent)` }}>{txt}</span>
     : <span className="text-[11.5px] font-medium tabular-nums" style={{ color }}>{txt}</span>;
 }
 

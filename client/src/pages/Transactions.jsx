@@ -107,7 +107,7 @@ export default function Transactions() {
                   <span className="text-[13px] text-ink-3">{inr(items.filter((t) => t.status === 'completed').reduce((a, t) => a + t.amount, 0))}</span>
                 </div>
               )}
-              <ul className="panel !rounded-[18px] divide-y divide-line overflow-visible">
+              <ul className="panel no-marks rounded-[18px] divide-y divide-line overflow-visible">
                 {items.map((t) => (
                   <li key={t.transactionId} className="pl-4 pr-2 py-3 flex items-center gap-3.5 group">
                     <BrandLogo id={t.merchantId} name={t.merchantName} category={t.categoryAssigned} size={38} />

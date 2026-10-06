@@ -23,17 +23,7 @@ const NAV = [
   { to: '/settings', label: 'Settings', icon: PiGearSixLight },
 ];
 
-/** Dark theme only: a quiet cockpit readout — status light and local time, ticking once a second. */
-function ShipStatus() {
-  const [now, setNow] = useState(() => new Date());
-  useEffect(() => { const t = setInterval(() => setNow(new Date()), 1000); return () => clearInterval(t); }, []);
-  return (
-    <div className="hud-only mb-5 gap-1.5 font-mono text-[10px] uppercase tracking-[.16em] text-ink-3" aria-hidden="true">
-      <div className="flex items-center gap-2"><span className="status-led" /> Systems nominal</div>
-      <div className="flex justify-between"><span>Local</span><span className="text-ink-2 tabular-nums">{now.toLocaleTimeString('en-GB')}</span></div>
-    </div>
-  );
-}
+const initials = (name = '') => name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join('') || '·';
 
 export function useSignOut() {
   const qc = useQueryClient(); const nav = useNavigate();
@@ -121,19 +111,21 @@ export default function Shell() {
     <div className="ledger min-h-dvh lg:grid lg:grid-cols-[252px_1fr]">
       {/* Floating sidebar: the outer aside holds the sticky slot, the inner panel is the glass card (same surface as the page's cards). */}
       <aside className="hidden lg:block sticky top-0 h-dvh py-3 pl-3">
-        <div className="panel !rounded-[20px] h-full flex flex-col gap-7 px-3 py-6">
+        <div className="panel no-marks rounded-[20px] h-full flex flex-col gap-7 px-3 py-6">
         <Link to="/dashboard" className="px-3"><Logo /></Link>
-        <button onClick={() => setAsk(true)} className="mx-1 flex items-center gap-2.5 rounded-xl px-3 py-2 text-[13.5px] text-ink-2 bg-surface-2 hover:text-ink transition-colors">
+        <button onClick={() => setAsk(true)} className="ctl mx-1 flex items-center gap-2.5 rounded-xl px-3 py-2 text-[13.5px] text-ink-2 bg-surface-2 hover:text-ink transition-colors">
           <PiSparkleLight size={17} /> Ask your money <kbd className="ml-auto text-[10px] text-ink-3 font-sans">AI</kbd>
         </button>
         <nav aria-label="Main" className="flex flex-col gap-px">{items.map((n, i) => link(n, 'console-link flex items-center gap-3 px-3 py-2 rounded-[10px] text-[13.5px] transition-colors', i))}</nav>
-        <div className="mt-auto px-2">
-          <ShipStatus />
-          {me?.user && <div className="text-sm"><div className="font-semibold">{me.user.name}</div><div className="text-ink-3 text-xs">{me.user.city || me.user.email}</div></div>}
-          <div className="mt-3 flex items-center justify-between">
-            <button onClick={signOut} className="flex items-center gap-2 text-sm text-ink-3 hover:text-ink"><FiLogOut /> Sign out</button>
-            <ThemeToggle />
+        {/* Account row: who's signed in, plus the two account actions, on one line. */}
+        <div className="mt-auto -mx-3 -mb-6 px-3 py-3.5 border-t border-line flex items-center gap-2">
+          <span className="account-avatar shrink-0 w-8 h-8 rounded-full grid place-items-center text-[12px] font-semibold bg-surface-3 text-ink" aria-hidden="true">{initials(me?.user?.name)}</span>
+          <div className="min-w-0 flex-1 leading-tight pl-0.5">
+            <div className="text-[13.5px] font-semibold truncate">{me?.user?.name || 'Signed in'}</div>
+            {(me?.user?.city || me?.user?.email) && <div className="text-ink-3 text-xs truncate mt-0.5">{me.user.city || me.user.email}</div>}
           </div>
+          <ThemeToggle className="ctl !w-[30px] !h-[30px] shrink-0" />
+          <button onClick={signOut} className="ctl shrink-0 w-[30px] h-[30px] grid place-items-center rounded-full bg-surface-2 hover:bg-surface-3 text-ink-2 hover:text-ink transition-colors" aria-label="Sign out" title="Sign out"><FiLogOut size={15} /></button>
         </div>
         </div>
       </aside>
