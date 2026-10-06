@@ -10,6 +10,7 @@ import { db } from './db.js';
 import { requireAuth, publicUser } from './lib/auth.js';
 import { aiStatus } from './ai/index.js';
 import { probeAgentSdk } from './ai/claude.js';
+import { initServerModel, serverModelStatus } from './ai/serverModel.js';
 import { ensureDemoUsers } from './seed.js';
 import auth from './routes/auth.js';
 import spending from './routes/spending.js';
@@ -42,7 +43,7 @@ app.use(express.json({ limit: '6mb' }));
 app.use('/api', rateLimit({ windowMs: 15 * 60 * 1000, limit: 1500, standardHeaders: 'draft-8', legacyHeaders: false }));
 app.use(['/api/analysis/ask', '/api/spending/import', '/api/auth/paytm', '/api/portal/login'], rateLimit({ windowMs: 60 * 1000, limit: 20, message: { error: 'Too many requests. Wait a minute and try again.' } }));
 
-app.get('/api/health', (_req, res) => res.json({ ok: true, ai: aiStatus() }));
+app.get('/api/health', (_req, res) => res.json({ ok: true, ai: aiStatus(), serverModel: serverModelStatus() }));
 app.get('/api/me', requireAuth, (req, res) => {
   const n = db.prepare('SELECT COUNT(*) n FROM transactions WHERE user_id = ?').get(req.user.id).n;
   res.json({ user: publicUser(req.user), hasData: n > 0, transactions: n });
@@ -71,10 +72,12 @@ app.use((err, _req, res, _next) => {
 });
 
 await ensureDemoUsers();
+const sm = await initServerModel();
 const describe = (ai) => (ai.provider === 'api' ? `Claude API (${ai.model})` : ai.provider === 'agent-sdk' ? `Claude Agent SDK via local Claude Code login (${ai.model})` : 'built-in engine (set ANTHROPIC_API_KEY, or sign in to Claude Code, to enable Claude)');
 app.listen(PORT, () => {
   console.log(`◎ Spend Tracker API on http://localhost:${PORT}`);
   console.log(`  AI: ${describe(aiStatus())}`);
+  console.log(`  Server model: ${sm.ready ? `${sm.model} (in-process, loads on first use)` : 'not installed — run `pnpm --filter ./server model:pull` to enable the offline fallback'}`);
   console.log(`  Partner API: http://localhost:${PORT}/v1 · docs /docs · portal /portal`);
 });
 if (aiStatus().provider === 'engine') probeAgentSdk().then((ai) => ai.enabled && console.log(`  AI: ${describe(ai)}`));

@@ -142,7 +142,7 @@ r.post('/ask', async (req, res) => {
   // engine_only: the user chose "Prefer on-device" — never send their summary to Claude.
   if (req.body?.engine_only === true) return res.json({ source: 'engine', data: { answer: 'The on-device model couldn’t answer this one, and you’ve chosen not to send your data to Claude. Your dashboard and the category deep dives have the full breakdown.', followUps: ['Where do I overspend?', 'How much do I spend on food delivery?', 'Which subscriptions should I cancel?'] } });
   const ctx = context(req.user);
-  res.json(await askMoney(ctx.user, ctx.A, ctx.recs, ctx.profile, q));
+  res.json(await askMoney(ctx.user, ctx.A, ctx.recs, ctx.profile, q, ctx.insights));
 });
 
 export default r;

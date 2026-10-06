@@ -4,3 +4,4 @@ dist
 server/data/*.db*
 server/data/.jwt-secret
 .DS_Store
+server/data/models/

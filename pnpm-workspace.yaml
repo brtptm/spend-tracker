@@ -1,3 +1,5 @@
 packages:
   - server
   - client
+allowBuilds:
+  node-llama-cpp: true   # native llama.cpp binaries for the in-process server model

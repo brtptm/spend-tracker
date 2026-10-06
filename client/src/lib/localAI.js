@@ -102,7 +102,8 @@ export const usable = () => state.enabled && state.supported === true && state.s
 export const prefersLocal = () => usable() && state.prefer;
 /** The user's privacy choice, independent of whether the model works right now: if true, never call Claude. */
 export const wantsPrivate = () => state.enabled && state.prefer;
-export const shouldUseLocal = (serverSource) => usable() && (state.prefer || serverSource !== 'claude');
+// The browser model only steps in when the server had no model at all (engine text), or the user prefers on-device.
+export const shouldUseLocal = (serverSource) => usable() && (state.prefer || serverSource === 'engine' || serverSource == null);
 
 // ── Grounding: every money-like number the model writes must come from its input ──
 const NUM = /₹\s?\d[\d,]*(?:\.\d+)?|\b\d{1,3}(?:,\d{2,3})+(?:\.\d+)?\b|\b\d{3,}(?:\.\d+)?\b/g;

@@ -4,6 +4,8 @@
 import crypto from 'node:crypto';
 import { db, json } from '../db.js';
 import { askJSON, aiStatus, SYSTEM } from './claude.js';
+import { serverModelJSON, serverModelStatus } from './serverModel.js';
+import { checkSmallModelOutput } from './grounding.js';
 import { CATEGORIES, CATEGORY } from '../data/catalog.js';
 
 export { aiStatus };
@@ -32,22 +34,41 @@ export function dataFingerprint(userId) {
 const cacheSet = (key, value) => db.prepare("INSERT INTO ai_cache (key, value, created_at) VALUES (?, ?, datetime('now')) ON CONFLICT(key) DO UPDATE SET value = excluded.value, created_at = excluded.created_at").run(key, json.str(value));
 
 const inflight = new Map();
-async function withAI(label, key, base, fn, { ttl } = {}) {
-  if (!aiStatus().enabled) return { data: base, source: 'engine' };
-  const hit = key && cacheGet(key, ttl);
-  if (hit) return { data: hit.value, source: 'claude', cached: true, generatedAt: hit.at };
-  if (inflight.has(key)) return inflight.get(key);
+/**
+ * Provider chain for one AI task: Claude (API or local login) → in-process server model (if this task has a
+ * small-model prompt) → engine. Results are cached per provider, so Claude output replaces a small-model
+ * draft once Claude is back. `small` returns the promptFor() prompt for the small-model path.
+ */
+async function withAI(label, key, base, fn, { ttl, small } = {}) {
+  const claude = aiStatus().enabled;
+  const local = !!small && serverModelStatus().ready;
+  if (!claude && !local) return { data: base, source: 'engine' };
+  const provider = claude ? 'claude' : 'server-model';
+  const pkey = key && (provider === 'claude' ? key : `${key}:server-model`);
+  const hit = pkey && cacheGet(pkey, ttl);
+  if (hit) return { data: hit.value, source: provider, model: provider === 'server-model' ? serverModelStatus().model : undefined, cached: true, generatedAt: hit.at };
+  if (inflight.has(pkey)) return inflight.get(pkey);
+  const runSmall = async () => {
+    const prompt = small();
+    const data = checkSmallModelOutput(prompt, await serverModelJSON(prompt));
+    if (key) cacheSet(`${key}:server-model`, data);
+    return { data, source: 'server-model', model: serverModelStatus().model, generatedAt: new Date().toISOString() };
+  };
   const p = (async () => {
     try {
+      if (provider === 'server-model') return await runSmall();
       const data = await fn();
       if (key) cacheSet(key, data);
       return { data, source: 'claude', generatedAt: new Date().toISOString() };
     } catch (err) {
-      console.warn(`[ai] ${label} fell back to engine: ${err.message.split('\n')[0]}`);
+      console.warn(`[ai] ${label}: ${provider} failed (${err.message.split('\n')[0]})`);
+      if (provider === 'claude' && local) {
+        try { return await runSmall(); } catch (e2) { console.warn(`[ai] ${label}: server model failed too (${e2.message})`); }
+      }
       return { data: base, source: 'engine' };
-    } finally { inflight.delete(key); }
+    } finally { inflight.delete(pkey); }
   })();
-  if (key) inflight.set(key, p);
+  if (pkey) inflight.set(pkey, p);
   return p;
 }
 
@@ -151,14 +172,14 @@ export async function aiNarrative(user, A, recs, profile, baseInsights) {
   return withAI('narrative', hash('narr-v2', user.id, dataFingerprint(user.id)), base, async () => {
     const r = await askJSON(briefingTask(ctx), { effort: 'low', maxTokens: 2500 });
     return { headline: str(r.headline, base.headline), summary: str(r.summary, base.summary), observations: arr(r.observations, base.observations).slice(0, 4), personality: str(r.personality, base.personality) };
-  }, { ttl: Infinity });
+  }, { ttl: Infinity, small: () => promptFor('briefing', { user, A, recs, profile, insights: baseInsights }) });
 }
 
-export async function askMoney(user, A, recs, profile, question) {
+export async function askMoney(user, A, recs, profile, question, insights) {
   const ctx = contextFor(user, A, recs, profile);
   const base = ASK_BASE;
   return withAI('ask', hash('ask', user.id, ctx, question), base, async () => {
     const r = await askJSON(askTask(ctx, question), { effort: 'low', maxTokens: 1500 });
     return { answer: str(r.answer, base.answer), followUps: arr(r.followUps, base.followUps).slice(0, 3) };
-  });
+  }, { small: () => promptFor('ask', { user, A, recs, profile, insights, question }) });
 }
