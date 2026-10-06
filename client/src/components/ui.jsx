@@ -14,7 +14,7 @@ export function Logo({ size = 26, text = true }) {
         <circle cx="16" cy="16" r="11" fill="none" stroke="var(--surface-3)" strokeWidth="4" />
         <path d="M16 5a11 11 0 0 1 10.46 14.4" fill="none" stroke="var(--ink)" strokeWidth="4" strokeLinecap="round" />
       </svg>
-      {text && <span className="font-semibold text-[1.02rem] tracking-[-0.02em]">Spend Tracker</span>}
+      {text && <span className="wordmark font-semibold text-[1.02rem] tracking-[-0.02em]">Spend Tracker</span>}
     </span>
   );
 }
