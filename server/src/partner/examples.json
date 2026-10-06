@@ -1,0 +1,897 @@
+{
+  "send-event": {
+    "object": "ingest_result",
+    "ingest_id": "ing_9elXmrD3e8eyVYq8gq",
+    "id": "PTM-20261006-000184",
+    "status": "accepted",
+    "transaction": {
+      "transaction_id": "f8f2cc1d-9815-4663-80e5-7e4fa50ea57a",
+      "user": {
+        "phone": "••••••0009",
+        "created": true
+      },
+      "merchant": "Swiggy",
+      "category": "food",
+      "subcategory": "food_delivery",
+      "confidence": 0.97,
+      "categorised_by": "rule"
+    }
+  },
+  "send-batch": {
+    "object": "batch_result",
+    "batch_id": "ing_OS3JZgRVN7ekxXBt6C",
+    "received": 4,
+    "accepted": 2,
+    "updated": 0,
+    "duplicates": 0,
+    "filtered": 1,
+    "rejected": 1,
+    "users_created": 0,
+    "results": [
+      {
+        "id": "PTM-000185",
+        "status": "accepted",
+        "transaction": {
+          "transaction_id": "5d35cd44-79c4-4c49-9372-b3280ce3a757",
+          "user": {
+            "phone": "••••••0009",
+            "created": false
+          },
+          "merchant": "Zomato",
+          "category": "food",
+          "subcategory": "food_delivery",
+          "confidence": 0.97,
+          "categorised_by": "rule"
+        }
+      },
+      {
+        "id": "PTM-000186",
+        "status": "accepted",
+        "transaction": {
+          "transaction_id": "60dabe45-e095-4ccc-bf34-252b88579ffa",
+          "user": {
+            "phone": "••••••0009",
+            "created": false
+          },
+          "merchant": "Raj Electronics",
+          "category": "shopping",
+          "subcategory": "electronics",
+          "confidence": 0.93,
+          "categorised_by": "mcc"
+        }
+      },
+      {
+        "id": "PTM-000187",
+        "status": "filtered",
+        "code": "credit_ignored",
+        "message": "Money received is not spending, so it is not stored."
+      }
+    ]
+  },
+  "list-ingest-logs": {
+    "object": "list",
+    "data": [
+      {
+        "object": "ingest_log",
+        "id": "ing_OS3JZgRVN7ekxXBt6C",
+        "kind": "batch",
+        "received": 4,
+        "accepted": 2,
+        "duplicates": 0,
+        "filtered": 1,
+        "rejected": 1,
+        "duration_ms": 1,
+        "created_at": "2026-10-06T17:19:31Z"
+      },
+      {
+        "object": "ingest_log",
+        "id": "ing_9elXmrD3e8eyVYq8gq",
+        "kind": "event",
+        "received": 1,
+        "accepted": 1,
+        "duplicates": 0,
+        "filtered": 0,
+        "rejected": 0,
+        "duration_ms": 1,
+        "created_at": "2026-10-06T17:19:31Z"
+      },
+      {
+        "object": "ingest_log",
+        "id": "ing_zzcMmOqLQUuEf1QEp1",
+        "kind": "simulated",
+        "received": 37,
+        "accepted": 30,
+        "duplicates": 2,
+        "filtered": 5,
+        "rejected": 0,
+        "duration_ms": 2,
+        "created_at": "2026-10-05T13:55:31Z"
+      }
+    ]
+  },
+  "get-ingest-log": {
+    "object": "ingest_log",
+    "id": "ing_OS3JZgRVN7ekxXBt6C",
+    "kind": "batch",
+    "created_at": "2026-10-06T17:19:31Z",
+    "duration_ms": 1,
+    "received": 4,
+    "accepted": 2,
+    "updated": 0,
+    "duplicates": 0,
+    "filtered": 1,
+    "rejected": 1,
+    "users_created": 0,
+    "results": [
+      {
+        "id": "PTM-000185-1791307171198-0",
+        "status": "accepted",
+        "transaction": {
+          "transaction_id": "5d35cd44-79c4-4c49-9372-b3280ce3a757",
+          "user": {
+            "phone": "••••••0009",
+            "created": false
+          },
+          "merchant": "Zomato",
+          "category": "food",
+          "subcategory": "food_delivery",
+          "confidence": 0.97,
+          "categorised_by": "rule"
+        }
+      },
+      {
+        "id": "PTM-000186-1791307171198-1",
+        "status": "accepted",
+        "transaction": {
+          "transaction_id": "60dabe45-e095-4ccc-bf34-252b88579ffa",
+          "user": {
+            "phone": "••••••0009",
+            "created": false
+          },
+          "merchant": "Raj Electronics",
+          "category": "shopping",
+          "subcategory": "electronics",
+          "confidence": 0.93,
+          "categorised_by": "mcc"
+        }
+      },
+      {
+        "id": "PTM-000187-1791307171198-2",
+        "status": "filtered",
+        "code": "credit_ignored",
+        "message": "Money received is not spending, so it is not stored."
+      }
+    ]
+  },
+  "get-user": {
+    "object": "user",
+    "phone": "9876500001",
+    "name": "Rohan Verma",
+    "city": "Bengaluru",
+    "source": "app",
+    "consent": {
+      "share_insights": true,
+      "ad_personalization": true
+    },
+    "transactions": 1877,
+    "first_payment_at": "2025-11-01T04:57:25.000Z",
+    "last_payment_at": "2026-10-06T07:13:33.000Z",
+    "created_at": "2026-10-06T12:42:21Z",
+    "upi_ids": [
+      {
+        "vpa": "rohan.v@paytm",
+        "payments": 1136,
+        "first_seen": "2026-02-27T21:21:03.800Z",
+        "last_seen": "2026-10-06T16:06:19.037Z"
+      },
+      {
+        "vpa": "rohanverma@okhdfcbank",
+        "payments": 695,
+        "first_seen": "2025-11-18T03:52:13.400Z",
+        "last_seen": "2026-05-06T17:00:17.400Z"
+      }
+    ]
+  },
+  "get-summary": {
+    "object": "summary",
+    "phone": "9876500001",
+    "currency": "INR",
+    "window": {
+      "period": "month",
+      "label": "This month",
+      "from": "2026-09-30T18:30:00.000Z",
+      "to": "2026-10-06T17:19:31.219Z",
+      "days": 6
+    },
+    "total_spent": 54423,
+    "transactions": 31,
+    "failed_transactions": 1,
+    "average_daily": 9145,
+    "average_ticket": 1756,
+    "monthly_equivalent": 278377,
+    "previous_window": {
+      "total_spent": 12810,
+      "change": 3.248
+    },
+    "top_category": "shopping",
+    "categories": [
+      {
+        "category": "shopping",
+        "name": "Shopping",
+        "amount": 39450,
+        "share": 0.72,
+        "transactions": 2,
+        "change_vs_previous": 38.688
+      },
+      {
+        "category": "entertainment",
+        "name": "Entertainment",
+        "amount": 4715,
+        "share": 0.09,
+        "transactions": 3,
+        "change_vs_previous": 2.382
+      },
+      {
+        "category": "food",
+        "name": "Food & Dining",
+        "amount": 4388,
+        "share": 0.08,
+        "transactions": 14,
+        "change_vs_previous": -0.201
+      }
+    ],
+    "top_merchants": [
+      {
+        "name": "Croma",
+        "merchant_id": "croma",
+        "amount": 38990,
+        "transactions": 1
+      },
+      {
+        "name": "cult.fit",
+        "merchant_id": "cultfit",
+        "amount": 2400,
+        "transactions": 1
+      },
+      {
+        "name": "Uber",
+        "merchant_id": "uber",
+        "amount": 1954,
+        "transactions": 6
+      }
+    ]
+  },
+  "get-categories": {
+    "object": "category_breakdown",
+    "phone": "9876500001",
+    "currency": "INR",
+    "window": {
+      "period": "3m",
+      "label": "Last 3 months",
+      "from": "2026-07-05T18:30:00.000Z",
+      "to": "2026-10-06T17:19:31.228Z",
+      "days": 93
+    },
+    "total_spent": 223583,
+    "categories": [
+      {
+        "category": "food",
+        "name": "Food & Dining",
+        "amount": 77342,
+        "share": 0.35,
+        "transactions": 283,
+        "change_vs_previous": -0.064,
+        "subcategories": [
+          {
+            "subcategory": "food_delivery",
+            "name": "Food delivery",
+            "amount": 53763,
+            "transactions": 233
+          },
+          {
+            "subcategory": "restaurants",
+            "name": "Restaurants",
+            "amount": 12585,
+            "transactions": 17
+          },
+          {
+            "subcategory": "coffee",
+            "name": "Coffee shops",
+            "amount": 6383,
+            "transactions": 18
+          }
+        ]
+      },
+      {
+        "category": "shopping",
+        "name": "Shopping",
+        "amount": 57541,
+        "share": 0.26,
+        "transactions": 10,
+        "change_vs_previous": 0.761,
+        "subcategories": [
+          {
+            "subcategory": "electronics",
+            "name": "Electronics",
+            "amount": 38990,
+            "transactions": 1
+          },
+          {
+            "subcategory": "marketplace",
+            "name": "Marketplace",
+            "amount": 16322,
+            "transactions": 7
+          },
+          {
+            "subcategory": "beauty",
+            "name": "Beauty & care",
+            "amount": 1235,
+            "transactions": 1
+          }
+        ]
+      },
+      {
+        "category": "transport",
+        "name": "Travel & Transport",
+        "amount": 27599,
+        "share": 0.12,
+        "transactions": 142,
+        "change_vs_previous": 0.12,
+        "subcategories": [
+          {
+            "subcategory": "cabs",
+            "name": "Cabs & autos",
+            "amount": 25887,
+            "transactions": 104
+          },
+          {
+            "subcategory": "metro",
+            "name": "Metro",
+            "amount": 1712,
+            "transactions": 38
+          }
+        ]
+      }
+    ]
+  },
+  "get-merchants": {
+    "object": "merchant_list",
+    "phone": "9876500001",
+    "currency": "INR",
+    "window": {
+      "period": "3m",
+      "label": "Last 3 months",
+      "from": "2026-07-05T18:30:00.000Z",
+      "to": "2026-10-06T17:19:31.236Z",
+      "days": 93
+    },
+    "data": [
+      {
+        "name": "Croma",
+        "merchant_id": "croma",
+        "is_known_app": true,
+        "category": "shopping",
+        "subcategory": "electronics",
+        "amount": 38990,
+        "transactions": 1,
+        "average_ticket": 38990,
+        "share_of_spend": 0.196,
+        "share_of_subcategory": 1,
+        "first_payment_at": "2026-10-02T19:42:00.000Z",
+        "last_payment_at": "2026-10-02T19:42:00.000Z",
+        "frequency_per_month": 0.3
+      },
+      {
+        "name": "Swiggy",
+        "merchant_id": "swiggy",
+        "is_known_app": true,
+        "category": "food",
+        "subcategory": "food_delivery",
+        "amount": 31442,
+        "transactions": 135,
+        "average_ticket": 233,
+        "share_of_spend": 0.158,
+        "share_of_subcategory": 0.585,
+        "first_payment_at": "2026-07-06T14:02:44.000Z",
+        "last_payment_at": "2026-10-06T07:13:33.000Z",
+        "frequency_per_month": 44.2
+      },
+      {
+        "name": "Zomato",
+        "merchant_id": "zomato",
+        "is_known_app": true,
+        "category": "food",
+        "subcategory": "food_delivery",
+        "amount": 22321,
+        "transactions": 98,
+        "average_ticket": 228,
+        "share_of_spend": 0.112,
+        "share_of_subcategory": 0.415,
+        "first_payment_at": "2026-07-07T08:06:28.000Z",
+        "last_payment_at": "2026-10-05T15:01:43.000Z",
+        "frequency_per_month": 32.1
+      }
+    ],
+    "has_more": true
+  },
+  "get-behavior": {
+    "object": "behavior",
+    "phone": "9876500001",
+    "as_of": "2026-10-06T17:19:31.249Z",
+    "basis": "last 3 months of completed payments",
+    "spender_type": "convenience_spender",
+    "spender_label": "Convenience spender",
+    "primary_motivation": "convenience_over_cost",
+    "monthly_spend": 70883,
+    "spend_to_income": 0.44,
+    "top_categories": [
+      "food",
+      "shopping",
+      "transport"
+    ],
+    "preferred_apps": [
+      {
+        "subcategory": "food_delivery",
+        "category": "food",
+        "apps": [
+          {
+            "merchant_id": "swiggy",
+            "name": "Swiggy",
+            "share": 0.58
+          },
+          {
+            "merchant_id": "zomato",
+            "name": "Zomato",
+            "share": 0.42
+          }
+        ],
+        "total": 53763
+      },
+      {
+        "subcategory": "electronics",
+        "category": "shopping",
+        "apps": [
+          {
+            "merchant_id": "croma",
+            "name": "Croma",
+            "share": 1
+          }
+        ],
+        "total": 38990
+      },
+      {
+        "subcategory": "cabs",
+        "category": "transport",
+        "apps": [
+          {
+            "merchant_id": "uber",
+            "name": "Uber",
+            "share": 0.7
+          },
+          {
+            "merchant_id": "ola",
+            "name": "Ola",
+            "share": 0.25
+          },
+          {
+            "merchant_id": "rapido",
+            "name": "Rapido",
+            "share": 0.04
+          }
+        ],
+        "total": 25887
+      }
+    ],
+    "timing": {
+      "peak_hours": [
+        "20:00–21:00",
+        "13:00–14:00"
+      ],
+      "peak_days": [
+        "Sunday",
+        "Tuesday",
+        "Monday"
+      ],
+      "frequency": "daily",
+      "transactions_per_month": 167
+    },
+    "food": {
+      "delivery_orders_per_month": 77,
+      "delivery_share": 68,
+      "top_dish": {
+        "name": "Biryani",
+        "timesPerMonth": 30
+      }
+    },
+    "subscriptions": {
+      "count": 5,
+      "monthly": 4478,
+      "list": [
+        {
+          "name": "cult.fit",
+          "merchant_id": "cultfit",
+          "monthly": 2400,
+          "last_charged_at": "2026-10-05T02:28:33.000Z",
+          "next_charge_estimate": "2026-11-05"
+        },
+        {
+          "name": "Airtel Xstream Fiber",
+          "merchant_id": "airtelfiber",
+          "monthly": 1011,
+          "last_charged_at": "2026-09-05T04:57:55.000Z",
+          "next_charge_estimate": "2026-10-05"
+        },
+        {
+          "name": "Netflix",
+          "merchant_id": "netflix",
+          "monthly": 649,
+          "last_charged_at": "2026-10-03T01:57:52.000Z",
+          "next_charge_estimate": "2026-11-03"
+        }
+      ]
+    },
+    "sensitivity": {
+      "discounts": 0.42,
+      "convenience": 0.95,
+      "price": 0.19
+    },
+    "coupon_usage_rate": 0.07,
+    "brand_loyalty": 0.29,
+    "churn_risk": "low",
+    "predicted": {
+      "will_use_discount": 0.42,
+      "will_reduce_spending": 0.22,
+      "will_try_new_service": 0.69
+    },
+    "upi_ids": [
+      "rohan.v@paytm",
+      "rohanverma@okhdfcbank"
+    ]
+  },
+  "get-report": {
+    "object": "monthly_report",
+    "phone": "9876500001",
+    "month": "2026-09",
+    "currency": "INR",
+    "window": {
+      "period": "month",
+      "label": "September 2026",
+      "from": "2026-08-31T18:30:00.000Z",
+      "to": "2026-09-30T18:29:59.999Z",
+      "days": 30
+    },
+    "complete": true,
+    "total_spent": 72006,
+    "transactions": 171,
+    "failed_transactions": 6,
+    "average_daily": 2400,
+    "previous_month": {
+      "total_spent": 42808,
+      "change": 0.682
+    },
+    "daily": [
+      {
+        "date": "2026-09-01",
+        "amount": 1730
+      },
+      {
+        "date": "2026-09-02",
+        "amount": 238
+      },
+      {
+        "date": "2026-09-03",
+        "amount": 1880
+      }
+    ],
+    "categories": [
+      {
+        "category": "food",
+        "name": "Food & Dining",
+        "amount": 28397,
+        "share": 0.39,
+        "transactions": 104,
+        "change_vs_previous": 0.36
+      },
+      {
+        "category": "p2p",
+        "name": "Peer-to-Peer",
+        "amount": 12686,
+        "share": 0.18,
+        "transactions": 5,
+        "change_vs_previous": 1.699
+      },
+      {
+        "category": "shopping",
+        "name": "Shopping",
+        "amount": 12174,
+        "share": 0.17,
+        "transactions": 4,
+        "change_vs_previous": 40.408
+      }
+    ],
+    "top_merchants": [
+      {
+        "name": "Swiggy",
+        "merchant_id": "swiggy",
+        "amount": 11443,
+        "transactions": 51
+      },
+      {
+        "name": "Zomato",
+        "merchant_id": "zomato",
+        "amount": 9861,
+        "transactions": 39
+      },
+      {
+        "name": "Amazon",
+        "merchant_id": "amazon",
+        "amount": 8283,
+        "transactions": 2
+      }
+    ],
+    "insights": [
+      {
+        "type": "overspending",
+        "severity": "critical",
+        "category": "food",
+        "title": "Food & Dining is 41% above similar users",
+        "detail": "You average ₹25,411/month vs ₹18,000 for people with ₹1.3L+ monthly income. Top: Swiggy (₹10,062), Zomato (₹7,753).",
+        "potential_monthly_saving": 5350
+      },
+      {
+        "type": "pattern",
+        "severity": "warning",
+        "category": "entertainment",
+        "title": "2 overlapping streaming subscriptions",
+        "detail": "Netflix + Disney+ Hotstar cost ₹948/month together.",
+        "potential_monthly_saving": 650
+      },
+      {
+        "type": "anomaly",
+        "severity": "critical",
+        "category": "shopping",
+        "title": "Shopping spending spiked",
+        "detail": "Shopping is up 104% vs your 3-month average (₹12,174 vs ₹5,977).",
+        "potential_monthly_saving": 0
+      }
+    ],
+    "savings_opportunities": [
+      {
+        "id": "food-cook-half",
+        "title": "Cook half of your delivery meals",
+        "category": "food",
+        "monthly_saving": 5350
+      },
+      {
+        "id": "food-meal-prep",
+        "title": "Meal-prep Sundays with 10-minute groceries",
+        "category": "food",
+        "monthly_saving": 3200
+      },
+      {
+        "id": "food-delivery-pass",
+        "title": "Stop paying delivery fees on every order",
+        "category": "food",
+        "monthly_saving": 2500
+      }
+    ]
+  },
+  "list-upi-ids": {
+    "object": "list",
+    "phone": "9876500001",
+    "data": [
+      {
+        "object": "upi_id",
+        "vpa": "rohan.v@paytm",
+        "payments": 1136,
+        "first_seen": "2026-02-27T21:21:03.800Z",
+        "last_seen": "2026-10-06T16:06:19.037Z"
+      },
+      {
+        "object": "upi_id",
+        "vpa": "rohanverma@okhdfcbank",
+        "payments": 695,
+        "first_seen": "2025-11-18T03:52:13.400Z",
+        "last_seen": "2026-05-06T17:00:17.400Z"
+      }
+    ]
+  },
+  "list-transactions": {
+    "object": "list",
+    "phone": "9876500001",
+    "has_more": true,
+    "next_cursor": "eyJ0cyI6IjIwMjYtMTAtMDZUMDU6MDI6MzYuMDAwWiIsImlkIjoiNjEwYjYwYjItNDU4OC00MzFiLTk5OTMtYmYyNGRhMmI1MzJhIn0",
+    "data": [
+      {
+        "object": "transaction",
+        "id": "237f20f9-01ba-4949-b620-d17ce2ae0079",
+        "external_id": null,
+        "timestamp": "2026-10-06T07:13:33.000Z",
+        "amount": 278,
+        "currency": "INR",
+        "status": "success",
+        "merchant": {
+          "name": "Swiggy",
+          "merchant_id": "swiggy"
+        },
+        "category": "food",
+        "subcategory": "food_delivery",
+        "confidence": 0.99,
+        "categorised_by": "rule",
+        "payer_vpa": null,
+        "payee_vpa": null,
+        "mcc": null,
+        "rrn": null,
+        "note": "Chole Bhature delivery"
+      },
+      {
+        "object": "transaction",
+        "id": "610b60b2-4588-431b-9993-bf24da2b532a",
+        "external_id": null,
+        "timestamp": "2026-10-06T05:02:36.000Z",
+        "amount": 460,
+        "currency": "INR",
+        "status": "success",
+        "merchant": {
+          "name": "Amazon",
+          "merchant_id": "amazon"
+        },
+        "category": "shopping",
+        "subcategory": "marketplace",
+        "confidence": 0.99,
+        "categorised_by": "rule",
+        "payer_vpa": null,
+        "payee_vpa": null,
+        "mcc": null,
+        "rrn": null,
+        "note": null
+      }
+    ]
+  },
+  "get-offers": {
+    "object": "list",
+    "phone": "9876500001",
+    "personalization": true,
+    "data": [
+      {
+        "object": "offer",
+        "id": "swiggy-one",
+        "advertiser": "Swiggy One",
+        "title": "Free delivery for 3 months",
+        "category": "food_delivery",
+        "relevance": 0.99,
+        "reason": "76 orders/month ≈ ₹3,434 in fees. You spend ₹10,297/month at Swiggy (45 orders).",
+        "expected_ctr": 0.203
+      },
+      {
+        "object": "offer",
+        "id": "zomato-gold",
+        "advertiser": "Zomato Gold",
+        "title": "Gold: free delivery + 30% off dining",
+        "category": "food_delivery",
+        "relevance": 0.96,
+        "reason": "76 orders/month ≈ ₹3,434 in fees. You spend ₹7,310/month at Zomato (33 orders).",
+        "expected_ctr": 0.2
+      }
+    ]
+  },
+  "list-segments": {
+    "object": "list",
+    "data": [
+      {
+        "object": "segment",
+        "id": "high_food_delivery",
+        "label": "High food-delivery users",
+        "rule": "≥ 25 delivery orders a month"
+      },
+      {
+        "object": "segment",
+        "id": "fashion_shoppers",
+        "label": "Frequent fashion & beauty shoppers",
+        "rule": "≥ ₹2,500 a month on fashion and beauty"
+      },
+      {
+        "object": "segment",
+        "id": "subscription_heavy",
+        "label": "Subscription-heavy users",
+        "rule": "≥ 5 active subscriptions"
+      }
+    ]
+  },
+  "get-segment": {
+    "object": "segment",
+    "id": "high_food_delivery",
+    "label": "High food-delivery users",
+    "rule": "≥ 25 delivery orders a month",
+    "size": 1,
+    "population": 34,
+    "average_monthly_spend": 73220,
+    "top_merchants": [
+      "Croma",
+      "Swiggy",
+      "Zomato"
+    ],
+    "note": "Aggregated over consenting users only. Segments never return individual users."
+  },
+  "list-categories": {
+    "object": "list",
+    "data": [
+      {
+        "object": "category",
+        "id": "food",
+        "name": "Food & Dining",
+        "subcategories": [
+          {
+            "id": "food_delivery",
+            "name": "Food delivery"
+          },
+          {
+            "id": "restaurants",
+            "name": "Restaurants"
+          },
+          {
+            "id": "groceries",
+            "name": "Groceries"
+          }
+        ]
+      },
+      {
+        "object": "category",
+        "id": "shopping",
+        "name": "Shopping",
+        "subcategories": [
+          {
+            "id": "electronics",
+            "name": "Electronics"
+          },
+          {
+            "id": "fashion",
+            "name": "Fashion"
+          },
+          {
+            "id": "home",
+            "name": "Home & kitchen"
+          }
+        ]
+      },
+      {
+        "object": "category",
+        "id": "transport",
+        "name": "Travel & Transport",
+        "subcategories": [
+          {
+            "id": "cabs",
+            "name": "Cabs & autos"
+          },
+          {
+            "id": "flights",
+            "name": "Flights"
+          },
+          {
+            "id": "hotels",
+            "name": "Hotels"
+          }
+        ]
+      }
+    ]
+  },
+  "offer-event": {
+    "object": "offer_event",
+    "offer_id": "swiggy-one",
+    "event": "click",
+    "recorded": true
+  },
+  "update-consent": {
+    "object": "consent",
+    "phone": "9876500001",
+    "share_insights": true,
+    "ad_personalization": true
+  },
+  "delete-user": {
+    "object": "deletion",
+    "phone": "9876500009",
+    "scope": "user",
+    "deleted": true,
+    "transactions_deleted": 3
+  }
+}

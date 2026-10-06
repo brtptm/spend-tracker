@@ -1,3 +1,4 @@
+import './env.js';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -15,7 +16,8 @@ import spending from './routes/spending.js';
 import analysis from './routes/analysis.js';
 import recommendations from './routes/recommendations.js';
 import ads from './routes/ads.js';
-import paytm, { PARTNER_KEY, usingDemoKey } from './routes/paytm.js';
+import v1 from './routes/v1.js';
+import portal from './routes/portal.js';
 import budget from './routes/budget.js';
 import alerts from './routes/alerts.js';
 import exporter from './routes/export.js';
@@ -27,9 +29,11 @@ const PORT = Number(process.env.PORT || 4400);
 app.set('trust proxy', 1);
 app.use(helmet({ contentSecurityPolicy: { directives: { defaultSrc: ["'self'"], styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'], fontSrc: ["'self'", 'https://fonts.gstatic.com'], imgSrc: ["'self'", 'data:', 'blob:'], workerSrc: ["'self'", 'blob:'] } } }));
 app.use(cors({ origin: process.env.CLIENT_ORIGIN?.split(',') || true }));
+// Partner API: own body parsing, auth, per-key limits and error envelope.
+app.use('/v1', cors({ origin: true }), v1);
 app.use(express.json({ limit: '6mb' }));
 app.use('/api', rateLimit({ windowMs: 15 * 60 * 1000, limit: 1500, standardHeaders: 'draft-8', legacyHeaders: false }));
-app.use(['/api/analysis/ask', '/api/spending/import'], rateLimit({ windowMs: 60 * 1000, limit: 20, message: { error: 'Too many requests. Wait a minute and try again.' } }));
+app.use(['/api/analysis/ask', '/api/spending/import', '/api/auth/paytm', '/api/portal/login'], rateLimit({ windowMs: 60 * 1000, limit: 20, message: { error: 'Too many requests. Wait a minute and try again.' } }));
 
 app.get('/api/health', (_req, res) => res.json({ ok: true, ai: aiStatus() }));
 app.get('/api/me', requireAuth, (req, res) => {
@@ -41,7 +45,7 @@ app.use('/api/spending', spending);
 app.use('/api/analysis', analysis);
 app.use('/api/recommendations', recommendations);
 app.use('/api/ads', ads);
-app.use('/api/paytm', rateLimit({ windowMs: 60 * 1000, limit: 300 }), paytm);
+app.use('/api/portal', portal);
 app.use('/api/budget', budget);
 app.use('/api/alerts', alerts);
 app.use('/api', exporter);
@@ -64,6 +68,6 @@ const describe = (ai) => (ai.provider === 'api' ? `Claude API (${ai.model})` : a
 app.listen(PORT, () => {
   console.log(`◎ Spend Tracker API on http://localhost:${PORT}`);
   console.log(`  AI: ${describe(aiStatus())}`);
-  console.log(`  Partner API: ${!PARTNER_KEY ? 'disabled (set PAYTM_API_KEY)' : usingDemoKey ? 'demo key "demo-paytm-partner-key" (development only)' : 'key from PAYTM_API_KEY'}`);
+  console.log(`  Partner API: http://localhost:${PORT}/v1 · docs /docs · portal /portal`);
 });
 if (aiStatus().provider === 'engine') probeAgentSdk().then((ai) => ai.enabled && console.log(`  AI: ${describe(ai)}`));

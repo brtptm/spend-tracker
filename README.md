@@ -1,85 +1,125 @@
 # Spend Tracker
 
-AI-powered spending analytics on Paytm transaction history: see exactly where money goes, get specific ways to keep more, and see only offers that match how you actually spend. Paytm gets consent-gated partner APIs for behaviour-based targeting.
+**UPI payments in, people out.** Partners like Paytm stream UPI payments to one API; Spend Tracker cleans them, drops what isn't spending, categorises every rupee deterministically and keeps a living profile per phone number — readable by the partner (summaries, apps used, behaviour, monthly reports) and by the person themselves in a premium consumer app with Claude-written insights and spend-based offers.
 
-**Stack:** React 19 · Vite 8 · Tailwind 4 · three.js (React Three Fiber) · Motion · Recharts · Node 24 · Express 5 · SQLite (`node:sqlite`) · Claude via the Anthropic SDK or Claude Agent SDK · pnpm workspaces
+**Stack:** React 19 · Vite 8 · Tailwind 4 · Motion · Recharts · Node 24 · Express 5 · SQLite (`node:sqlite`) · Claude via the Anthropic SDK or Claude Agent SDK · pnpm workspaces
+
+```mermaid
+flowchart LR
+  P[Paytm / partner systems] -- "POST /v1/events (webhook, beacon)\nPOST /v1/transactions/batch (≤1,000, idempotent)" --> I
+  subgraph Spend Tracker
+    I[Ingestion pipeline\nvalidate → normalise → identify → de-dupe → filter → categorise] --> DB[(SQLite)]
+    DB --> R[Read API by phone\nsummary · merchants · behaviour · report · UPI IDs]
+    DB --> A[Consumer app\ndashboard · insights · budgets · offers]
+    C[Claude] -. language only, over aggregates .-> A
+  end
+  R -- "GET /v1/users/{phone}/…" --> P
+  U[Person] -- "Continue with Paytm (phone + OTP)" --> A
+  O[Integration Portal\nkeys · deliveries · test events · revenue] --- I
+```
 
 ## Quick start
 
 ```bash
 pnpm install
 pnpm dev              # API :4400 · app http://localhost:5273
+cp .env.example .env  # optional: OTP_DEMO=1 shows sign-in codes on screen (no SMS in the demo)
 ```
 
-Open the app and click **Explore a live demo**, or pick a persona on the landing page:
-
-| Persona | Story | Login |
+| Surface | URL | Who |
 |---|---|---|
-| Rohan — convenience spender (Bengaluru) | ~79 delivery orders/month, Netflix + Hotstar overlap, a duplicate Swiggy charge and a 1 a.m. ₹38,990 laptop | `rohan@demo.spendtracker.app` |
-| Neha — deal-hunting fashionista (Mumbai) | Myntra/AJIO/Nykaa late-night carts, high coupon use | `neha@demo.spendtracker.app` |
-| Kabir — subscription collector (Pune) | 4 streaming apps, 2 music apps, Adobe (charged twice), gym | `kabir@demo.spendtracker.app` |
+| Consumer app | `/` → **Continue with Paytm** (phone + OTP) or a demo persona | People |
+| Partner API | `/v1` · `Authorization: Bearer stk_live_…` | Partner systems |
+| Developer docs | `/docs` (generated from the same spec the server uses; OpenAPI at `/v1/openapi.json`) | Partner engineers |
+| Integration Portal | `/portal` | Partner admins |
 
-Password for all: `spend-smart-2026`. Each has 12 months of generated Paytm-style history. `pnpm seed` resets them.
+**Demo accounts**
 
-**AI** is picked automatically (`GET /api/health` → `ai.provider`): `ANTHROPIC_API_KEY` → your local **Claude Code login via the Claude Agent SDK** → built-in engine. Every number comes from the engine; Claude only writes language over compact aggregates (never raw transactions), and any failure falls back instantly. The local-login path is for development and demos; a deployed product should use an API key.
+| Who | Sign in |
+|---|---|
+| Rohan — convenience spender (Bengaluru): ~79 delivery orders/month, Netflix + Hotstar overlap, duplicate Swiggy charge, 1 a.m. ₹38,990 laptop | phone `98765 00001` |
+| Neha — deal-hunting fashionista (Mumbai) | phone `98765 00002` |
+| Kabir — subscription collector (Pune) | phone `98765 00003` |
+| Integration Portal (Paytm) | `integrations@paytm.demo` / `paytm-partner-2026` (development only; production requires `PORTAL_ADMIN_PASSWORD`) |
 
-## What's inside
+Email login also works for the personas (`rohan@demo.spendtracker.app`, password `spend-smart-2026`). `pnpm seed` resets them.
 
-**The Spend Universe (signature UI).** Your wallet is a glowing core; each category is a planet sized by spend, orbiting by rank; particles stream from core to planet at a rate proportional to the money flowing there. Interactive on the dashboard (hover for amounts, click to deep-dive), lazy-loaded, paused off-screen, with a 2D fallback.
+## Partner API in 30 seconds
+
+Create a key in the portal (**API keys → Create key**; the secret is shown once), then:
+
+```bash
+# Webhook: one payment as it settles (also accepts text/plain for navigator.sendBeacon)
+curl localhost:4400/v1/events -H "Authorization: Bearer $STK_KEY" -H "Content-Type: application/json" \
+  -d '{"id":"PTM-1","phone":"+91 98765 00009","amount":"₹349","timestamp":"2026-10-06T13:12:45+05:30",
+       "payee_vpa":"swiggy.payu@hdfcbank","payee_name":"PAYTM*SWIGGY LIMITED 4412093","payer_vpa":"aarav.s@paytm"}'
+# → 202 {"status":"accepted","transaction":{"merchant":"Swiggy","category":"food","subcategory":"food_delivery","confidence":0.97,…}}
+
+# Read the person behind the phone
+curl "localhost:4400/v1/users/9876500001/behavior" -H "Authorization: Bearer $STK_KEY"
+# → spender type, preferred apps per subcategory (Swiggy 58% / Zomato 42%), peak times, subscriptions, UPI IDs…
+```
+
+| Endpoint | Purpose |
+|---|---|
+| `POST /v1/events` | One payment (webhook / beacon / `{object:"event",data}` envelope). `202`, or `422` if invalid |
+| `POST /v1/transactions/batch` | ≤ 1,000 payments (JSON, array or NDJSON), atomic, per-item results, `Idempotency-Key` replay |
+| `GET /v1/ingest/logs[/{id}]` | Delivery history with per-item outcomes |
+| `GET /v1/users/{phone}` · `/summary` · `/categories` · `/merchants` · `/behavior` · `/report` · `/upi-ids` · `/transactions` | Read by phone; windows: `period=7d…12m,overall`, `month=YYYY-MM`, or `from`/`to` |
+| `GET /v1/users/{phone}/offers` · `POST /v1/offers/events` | Spend-based offers and impression/click/conversion reporting |
+| `PUT /v1/users/{phone}/consent` · `DELETE /v1/users/{phone}` | Consent mirroring and DPDP erasure |
+| `GET /v1/segments[/{id}]` · `GET /v1/categories` | Aggregate audiences and the taxonomy |
+
+### The ingestion pipeline (deterministic — no AI)
+
+1. **Validate** required fields, types, ranges → `rejected` with `code` + `param` (`invalid_phone`, `invalid_vpa`, `invalid_timestamp`, …).
+2. **Normalise** phone (`+91`/`0` stripped), amount (`"₹1,249.50"` ok), UPI IDs, payee names (`PAYTM*`, `UPI-`, `RZP*` prefixes, reference numbers and `Pvt Ltd` suffixes stripped).
+3. **Identify** the user by phone — UPI IDs change, phones don't — and record every payer UPI ID.
+4. **De-duplicate** by your `id` (resending a new final status updates the payment, e.g. `success → reversed`) and by UPI `rrn`.
+5. **Filter junk**: credits, pending, self-transfers between the user's own UPI IDs, ₹1 penny-drop tests, > 3 years old.
+6. **Categorise**: user corrections → merchant catalog (name or UPI ID handle) → MCC (≈60 codes) → keywords → person/P2P heuristics, each with `confidence` and `categorised_by`.
+
+### Security & privacy model
+
+- Keys are `stk_live_…`, unbiased random, shown once, stored as SHA-256, scoped (`transactions:write`, `users:read`, `users:write`, `segments:read`, `offers:read`, `offers:write`), revocable, rate-limited per key; every response has `X-Request-Id` and errors share one envelope.
+- **Tenant isolation:** partners see only users linked to them (onboarded through their ingestion, or who signed in with them). Other phones return `404`; payments for them are `rejected: user_not_linked`.
+- **Consent is per partner.** Partners can always withdraw it; only the onboarding partner can grant it — app users grant it themselves. Erasure deletes onboarded users fully, otherwise only the partner's data and link.
+- Portal sessions use a separate JWT audience from the app. Demo-only conveniences (portal password, on-screen OTP) are disabled in production unless explicitly configured.
+
+## The consumer app
 
 | Feature | Where |
 |---|---|
-| Ingestion: simulated Paytm feed (consent screen, 3/6/12 months) or CSV upload | `pages/Connect.jsx`, `POST /api/spending/import` |
-| Categorisation: your corrections → merchant catalog → keywords → person/P2P heuristics → Claude for unknowns; learns per merchant | `engine/categorize.js`, `PUT /api/spending/:id/categorize` |
-| Dashboard: period switch, stats, AI briefing, donut, 6-month stack, insights, native offers, savings | `pages/Dashboard.jsx`, `GET /api/analysis/dashboard` |
-| Deep dives: sub-categories, merchants, orders/day, delivery fees, peak times, top dish, peers | `pages/Category.jsx`, `GET /api/analysis/category/:id` |
-| Merchant analysis (Swiggy vs Zomato) | `pages/Merchant.jsx`, `GET /api/analysis/merchant/:id` |
-| Trends: monthly stack, weekday×hour heatmap, anomalies (spikes, duplicates, late-night, new merchants), subscriptions | `pages/Trends.jsx`, `GET /api/analysis/trends` |
-| Behaviour profile: spender type, sensitivities, peaks, churn risk, LTV | `engine/analytics.js`, `GET /api/analysis/behavioral-profile` |
-| Recommendations with savings priced from your data, accept/dismiss, impact tracking, peer challenges | `pages/Recommendations.jsx`, `/api/recommendations/*` |
-| Offers: relevance-ranked by spend (never demographics), impressions on real visibility, reveal code, "not relevant" learning | `engine/insights.js#rankOffers`, `/api/ads/*` |
-| Budgets with suggested amounts, feasibility and daily pace | `pages/Budget.jsx`, `/api/budget/*` |
-| Alerts: anomalies, budget pace, overlaps, deals, weekly summary | `pages/Alerts.jsx`, `/api/alerts/*` |
-| Ask your money (Claude Q&A over your aggregates) | Shell drawer, `POST /api/analysis/ask` |
-| Exports: CSV, monthly/annual PDF (dependency-free), report JSON | `/api/export/csv`, `/api/export/pdf`, `/api/report/{monthly,annual}` |
-| **Paytm partner API** + live console | `routes/paytm.js`, `pages/Partner.jsx` |
+| Overview: orbital spend dial with vs-previous change, categories with per-category deltas, "where it went", stats, offers, Claude briefing (cached on a data fingerprint), insight tiles, savings | `pages/Dashboard.jsx` |
+| Deep dives: sub-categories, merchants (Swiggy vs Zomato), delivery fees, peak times, peers | `pages/Category.jsx`, `pages/Merchant.jsx` |
+| Trends: glass monthly columns, weekday × hour star map, anomalies, subscriptions | `pages/Trends.jsx` |
+| Save money, budgets, alerts, offers (personalised first), Ask your money (Claude), CSV/PDF export | `pages/*`, `/api/*` |
+| Dark (true black) and light (porcelain) themes, mobile-first layouts | `index.css`, `components/ui.jsx` |
 
-### Partner API (`x-api-key` header)
-
-```
-GET  /api/paytm/user/:userId/spending-summary
-GET  /api/paytm/user/:userId/category-breakdown
-GET  /api/paytm/user/:userId/merchant-behavior
-GET  /api/paytm/user/:userId/behavioral-profile
-GET  /api/paytm/user/:userId/ad-recommendations[?ai=1]
-GET  /api/paytm/users/segment/:segmentId      (high_food_spenders, fashion_shoppers, subscription_heavy, deal_hunters, frequent_riders)
-POST /api/paytm/feedback/ad-performance
-GET  /api/paytm/ads/performance
-```
-
-Returns **403 for users who haven't opted in** (Settings → Privacy). Segments aggregate consented users only and return no identities.
+**AI** is picked automatically (`GET /api/health`): `ANTHROPIC_API_KEY` → local Claude Code login via the Claude Agent SDK → built-in engine. Every number comes from the engine; Claude only writes language over aggregates, and any failure falls back instantly.
 
 ## Honesty notes for the demo
 
-- Transaction data is generated (deterministic per user) to stand in for the Paytm feed.
-- Peer comparisons use illustrative cohort benchmarks by income band.
-- Delivery fees are estimated at ₹45/order.
-- Demo profiles include 30 days of simulated offer impressions/clicks so partner stats aren't empty; the console says so.
-- Offer campaigns and coupon codes are samples.
+- Persona histories are generated (deterministic per user) to stand in for Paytm's feed; partner-API ingestion is real.
+- Peer comparisons use illustrative cohort benchmarks; delivery fees are estimated at ₹45/order.
+- Demo profiles include 30 days of simulated offer events so revenue isn't empty (the portal says so). Offers and coupon codes are samples.
+- There is no SMS provider: with `OTP_DEMO=1` the sign-in code is shown on screen.
 
 ## Layout
 
 ```
 server/src
-  data/      catalog.js (7 categories, 27 subs, 60+ merchants) · generator.js (personas) · offers.js (25 campaigns, benchmarks)
-  engine/    categorize.js · analytics.js · insights.js (recs, insights, challenges, offer ranking)
-  ai/        claude.js (API / Agent SDK / engine) · index.js (categorise, briefing, ask, ad strategy)
-  lib/       auth · store · context (per-request analysis, budgets, alerts)
-  routes/    auth · spending · analysis · recommendations · ads · paytm · budget · alerts · export
+  partner/   ingest.js (pipeline, MCC map) · keys.js (scoped hashed keys) · spec.js (docs + OpenAPI) · examples.json (captured)
+  routes/    v1.js (partner API) · portal.js · auth.js (incl. Paytm OTP) · spending · analysis · recommendations · ads · budget · alerts · export
+  engine/    categorize.js · analytics.js · insights.js
+  ai/        claude.js (API / Agent SDK / engine) · index.js
+  data/      catalog.js · generator.js · offers.js
+server/scripts/capture-examples.mjs   regenerate docs examples from the live API
 client/src
-  components/three/  UniverseScene (R3F) · Universe (lazy wrapper)
-  components/        ui · cards (Insight/Offer/Recommendation) · charts · Shell
-  pages/             Landing · Auth · Connect · Dashboard · Category · Merchant · Trends · Recommendations · Offers · Budget · Transactions · Alerts · Partner · Settings
+  pages/docs/      developer docs (from /v1/spec)
+  pages/portal/    Integration Portal
+  pages/           Landing · Auth · Connect · Dashboard · Category · Merchant · Trends · Recommendations · Offers · Budget · Transactions · Alerts · Settings
+  components/      OrbitDial · charts · cards · ui · Shell · PaytmSignIn · BrandLogo · PageBoundary
 ```
 
-Production: `pnpm build && pnpm start` serves the app and API on one port.
+Production: `pnpm build && pnpm start` serves the app, docs, portal and API on one port.

@@ -16,7 +16,9 @@ const Offers = lazy(() => import('./pages/Offers.jsx'));
 const Budget = lazy(() => import('./pages/Budget.jsx'));
 const Transactions = lazy(() => import('./pages/Transactions.jsx'));
 const Alerts = lazy(() => import('./pages/Alerts.jsx'));
-const Partner = lazy(() => import('./pages/Partner.jsx'));
+// Partner-facing surfaces (separate from the user app).
+const Docs = lazy(() => import('./pages/docs/Docs.jsx'));
+const Portal = lazy(() => import('./pages/portal/Portal.jsx'));
 const Settings = lazy(() => import('./pages/Settings.jsx'));
 
 const S = (el) => <Suspense fallback={<Spinner />}>{el}</Suspense>;
@@ -24,7 +26,7 @@ const S = (el) => <Suspense fallback={<Spinner />}>{el}</Suspense>;
 // Warm every page chunk once the app is idle, so switching pages never waits on a download.
 const PAGES = [() => import('./pages/Dashboard.jsx'), () => import('./pages/Category.jsx'), () => import('./pages/Merchant.jsx'), () => import('./pages/Trends.jsx'),
   () => import('./pages/Recommendations.jsx'), () => import('./pages/Offers.jsx'), () => import('./pages/Budget.jsx'), () => import('./pages/Transactions.jsx'),
-  () => import('./pages/Alerts.jsx'), () => import('./pages/Partner.jsx'), () => import('./pages/Settings.jsx')];
+  () => import('./pages/Alerts.jsx'), () => import('./pages/Settings.jsx')];
 if (typeof window !== 'undefined') {
   const warm = () => PAGES.forEach((load) => load().catch(() => {}));
   (window.requestIdleCallback || ((f) => setTimeout(f, 1200)))(warm);
@@ -36,7 +38,7 @@ function Gate() {
   if (!auth.signedIn()) return <Navigate to="/signin" replace state={{ from: loc.pathname }} />;
   if (isLoading) return <Spinner label="Loading your money" />;
   if (error) return <div className="max-w-md mx-auto p-6"><ErrorNote error={error} onRetry={refetch} /></div>;
-  if (!data.hasData && !['/connect', '/settings', '/partner'].includes(loc.pathname)) return <Navigate to="/connect" replace />;
+  if (!data.hasData && !['/connect', '/settings'].includes(loc.pathname)) return <Navigate to="/connect" replace />;
   return <Outlet />;
 }
 
@@ -44,6 +46,8 @@ export const router = createBrowserRouter([
   { path: '/', element: <Landing /> },
   { path: '/signin', element: S(<Auth mode="signin" />) },
   { path: '/signup', element: S(<Auth mode="signup" />) },
+  { path: '/docs', element: S(<Docs />) },
+  { path: '/portal/*', element: S(<Portal />) },
   {
     element: <Gate />,
     children: [
@@ -60,7 +64,6 @@ export const router = createBrowserRouter([
           { path: '/budget', element: S(<Budget />) },
           { path: '/transactions', element: S(<Transactions />) },
           { path: '/alerts', element: S(<Alerts />) },
-          { path: '/partner', element: S(<Partner />) },
           { path: '/settings', element: S(<Settings />) },
         ],
       },

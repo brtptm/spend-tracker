@@ -96,8 +96,8 @@ export function Modal({ title, onClose, children, wide }) {
   useEffect(() => { const k = (e) => e.key === 'Escape' && onClose(); addEventListener('keydown', k); return () => removeEventListener('keydown', k); }, [onClose]);
   return (
     <motion.div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/55 sm:p-4" role="dialog" aria-modal="true" aria-label={title} onClick={onClose} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      <motion.div className={`panel w-full ${wide ? 'sm:max-w-3xl' : 'sm:max-w-lg'} max-h-[88vh] overflow-y-auto rounded-b-none sm:rounded-b-[20px]`} onClick={(e) => e.stopPropagation()} initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ type: 'spring', damping: 26, stiffness: 300 }}>
-        <div className="sticky top-0 z-10 bg-surface flex items-center justify-between gap-3 px-6 py-4 border-b border-line">
+      <motion.div className={`panel !bg-[var(--surface-solid)] w-full ${wide ? 'sm:max-w-3xl' : 'sm:max-w-lg'} max-h-[88vh] overflow-y-auto rounded-b-none sm:rounded-b-[20px]`} onClick={(e) => e.stopPropagation()} initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ type: 'spring', damping: 26, stiffness: 300 }}>
+        <div className="sticky top-0 z-10 bg-[var(--surface-solid)] flex items-center justify-between gap-3 px-6 py-4 border-b border-line">
           <h2 className="text-lg">{title}</h2>
           <button className="w-8 h-8 grid place-items-center rounded-full text-ink-3 hover:text-ink hover:bg-surface-2" onClick={onClose} aria-label="Close"><FiX /></button>
         </div>

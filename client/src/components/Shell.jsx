@@ -5,7 +5,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { FiLogOut, FiX, FiArrowUp } from 'react-icons/fi';
 import {
   PiSquaresFourLight, PiListBulletsLight, PiChartLineUpLight, PiLeafLight, PiTagLight, PiTargetLight, PiBellSimpleLight,
-  PiPlugsLight, PiGearSixLight, PiSparkleLight, PiDotsThreeBold,
+  PiGearSixLight, PiSparkleLight, PiDotsThreeBold,
 } from 'react-icons/pi';
 import { api, auth, useMe, useHealth } from '../lib/api.js';
 import { Logo, SourceTag, ThemeToggle } from './ui.jsx';
@@ -19,7 +19,6 @@ const NAV = [
   { to: '/trends', label: 'Trends', icon: PiChartLineUpLight },
   { to: '/budget', label: 'Budget', icon: PiTargetLight },
   { to: '/alerts', label: 'Alerts', icon: PiBellSimpleLight, badge: 'alerts' },
-  { to: '/partner', label: 'Partner API', icon: PiPlugsLight },
   { to: '/settings', label: 'Settings', icon: PiGearSixLight },
 ];
 
@@ -80,7 +79,7 @@ export default function Shell() {
   const [more, setMore] = useState(false);
   const alerts = useQuery({ queryKey: ['alerts'], queryFn: api.alerts, enabled: Boolean(me?.hasData), refetchInterval: 120_000 });
   const unread = alerts.data?.unread || 0;
-  const items = me?.hasData ? NAV : NAV.filter((n) => n.to === '/settings' || n.to === '/partner');
+  const items = me?.hasData ? NAV : NAV.filter((n) => n.to === '/settings');
   const first = me?.user?.name?.split(' ')[0];
 
   const link = (n, cls) => (

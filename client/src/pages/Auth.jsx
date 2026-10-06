@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { api, auth } from '../lib/api.js';
 import { Logo, ErrorNote } from '../components/ui.jsx';
+import PaytmSignIn from '../components/PaytmSignIn.jsx';
 import Ring from '../components/three/Ring.jsx';
 import { CAT_COLORS, CAT_NAMES } from '../lib/cats.js';
 
@@ -34,9 +35,7 @@ export default function Auth({ mode }) {
           <form className="w-full max-w-sm" noValidate onSubmit={(e) => { e.preventDefault(); finish(signup ? api.register(form) : api.login(form)); }}>
             <h1 className="text-[2.4rem]">{signup ? 'Create your account' : 'Welcome back'}</h1>
             <p className="text-ink-2 mt-2">{signup ? 'Two minutes to connect your history and see where your money goes.' : 'Your money map is waiting.'}</p>
-            <button type="button" className="btn btn-primary w-full mt-8" disabled={busy} onClick={() => finish(api.demo('convenience'))}>
-              Continue with Paytm <span className="text-xs opacity-80">(demo)</span>
-            </button>
+            <div className="mt-8"><PaytmSignIn onToken={(token) => finish(Promise.resolve({ token }))} /></div>
             <div className="flex items-center gap-3 my-6 text-xs text-ink-3"><span className="h-px flex-1 bg-line" />or with email<span className="h-px flex-1 bg-line" /></div>
             <div className="grid gap-4">
               {signup && <label className="grid gap-1.5"><span className="label">Name</span><input className="field" value={form.name} onChange={set('name')} autoComplete="name" /></label>}

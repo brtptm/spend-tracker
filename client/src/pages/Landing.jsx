@@ -64,7 +64,7 @@ export default function Landing() {
           <nav className="flex items-center gap-1 text-[13px]">
             <ThemeToggle className="mr-1 !w-8 !h-8" />
             {signedIn ? <Link to="/dashboard" className="btn btn-primary btn-sm">Open Spend Tracker</Link>
-              : <><Link to="/signin" className="px-3 py-1.5 text-ink-2 hover:text-ink">Sign in</Link><Link to="/signup" className="btn btn-primary btn-sm">Get started</Link></>}
+              : <><Link to="/docs" className="hidden sm:inline px-3 py-1.5 text-ink-2 hover:text-ink">Developers</Link><Link to="/signin" className="px-3 py-1.5 text-ink-2 hover:text-ink">Sign in</Link><Link to="/signup" className="btn btn-primary btn-sm">Get started</Link></>}
           </nav>
         </div>
       </header>
@@ -160,6 +160,40 @@ export default function Landing() {
           </div>
         </section>
 
+        <section className="max-w-[1100px] mx-auto px-5 py-24 sm:py-28">
+          <motion.div {...up()} className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] gap-10 items-center">
+            <div>
+              <div className="eyebrow">For partners</div>
+              <h2 className="text-[2.2rem] sm:text-[3rem] tracking-[-0.045em] mt-2">Send payments.<br /><span className="text-ink-3">Understand people.</span></h2>
+              <p className="mt-5 text-ink-2 text-[17px] max-w-[46ch]">Paytm streams UPI payments to one API. We clean them, drop what isn’t spending, categorise every rupee and keep a living profile per phone number — all deterministic.</p>
+              <ul className="mt-6 grid gap-3 text-[15px]">
+                {[['Webhook or batch', 'One payment the moment it settles, or 1,000 at a time — idempotent either way.'], ['Cleaned and categorised', 'Gateway noise stripped, credits, self-transfers and tests filtered, every payment categorised with a confidence.'], ['Read by phone', 'Summaries, apps used, behaviour and monthly reports for any window — UPI IDs change, phones don’t.']].map(([t, d]) => (
+                  <li key={t} className="flex gap-3"><span className="mt-2 w-1.5 h-1.5 rounded-full bg-[var(--gold)] shrink-0" /><span><span className="font-medium">{t}.</span> <span className="text-ink-2">{d}</span></span></li>
+                ))}
+              </ul>
+              <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
+                <Link to="/docs" className="btn btn-primary">Read the API docs</Link>
+                <Link to="/portal" className="inline-flex items-center gap-1 text-link font-medium">Integration Portal <FiChevronRight /></Link>
+              </div>
+            </div>
+            <div className="panel !p-0 overflow-hidden font-mono text-[12.5px] leading-relaxed" aria-label="Example API response">
+              <div className="flex items-center gap-2 px-4 py-2.5 border-b border-line text-ink-3 text-[11.5px]"><span className="rounded-md px-1.5 py-0.5 font-semibold" style={{ color: 'var(--positive)', background: 'color-mix(in srgb, var(--positive) 12%, transparent)' }}>GET</span>/v1/users/9876500001/behavior</div>
+              <pre className="p-4 sm:p-5 overflow-x-auto text-ink-2">{`{
+  "spender_label": `}<span style={{ color: 'var(--gold)' }}>"Convenience spender"</span>{`,
+  "preferred_apps": [{
+    "subcategory": `}<span style={{ color: 'var(--gold)' }}>"food_delivery"</span>{`,
+    "apps": [
+      { "name": `}<span style={{ color: 'var(--gold)' }}>"Swiggy"</span>{`, "share": `}<span className="text-ink">0.58</span>{` },
+      { "name": `}<span style={{ color: 'var(--gold)' }}>"Zomato"</span>{`, "share": `}<span className="text-ink">0.42</span>{` }
+    ]
+  }],
+  "timing": { "peak_hours": [`}<span style={{ color: 'var(--gold)' }}>"20:00–21:00"</span>{`] },
+  "upi_ids": [`}<span style={{ color: 'var(--gold)' }}>"rohan.v@paytm"</span>{`, …]
+}`}</pre>
+            </div>
+          </motion.div>
+        </section>
+
         <section className="border-t border-line">
           <div className="max-w-[1100px] mx-auto px-5 py-20 grid md:grid-cols-3 gap-8 text-[15px]">
             <div><h3 className="text-lg">Consent first</h3><p className="text-ink-2 mt-2">Partner APIs only return data for people who opted in — and it can be switched off any time.</p></div>
@@ -178,7 +212,7 @@ export default function Landing() {
       </main>
       <footer className="border-t border-line">
         <div className="max-w-[1100px] mx-auto px-5 py-6 flex flex-wrap gap-3 items-center justify-between text-xs text-ink-3">
-          <span>Spend Tracker · hackathon prototype · demo data is simulated</span><span>React · Node.js · SQLite · three.js · Claude</span>
+          <span>Spend Tracker · hackathon prototype · demo data is simulated</span><span className="flex flex-wrap gap-x-4 gap-y-1"><Link to="/docs" className="hover:text-ink">API docs</Link><Link to="/portal" className="hover:text-ink">Integration Portal</Link><span>React · Node.js · SQLite · Claude</span></span>
         </div>
       </footer>
     </div>

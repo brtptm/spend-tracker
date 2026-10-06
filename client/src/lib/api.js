@@ -8,7 +8,7 @@ export const auth = { token: store.get, setToken: store.set, signedIn: () => Boo
 export const http = axios.create({ baseURL: import.meta.env.VITE_API_URL || '/api', timeout: 120_000 });
 http.interceptors.request.use((c) => { const t = store.get(); if (t) c.headers.Authorization = `Bearer ${t}`; return c; });
 http.interceptors.response.use((r) => r.data, (err) => {
-  if (err.response?.status === 401 && store.get() && !err.config.url.startsWith('/paytm')) { store.set(null); if (!location.pathname.startsWith('/signin')) location.assign('/signin'); }
+  if (err.response?.status === 401 && store.get()) { store.set(null); if (!location.pathname.startsWith('/signin')) location.assign('/signin'); }
   const message = err.response?.data?.error || (err.code === 'ECONNABORTED' ? 'The request took too long. Try again.' : 'Can’t reach the server. Check that the API is running.');
   return Promise.reject(Object.assign(new Error(message), { status: err.response?.status }));
 });
@@ -21,6 +21,8 @@ export const api = {
   register: (b) => http.post('/auth/register', b),
   login: (b) => http.post('/auth/login', b),
   demo: (persona) => http.post('/auth/demo', { persona }),
+  paytmStart: (phone) => http.post('/auth/paytm/start', { phone }),
+  paytmVerify: (requestId, code) => http.post('/auth/paytm/verify', { request_id: requestId, code }),
   logout: () => http.post('/auth/logout'),
   settings: (b) => http.put('/auth/settings', b),
   deleteAccount: () => http.delete('/auth/account'),
@@ -65,7 +67,6 @@ export const api = {
     Object.assign(document.createElement('a'), { href: url, download: filename }).click();
     URL.revokeObjectURL(url);
   },
-  partner: (path, key, opts = {}) => http.request({ url: `/paytm${path}`, headers: { 'x-api-key': key }, ...opts }),
 };
 
 export const useMe = () => useQuery({ queryKey: ['me'], queryFn: api.me, enabled: auth.signedIn() });
