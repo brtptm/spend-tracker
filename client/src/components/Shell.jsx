@@ -95,7 +95,7 @@ export default function Shell() {
   const first = me?.user?.name?.split(' ')[0];
 
   const link = (n, cls) => (
-    <NavLink key={n.to} to={n.to} onClick={() => setMore(false)} className={({ isActive }) => `${cls} ${isActive ? 'bg-surface-2 text-ink' : 'text-ink-2 hover:text-ink hover:bg-surface-2/60'}`}>
+    <NavLink key={n.to} to={n.to} onClick={() => setMore(false)} className={({ isActive }) => `${cls} ${isActive ? 'bg-surface-3 text-ink font-medium' : 'text-ink-2 hover:text-ink hover:bg-surface-2/50'}`}>
       {({ isActive }) => (<>
         <n.icon size={19} />
         <span className="flex-1">{n.label}</span>
@@ -105,8 +105,10 @@ export default function Shell() {
   );
 
   return (
-    <div className="ledger min-h-dvh lg:grid lg:grid-cols-[240px_1fr]">
-      <aside className="hidden lg:flex flex-col gap-7 sticky top-0 h-dvh border-r border-line px-3 py-6">
+    <div className="ledger min-h-dvh lg:grid lg:grid-cols-[252px_1fr]">
+      {/* Floating sidebar: the outer aside holds the sticky slot, the inner panel is the glass card (same surface as the page's cards). */}
+      <aside className="hidden lg:block sticky top-0 h-dvh py-3 pl-3">
+        <div className="panel !rounded-[20px] h-full flex flex-col gap-7 px-3 py-6">
         <Link to="/dashboard" className="px-3"><Logo /></Link>
         <button onClick={() => setAsk(true)} className="mx-1 flex items-center gap-2.5 rounded-xl px-3 py-2 text-[13.5px] text-ink-2 bg-surface-2 hover:text-ink transition-colors">
           <PiSparkleLight size={17} /> Ask your money <kbd className="ml-auto text-[10px] text-ink-3 font-sans">AI</kbd>
@@ -118,6 +120,7 @@ export default function Shell() {
             <button onClick={signOut} className="flex items-center gap-2 text-sm text-ink-3 hover:text-ink"><FiLogOut /> Sign out</button>
             <ThemeToggle />
           </div>
+        </div>
         </div>
       </aside>
 
