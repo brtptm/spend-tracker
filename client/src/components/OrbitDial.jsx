@@ -30,14 +30,14 @@ export default function OrbitDial({ segments, total, label = 'Spent', sub, onSel
     <div className="relative w-full aspect-square select-none">
       <svg viewBox="0 0 600 600" className="absolute inset-0 w-full h-full overflow-visible" role="img" aria-label={`${label} ${inr(total)} across ${segs.length} categories`}>
         <defs>
-          <radialGradient id="dial-core" cx="50%" cy="38%" r="70%"><stop offset="0" stopColor="#1c1c1f" /><stop offset=".7" stopColor="#0b0b0c" /><stop offset="1" stopColor="#050505" /></radialGradient>
-          <radialGradient id="dial-halo" cx="50%" cy="50%" r="50%"><stop offset=".55" stopColor="#fff" stopOpacity="0" /><stop offset=".78" stopColor="#fff" stopOpacity=".035" /><stop offset="1" stopColor="#fff" stopOpacity="0" /></radialGradient>
+          <radialGradient id="dial-core" cx="50%" cy="38%" r="70%"><stop offset="0" stopColor="var(--dial-core-a)" /><stop offset=".7" stopColor="var(--dial-core-b)" /><stop offset="1" stopColor="var(--dial-core-c)" /></radialGradient>
+          <radialGradient id="dial-halo" cx="50%" cy="50%" r="50%"><stop offset=".55" stopColor="var(--fg)" stopOpacity="0" /><stop offset=".78" stopColor="var(--fg)" stopOpacity=".035" /><stop offset="1" stopColor="var(--fg)" stopOpacity="0" /></radialGradient>
           <filter id="dial-glow" filterUnits="userSpaceOnUse" x="0" y="0" width="600" height="600"><feGaussianBlur stdDeviation="9" /></filter>
-          <linearGradient id="dial-sweep" gradientUnits="userSpaceOnUse" x1={polar(R, 0)[0]} y1={polar(R, 0)[1]} x2={polar(R, 50)[0]} y2={polar(R, 50)[1]}><stop offset="0" stopColor="#fff" stopOpacity="0" /><stop offset="1" stopColor="#fff" stopOpacity=".85" /></linearGradient>
+          <linearGradient id="dial-sweep" gradientUnits="userSpaceOnUse" x1={polar(R, 0)[0]} y1={polar(R, 0)[1]} x2={polar(R, 50)[0]} y2={polar(R, 50)[1]}><stop offset="0" stopColor="var(--fg)" stopOpacity="0" /><stop offset="1" stopColor="var(--fg)" stopOpacity=".85" /></linearGradient>
         </defs>
         <circle cx={C} cy={C} r={290} fill="url(#dial-halo)" />
-        <circle cx={C} cy={C} r={168} fill="url(#dial-core)" stroke="#fff" strokeOpacity=".09" />
-        <circle cx={C} cy={C} r={160} fill="none" stroke="#fff" strokeOpacity=".04" />
+        <circle cx={C} cy={C} r={168} fill="url(#dial-core)" stroke="var(--fg)" strokeOpacity=".09" />
+        <circle cx={C} cy={C} r={160} fill="none" stroke="var(--fg)" strokeOpacity=".04" />
 
         {/* Bezel: graduated ticks; quadrant marks read as share of spend. */}
         <g stroke="currentColor" className="text-ink">
@@ -48,9 +48,9 @@ export default function OrbitDial({ segments, total, label = 'Spent', sub, onSel
         ); })}
 
         {/* Faint orbits + two slow satellites (the only ambient motion). */}
-        <circle cx={C} cy={C} r={R} fill="none" stroke="#fff" strokeOpacity=".06" strokeWidth={12} />
-        <circle cx={C} cy={C} r={194} fill="none" stroke="#fff" strokeOpacity=".07" strokeDasharray="1 6" />
-        <g className="dial-orbit" style={{ transformOrigin: '300px 300px', animationDuration: '80s' }}><circle cx={C} cy={C - 194} r={2.2} fill="#fff" fillOpacity=".8" /></g>
+        <circle cx={C} cy={C} r={R} fill="none" stroke="var(--fg)" strokeOpacity=".06" strokeWidth={12} />
+        <circle cx={C} cy={C} r={194} fill="none" stroke="var(--fg)" strokeOpacity=".07" strokeDasharray="1 6" />
+        <g className="dial-orbit" style={{ transformOrigin: '300px 300px', animationDuration: '80s' }}><circle cx={C} cy={C - 194} r={2.2} fill="var(--fg)" fillOpacity=".8" /></g>
 
         {/* Category arcs */}
         {segs.map((s) => {
@@ -62,21 +62,21 @@ export default function OrbitDial({ segments, total, label = 'Spent', sub, onSel
               onClick={() => onSelect?.(s.id)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect?.(s.id); } }}
               style={{ cursor: onSelect ? 'pointer' : 'default', outline: 'none', pointerEvents: interactive ? 'auto' : 'none' }}>
               <path d={arcPath(R, s.a0, s.a1)} fill="none" stroke="transparent" strokeWidth={34} />
-              <motion.path d={arcPath(R, s.a0, s.a1)} fill="none" stroke={s.color} strokeLinecap="round" strokeWidth={14} filter="url(#dial-glow)"
+              <motion.path d={arcPath(R, s.a0, s.a1)} fill="none" stroke={s.color} strokeLinecap="round" strokeWidth={14} filter="url(#dial-glow)" className="dial-glow"
                 initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: dim ? 0.1 : on ? 0.9 : 0.55 }}
                 transition={{ pathLength: { duration: 1.1, delay: 0.15 + s.i * 0.09, ease: [0.22, 1, 0.36, 1] }, opacity: { duration: 0.25 } }} />
               <motion.path d={arcPath(R, s.a0, s.a1)} fill="none" stroke={s.color} strokeLinecap="round"
                 initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: dim ? 0.3 : 1, strokeWidth: on ? 14 : 10 }}
                 transition={{ pathLength: { duration: 1.1, delay: 0.15 + s.i * 0.09, ease: [0.22, 1, 0.36, 1] }, opacity: { duration: 0.25 }, strokeWidth: { duration: 0.25 } }} />
-              <motion.circle cx={px} cy={py} r={on ? 4 : 3} fill="#fff" stroke={s.color} strokeWidth={1.5}
+              <motion.circle cx={px} cy={py} r={on ? 4 : 3} fill="var(--dial-dot)" stroke={s.color} strokeWidth={1.5}
                 initial={{ opacity: 0 }} animate={{ opacity: dim ? 0.3 : 1 }} transition={{ delay: 0.15 + s.i * 0.09 }} />
             </g>
           );
         })}
         {/* A single soft highlight that travels the ring. */}
-        <g className="dial-orbit pointer-events-none" style={{ transformOrigin: '300px 300px', animationDuration: '9s' }}>
+        <g className="dial-orbit dial-sweep pointer-events-none" style={{ transformOrigin: '300px 300px', animationDuration: '9s' }}>
           <path d={arcPath(R, 0, 50)} fill="none" stroke="url(#dial-sweep)" strokeWidth={10} strokeLinecap="round" opacity=".35" style={{ mixBlendMode: 'overlay' }} />
-          <circle cx={polar(R, 50)[0]} cy={polar(R, 50)[1]} r={9} fill="#fff" opacity=".18" filter="url(#dial-glow)" />
+          <circle cx={polar(R, 50)[0]} cy={polar(R, 50)[1]} r={9} fill="var(--fg)" opacity=".18" filter="url(#dial-glow)" />
         </g>
       </svg>
 

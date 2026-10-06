@@ -23,6 +23,14 @@
   --glass: rgba(16, 16, 17, 0.78);
   --grid: rgba(255, 255, 255, 0.06);
   --shadow: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 30px 80px -40px rgba(0, 0, 0, 0.95);
+  --shadow-float: 0 24px 60px -20px rgba(0, 0, 0, 0.9);
+  --fg: #ffffff;                            /* overlays/hairlines: white on dark, black on light */
+  --ref: rgba(255, 255, 255, 0.24);         /* chart reference lines */
+  --cursor: rgba(255, 255, 255, 0.18);
+  --thread: rgba(255, 255, 255, 0.28);
+  --dial-core-a: #1c1c1f; --dial-core-b: #0b0b0c; --dial-core-c: #050505;
+  --dial-glow: 1; --dial-dot: #ffffff; --tint: 0.09;
+  --bar-op: 0.82; --sheen-hi: 0.28;
   /* Back-compat aliases used across pages */
   --lime: var(--positive); --lime-text: var(--positive); --on-lime: #000; --cyan: var(--link); --cyan-text: var(--link); --coral: var(--negative); --amber: var(--warning);
   /* Categorical palette (validated, fixed order) */
@@ -31,25 +39,34 @@
 }
 :root[data-theme='light'] {
   color-scheme: light;
-  --bg: #f5f5f7;
-  --surface: #ffffff;
+  --bg: #f4f4f1;                            /* warm porcelain, not clinical grey */
+  --surface: rgba(255, 255, 255, 0.86);
   --surface-solid: #ffffff;
-  --surface-2: #f2f2f4;
-  --surface-3: #e8e8ed;
-  --line: rgba(0, 0, 0, 0.08);
-  --line-strong: rgba(0, 0, 0, 0.14);
-  --ink: #1d1d1f;
-  --ink-2: #515154;
-  --ink-3: #86868b;
-  --accent: #1d1d1f;
+  --surface-2: rgba(0, 0, 0, 0.035);
+  --surface-3: rgba(0, 0, 0, 0.07);
+  --line: rgba(0, 0, 0, 0.065);
+  --line-strong: rgba(0, 0, 0, 0.13);
+  --ink: #111113;
+  --ink-2: #4a4a4f;
+  --ink-3: #8a8a8f;
+  --accent: #111113;
   --on-accent: #ffffff;
-  --link: #0066cc;
-  --positive: #248a3d;
-  --negative: #d70015;
-  --warning: #b25000;
-  --glass: rgba(255, 255, 255, 0.78);
-  --grid: rgba(0, 0, 0, 0.06);
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 18px 40px -24px rgba(0, 0, 0, 0.18);
+  --link: #111113;
+  --gold: #9a7b3c;
+  --positive: #1f8a3b;
+  --negative: #d1253a;
+  --warning: #b8620a;
+  --glass: rgba(255, 255, 255, 0.72);
+  --grid: rgba(0, 0, 0, 0.07);
+  --shadow: 0 0 0 1px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(16, 16, 20, 0.04), 0 4px 12px -4px rgba(16, 16, 20, 0.05), 0 24px 48px -28px rgba(16, 16, 20, 0.16);
+  --shadow-float: 0 1px 2px rgba(16, 16, 20, 0.06), 0 22px 44px -18px rgba(16, 16, 20, 0.22);
+  --fg: #000000;
+  --ref: rgba(0, 0, 0, 0.28);
+  --cursor: rgba(0, 0, 0, 0.14);
+  --thread: rgba(0, 0, 0, 0.22);
+  --dial-core-a: #ffffff; --dial-core-b: #fafaf8; --dial-core-c: #efefeb;
+  --dial-glow: 0.35; --dial-dot: #ffffff; --tint: 0.06;
+  --bar-op: 1; --sheen-hi: 0.22;
 }
 
 @theme inline {
@@ -64,6 +81,7 @@
   --color-accent: var(--accent);
   --color-on-accent: var(--on-accent);
   --color-link: var(--link);
+  --color-fg: var(--fg);
   --color-positive: var(--positive);
   --color-negative: var(--negative);
   --color-warning: var(--warning);
@@ -86,7 +104,7 @@
   h1, h2, h3 { font-family: var(--font-display); margin: 0; letter-spacing: -0.035em; line-height: 1.06; }
   h1 { font-weight: 650; } h2 { font-weight: 600; letter-spacing: -0.028em; } h3 { font-weight: 600; letter-spacing: -0.018em; }
   :focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; border-radius: 10px; }
-  ::selection { background: var(--ink); color: #000; }
+  ::selection { background: var(--ink); color: var(--bg); }
 }
 
 /* Black, with one barely-there light from above. */
@@ -94,11 +112,12 @@
   content: ''; position: fixed; inset: 0; z-index: -2; pointer-events: none;
   background: radial-gradient(1200px 600px at 50% -20%, rgba(255, 255, 255, 0.045), transparent 70%);
 }
-:root[data-theme='light'] .ledger::before { background: radial-gradient(1100px 520px at 50% -18%, rgba(255, 255, 255, 0.9), transparent 70%); }
+:root[data-theme='light'] .ledger::before { background: radial-gradient(1200px 620px at 50% -22%, #ffffff, transparent 72%), radial-gradient(900px 500px at 100% 110%, rgba(201, 184, 138, 0.10), transparent 70%); }
 
 @layer components {
   .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow); backdrop-filter: blur(14px) saturate(140%); -webkit-backdrop-filter: blur(14px) saturate(140%); }
   .panel-quiet { background: var(--surface-2); border-radius: 16px; }
+  :root[data-theme='light'] .panel { border-color: rgba(0, 0, 0, 0.05); }
   .glass { background: var(--glass); backdrop-filter: blur(24px) saturate(180%); -webkit-backdrop-filter: blur(24px) saturate(180%); border: 1px solid var(--line); }
   .btn { display: inline-flex; align-items: center; justify-content: center; gap: .45rem; font-weight: 550; font-size: .9rem; letter-spacing: -0.01em; border-radius: 999px; padding: .62rem 1.15rem; border: 1px solid transparent; cursor: pointer; white-space: nowrap; transition: transform .15s ease, background-color .2s ease, opacity .2s ease; }
   .btn:active { transform: scale(0.98); }
@@ -137,3 +156,8 @@
 @keyframes dial-orbit { to { transform: rotate(360deg); } }
 .dial-orbit { animation: dial-orbit linear infinite; }
 @media (prefers-reduced-motion: reduce) { .dial-orbit { animation: none; } }
+
+:root[data-theme='light'] .dial-glow { opacity: .3 !important; }
+:root[data-theme='light'] .dial-sweep { display: none; }
+/* Smooth, brief cross-fade only while switching themes. */
+.theme-switching, .theme-switching * { transition: background-color .3s ease, border-color .3s ease, color .3s ease, fill .3s ease, stroke .3s ease !important; }

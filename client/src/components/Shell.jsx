@@ -8,7 +8,7 @@ import {
   PiPlugsLight, PiGearSixLight, PiSparkleLight, PiDotsThreeBold,
 } from 'react-icons/pi';
 import { api, auth, useMe, useHealth } from '../lib/api.js';
-import { Logo, SourceTag } from './ui.jsx';
+import { Logo, SourceTag, ThemeToggle } from './ui.jsx';
 
 const NAV = [
   { to: '/dashboard', label: 'Overview', icon: PiSquaresFourLight, mobile: true },
@@ -102,13 +102,16 @@ export default function Shell() {
         <nav aria-label="Main" className="flex flex-col gap-px">{items.map((n) => link(n, 'flex items-center gap-3 px-3 py-2 rounded-[10px] text-[13.5px] transition-colors'))}</nav>
         <div className="mt-auto px-2">
           {me?.user && <div className="text-sm"><div className="font-semibold">{me.user.name}</div><div className="text-ink-3 text-xs">{me.user.city || me.user.email}</div></div>}
-          <button onClick={signOut} className="mt-3 flex items-center gap-2 text-sm text-ink-3 hover:text-ink"><FiLogOut /> Sign out</button>
+          <div className="mt-3 flex items-center justify-between">
+            <button onClick={signOut} className="flex items-center gap-2 text-sm text-ink-3 hover:text-ink"><FiLogOut /> Sign out</button>
+            <ThemeToggle />
+          </div>
         </div>
       </aside>
 
       <header className="lg:hidden sticky top-0 z-30 glass !border-x-0 !border-t-0 px-4 h-14 flex items-center justify-between">
         <Link to="/dashboard"><Logo size={24} /></Link>
-        <button onClick={() => setAsk(true)} className="chip"><PiSparkleLight /> Ask</button>
+        <div className="flex items-center gap-2"><ThemeToggle /><button onClick={() => setAsk(true)} className="chip !h-9"><PiSparkleLight /> Ask</button></div>
       </header>
 
       <main className="min-w-0 px-4 sm:px-6 lg:px-10 py-6 lg:py-9 pb-28 lg:pb-12">

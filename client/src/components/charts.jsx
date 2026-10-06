@@ -9,7 +9,7 @@ const ORDER = Object.keys(CAT_COLORS);
 // Shared chart grammar: hairline dashed grid, no axis lines, quiet ticks,
 // one dashed reference for the average, glass tooltip.
 const axis = { tickLine: false, axisLine: false, tick: { fill: 'var(--ink-3)', fontSize: 11 }, tickMargin: 10 };
-const grid = { vertical: false, stroke: 'rgba(255,255,255,.06)', strokeDasharray: '2 6' };
+const grid = { vertical: false, stroke: 'var(--grid)', strokeDasharray: '2 6' };
 const avgOf = (arr) => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0);
 
 function Tip({ active, payload, label, names = {}, fmt = inr }) {
@@ -71,7 +71,7 @@ export function MonthlyStack({ months, height = 280, keys = ORDER }) {
     const dim = hover != null && hover !== index, partial = data[index]?.partial;
     return (
       <g opacity={dim ? 0.3 : 1} style={{ transition: 'opacity .2s' }}>
-        <path d={d} fill={CAT_COLORS[k]} fillOpacity={partial ? 0.6 : 0.82} />
+        <path d={d} fill={CAT_COLORS[k]} style={{ fillOpacity: partial ? 'calc(var(--bar-op) * .72)' : 'var(--bar-op)' }} />
         <path d={d} fill="url(#mg-sheen)" />
       </g>
     );
@@ -89,7 +89,7 @@ export function MonthlyStack({ months, height = 280, keys = ORDER }) {
             <defs>
               {/* Cylindrical sheen: lit left edge, matte middle, shaded right edge. */}
               <linearGradient id="mg-sheen" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0" stopColor="#fff" stopOpacity=".28" /><stop offset=".18" stopColor="#fff" stopOpacity=".08" />
+                <stop offset="0" stopColor="#fff" style={{ stopOpacity: 'var(--sheen-hi)' }} /><stop offset=".18" stopColor="#fff" stopOpacity=".08" />
                 <stop offset=".55" stopColor="#000" stopOpacity="0" /><stop offset="1" stopColor="#000" stopOpacity=".32" />
               </linearGradient>
             </defs>
@@ -97,7 +97,7 @@ export function MonthlyStack({ months, height = 280, keys = ORDER }) {
             <XAxis dataKey="label" {...axis} />
             <YAxis {...axis} width={48} tickFormatter={inrShort} tickCount={4} />
             <Tooltip content={<Tip names={CAT_NAMES} />} cursor={false} />
-            {avg > 0 && <ReferenceLine y={avg} stroke="rgba(255,255,255,.22)" strokeDasharray="2 5" label={<AvgLabel value={inrShort(avg)} />} />}
+            {avg > 0 && <ReferenceLine y={avg} stroke="var(--ref)" strokeDasharray="2 5" label={<AvgLabel value={inrShort(avg)} />} />}
             {present.map((k, i) => (
               <Bar key={k} dataKey={k} stackId="s" fill={CAT_COLORS[k]} shape={capsule(k)} maxBarSize={36} animationDuration={800}>
                 {i === present.length - 1 && <LabelList dataKey="_total" content={<TotalLabel />} />}
@@ -127,8 +127,8 @@ export function TrendArea({ data, dataKey = 'amount', color = 'var(--ink)', heig
           <CartesianGrid {...grid} />
           <XAxis dataKey="label" {...axis} />
           <YAxis {...axis} width={48} tickFormatter={inrShort} tickCount={4} />
-          <Tooltip content={<Tip names={{ [dataKey]: name }} />} cursor={{ stroke: 'rgba(255,255,255,.18)', strokeWidth: 1 }} />
-          {avg > 0 && <ReferenceLine y={avg} stroke="rgba(255,255,255,.24)" strokeDasharray="3 4" label={<AvgLabel value={inrShort(avg)} />} />}
+          <Tooltip content={<Tip names={{ [dataKey]: name }} />} cursor={{ stroke: 'var(--cursor)', strokeWidth: 1 }} />
+          {avg > 0 && <ReferenceLine y={avg} stroke="var(--ref)" strokeDasharray="3 4" label={<AvgLabel value={inrShort(avg)} />} />}
           <Area type="monotone" dataKey={dataKey} stroke={color} strokeOpacity={0.25} strokeWidth={7} fill="none" isAnimationActive={false} tooltipType="none" activeDot={false} />
           <Area type="monotone" dataKey={dataKey} name={name} stroke={color} strokeWidth={2} fill={`url(#${id})`} dot={<LastDot />} activeDot={{ r: 4, stroke: 'var(--bg)', strokeWidth: 2, fill: color }} animationDuration={900} />
         </AreaChart>
@@ -161,7 +161,7 @@ export function CompareBars({ rows }) {
                 </span>
               </div>
               <div className="relative h-3 mt-1.5">
-                <div className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-white/[.07]" />
+                <div className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-fg/[.07]" />
                 <div className="absolute left-0 top-1/2 h-[3px] -translate-y-1/2 rounded-full transition-[width] duration-700" style={{ width: `${(r.you / max) * 100}%`, background: r.color || 'var(--ink)' }} />
                 <div className="absolute top-0 bottom-0 w-[2px] rounded-full bg-ink-2" style={{ left: `calc(${(r.average / max) * 100}% - 1px)` }} />
               </div>
@@ -186,7 +186,7 @@ export function Heatmap({ grid: cells }) {
           {cells.map((row, d) => row.map((v, h) => {
             const t = v / max;
             return (
-              <circle key={`${d}-${h}`} cx={h * 22 + 11} cy={d * 22 + 11} r={v ? 1.6 + Math.sqrt(t) * 7.4 : 1} fill={v ? 'var(--gold)' : '#fff'} fillOpacity={v ? 0.18 + t * 0.82 : 0.08}>
+              <circle key={`${d}-${h}`} cx={h * 22 + 11} cy={d * 22 + 11} r={v ? 1.6 + Math.sqrt(t) * 7.4 : 1} fill={v ? 'var(--gold)' : 'var(--fg)'} fillOpacity={v ? 0.18 + t * 0.82 : 0.08}>
                 <title>{`${days[d]} ${h}:00 — ${inr(v)}`}</title>
               </circle>
             );

@@ -4,7 +4,7 @@ import { motion } from 'motion/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { FiChevronRight } from 'react-icons/fi';
 import { api, auth } from '../lib/api.js';
-import { Logo, ErrorNote } from '../components/ui.jsx';
+import { Logo, ErrorNote, ThemeToggle } from '../components/ui.jsx';
 import BrandLogo from '../components/BrandLogo.jsx';
 import Ring from '../components/three/Ring.jsx';
 import { CAT_COLORS, CAT_NAMES } from '../lib/cats.js';
@@ -31,17 +31,17 @@ function Hanging({ x, drop, delay = 0, sway = 1.4, period = 7, className = '', c
       initial={{ opacity: 0, y: -40 }} animate={{ opacity: 1, y: 0, rotate: [sway, -sway, sway] }}
       transition={{ opacity: { delay, duration: 1 }, y: { delay, duration: 1.4, ease }, rotate: { delay, duration: period, repeat: Infinity, ease: 'easeInOut' } }}>
       <div className="relative -translate-x-1/2 flex flex-col items-center">
-        <span className="w-px" style={{ height: drop, background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,.28))' }} />
-        <span className="w-1.5 h-1.5 -mt-[3px] rounded-full bg-white/60" />
+        <span className="w-px" style={{ height: drop, background: 'linear-gradient(to bottom, transparent, var(--thread))' }} />
+        <span className="w-1.5 h-1.5 -mt-[3px] rounded-full bg-fg/40" />
         <div className="-mt-[2px]">{children}</div>
-        {below && <><span className="w-px h-12 bg-white/25" /><span className="w-1.5 h-1.5 -mt-[3px] rounded-full bg-white/60" /><div className="-mt-[2px]">{below}</div></>}
+        {below && <><span className="w-px h-12 bg-fg/20" /><span className="w-1.5 h-1.5 -mt-[3px] rounded-full bg-fg/40" /><div className="-mt-[2px]">{below}</div></>}
       </div>
     </motion.div>
   );
 }
 
-const Card = ({ children, className = '' }) => <div className={`glass rounded-2xl px-4 py-3 shadow-[0_24px_60px_-20px_rgba(0,0,0,.9)] whitespace-nowrap ${className}`}>{children}</div>;
-const Pendant = ({ id, size = 44 }) => <div className="rounded-[14px] p-[3px] glass shadow-[0_20px_40px_-16px_rgba(0,0,0,.9)]"><BrandLogo id={id} size={size} /></div>;
+const Card = ({ children, className = '' }) => <div className={`glass rounded-2xl px-4 py-3 shadow-[var(--shadow-float)] whitespace-nowrap ${className}`}>{children}</div>;
+const Pendant = ({ id, size = 44 }) => <div className="rounded-[14px] p-[3px] glass shadow-[var(--shadow-float)]"><BrandLogo id={id} size={size} /></div>;
 
 export default function Landing() {
   const nav = useNavigate();
@@ -62,6 +62,7 @@ export default function Landing() {
         <div className="max-w-[1100px] mx-auto px-5 h-14 flex items-center justify-between">
           <Logo size={22} />
           <nav className="flex items-center gap-1 text-[13px]">
+            <ThemeToggle className="mr-1 !w-8 !h-8" />
             {signedIn ? <Link to="/dashboard" className="btn btn-primary btn-sm">Open Spend Tracker</Link>
               : <><Link to="/signin" className="px-3 py-1.5 text-ink-2 hover:text-ink">Sign in</Link><Link to="/signup" className="btn btn-primary btn-sm">Get started</Link></>}
           </nav>

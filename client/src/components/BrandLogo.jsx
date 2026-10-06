@@ -24,7 +24,7 @@ export default function BrandLogo({ id, name = '', category, size = 40, color })
 
   if (id && pngW >= MIN_PNG && !broken) {
     return (
-      <span className="relative inline-block shrink-0 overflow-hidden bg-white" style={{ ...tile, boxShadow: '0 0 0 1px rgba(255,255,255,.08), 0 4px 14px -6px rgba(0,0,0,.6)' }}>
+      <span className="relative inline-block shrink-0 overflow-hidden bg-white" style={{ ...tile, boxShadow: '0 0 0 1px var(--line), 0 4px 14px -6px rgba(0,0,0,.6)' }}>
         <img src={`/logos/${id}.png`} alt="" loading="lazy" decoding="async" onError={() => setBroken(true)} className="w-full h-full object-contain" />
       </span>
     );

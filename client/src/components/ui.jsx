@@ -3,6 +3,7 @@ import { animate, motion, useInView, AnimatePresence } from 'motion/react';
 import { FiAlertTriangle, FiInbox, FiX, FiLoader, FiCheck } from 'react-icons/fi';
 import { PiForkKnifeFill, PiShoppingBagFill, PiCarProfileFill, PiFilmSlateFill, PiLightningFill, PiHeartbeatFill, PiUsersFill, PiWalletFill } from 'react-icons/pi';
 import { inr } from '../lib/format.js';
+import { useTheme } from '../lib/theme.js';
 
 export const CAT_ICON = { food: PiForkKnifeFill, shopping: PiShoppingBagFill, transport: PiCarProfileFill, entertainment: PiFilmSlateFill, bills: PiLightningFill, personal: PiHeartbeatFill, p2p: PiUsersFill, total: PiWalletFill };
 
@@ -47,7 +48,7 @@ export function CategoryIcon({ id, color, size = 18 }) {
 export function Bar({ value, max = 100, color = 'var(--ink)', height = 5, marker, label }) {
   const v = Math.max(0, Math.min(100, (value / (max || 1)) * 100));
   return (
-    <div className="relative w-full rounded-full bg-white/[.06]" style={{ height }} role="progressbar" aria-valuenow={Math.round(v)} aria-valuemin={0} aria-valuemax={100} aria-label={label}>
+    <div className="relative w-full rounded-full bg-fg/[.06]" style={{ height }} role="progressbar" aria-valuenow={Math.round(v)} aria-valuemin={0} aria-valuemax={100} aria-label={label}>
       <motion.div className="h-full rounded-full" style={{ background: `linear-gradient(90deg, color-mix(in srgb, ${color} 22%, transparent), ${color})`, boxShadow: `0 0 12px -2px color-mix(in srgb, ${color} 55%, transparent)` }} initial={{ width: 0 }} animate={{ width: `${v}%` }} transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }} />
       {marker != null && <span className="absolute -top-0.5 -bottom-0.5 w-[2px] rounded-full bg-ink-2" style={{ left: `${Math.min(100, (marker / (max || 1)) * 100)}%` }} />}
     </div>
@@ -157,5 +158,22 @@ export function PeriodPicker({ options, value, onChange, label = 'Period' }) {
         </select>
       </label>
     </>
+  );
+}
+
+/** Sun/moon switch between dark and light (long-press-free, one tap). */
+export function ThemeToggle({ className = '' }) {
+  const [, setTheme, resolved] = useTheme();
+  const light = resolved === 'light';
+  return (
+    <button type="button" onClick={() => setTheme(light ? 'dark' : 'light')} aria-label={light ? 'Switch to dark theme' : 'Switch to light theme'} title={light ? 'Dark theme' : 'Light theme'}
+      className={`relative grid place-items-center w-9 h-9 rounded-full bg-surface-2 hover:bg-surface-3 text-ink-2 hover:text-ink transition-colors overflow-hidden ${className}`}>
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.svg key={light ? 'moon' : 'sun'} width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
+          initial={{ y: 14, opacity: 0, rotate: -30 }} animate={{ y: 0, opacity: 1, rotate: 0 }} exit={{ y: -14, opacity: 0, rotate: 30 }} transition={{ duration: 0.25 }}>
+          {light ? <path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11Z" /> : <><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></>}
+        </motion.svg>
+      </AnimatePresence>
+    </button>
   );
 }

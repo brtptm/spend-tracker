@@ -100,13 +100,13 @@ function SlideArt({ color }) {
   const pt = (r, d) => { const a = ((d - 90) * Math.PI) / 180; return [120 + r * Math.cos(a), 120 + r * Math.sin(a)]; };
   return (
     <svg viewBox="0 0 240 240" className="absolute -right-16 top-1/2 -translate-y-1/2 h-[165%] pointer-events-none hidden sm:block" aria-hidden="true">
-      <g stroke="#fff">{ticks.map((d) => { const [x0, y0] = pt(d % 45 === 0 ? 106 : 109, d), [x1, y1] = pt(113, d); return <line key={d} x1={x0} y1={y0} x2={x1} y2={y1} strokeOpacity={d % 45 === 0 ? 0.3 : 0.1} strokeWidth=".6" />; })}</g>
-      <circle cx="120" cy="120" r="92" fill="none" stroke="#fff" strokeOpacity=".08" strokeWidth=".8" />
-      <circle cx="120" cy="120" r="66" fill="none" stroke="#fff" strokeOpacity=".06" strokeWidth=".8" strokeDasharray="1 4" />
-      <circle cx="120" cy="120" r="40" fill="none" stroke="#fff" strokeOpacity=".05" strokeWidth=".8" />
+      <g stroke="var(--fg)">{ticks.map((d) => { const [x0, y0] = pt(d % 45 === 0 ? 106 : 109, d), [x1, y1] = pt(113, d); return <line key={d} x1={x0} y1={y0} x2={x1} y2={y1} strokeOpacity={d % 45 === 0 ? 0.3 : 0.1} strokeWidth=".6" />; })}</g>
+      <circle cx="120" cy="120" r="92" fill="none" stroke="var(--fg)" strokeOpacity=".08" strokeWidth=".8" />
+      <circle cx="120" cy="120" r="66" fill="none" stroke="var(--fg)" strokeOpacity=".06" strokeWidth=".8" strokeDasharray="1 4" />
+      <circle cx="120" cy="120" r="40" fill="none" stroke="var(--fg)" strokeOpacity=".05" strokeWidth=".8" />
       <circle cx="120" cy="120" r="92" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeDasharray="190 600" transform="rotate(-150 120 120)" />
-      <circle cx={pt(92, -60)[0]} cy={pt(92, -60)[1]} r="3" fill={color} stroke="#000" strokeWidth="1.5" />
-      <g className="dial-orbit" style={{ transformOrigin: '120px 120px', animationDuration: '60s' }}><circle cx="120" cy="54" r="1.4" fill="#fff" fillOpacity=".6" /></g>
+      <circle cx={pt(92, -60)[0]} cy={pt(92, -60)[1]} r="3" fill={color} stroke="var(--bg)" strokeWidth="1.5" />
+      <g className="dial-orbit" style={{ transformOrigin: '120px 120px', animationDuration: '60s' }}><circle cx="120" cy="54" r="1.4" fill="var(--fg)" fillOpacity=".6" /></g>
     </svg>
   );
 }
@@ -214,8 +214,8 @@ export function InsightCard({ insight: i, featured }) {
   const m = i.metrics;
   const max = m ? Math.max(m.current, m.average) * 1.08 : 1;
   const body = (
-    <div className="relative h-full flex flex-col overflow-hidden rounded-2xl border border-line bg-white/[.025] p-5 transition-colors group-hover:bg-white/[.045] group-hover:border-white/[.12]">
-      <div className="pointer-events-none absolute -top-16 -right-16 w-48 h-48 rounded-full blur-3xl opacity-[.09]" style={{ background: s.color }} aria-hidden="true" />
+    <div className="relative h-full flex flex-col overflow-hidden rounded-2xl border border-line bg-fg/[.025] p-5 transition-colors group-hover:bg-fg/[.045] group-hover:border-fg/[.12]">
+      <div className="pointer-events-none absolute -top-16 -right-16 w-48 h-48 rounded-full blur-3xl" style={{ background: s.color, opacity: 'var(--tint)' }} aria-hidden="true" />
       <div className="relative flex items-center gap-2.5">
         <CategoryIcon id={i.category} size={12} />
         <span className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium" style={{ color: s.color, background: `color-mix(in srgb, ${s.color} 12%, transparent)` }}>
@@ -235,7 +235,7 @@ export function InsightCard({ insight: i, featured }) {
           {m && (
             <div className="w-full sm:flex-1 min-w-0" title={`You ${inr(m.current)} · similar users ${inr(m.average)}`}>
               <div className="relative h-2.5">
-                <div className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-white/[.08]" />
+                <div className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-fg/[.08]" />
                 <div className="absolute left-0 top-1/2 h-[3px] -translate-y-1/2 rounded-full" style={{ width: `${(m.current / max) * 100}%`, background: `linear-gradient(90deg, color-mix(in srgb, ${s.color} 25%, transparent), ${s.color})` }} />
                 <div className="absolute top-0 bottom-0 w-[2px] rounded-full bg-ink-2" style={{ left: `${(m.average / max) * 100}%` }} />
               </div>

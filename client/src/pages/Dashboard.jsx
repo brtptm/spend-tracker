@@ -150,8 +150,8 @@ export default function Dashboard() {
         <ul className="mt-4 -mx-6 px-6 sm:mx-0 sm:px-0 flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-3 overflow-x-auto sm:overflow-visible snap-x snap-mandatory scroll-px-6 no-scrollbar">
           {data.recommendations.map((r) => (
             <li key={r.id} className="shrink-0 w-[78%] sm:w-auto snap-start">
-              <Link to="/recommendations" className="group relative h-full flex flex-col overflow-hidden rounded-2xl border border-line bg-white/[.025] p-5 transition-colors hover:bg-white/[.045] hover:border-white/[.12]">
-                <div className="pointer-events-none absolute -top-16 -right-16 w-44 h-44 rounded-full blur-3xl opacity-[.08]" style={{ background: 'var(--positive)' }} aria-hidden="true" />
+              <Link to="/recommendations" className="group relative h-full flex flex-col overflow-hidden rounded-2xl border border-line bg-fg/[.025] p-5 transition-colors hover:bg-fg/[.045] hover:border-fg/[.12]">
+                <div className="pointer-events-none absolute -top-16 -right-16 w-44 h-44 rounded-full blur-3xl" style={{ background: 'var(--positive)', opacity: 'var(--tint)' }} aria-hidden="true" />
                 <div className="relative flex items-center gap-2.5"><CategoryIcon id={r.category} size={12} /><span className="text-[11px] text-ink-3">{r.difficulty} · {r.timeToImplement}</span><FiChevronRight className="ml-auto text-ink-3 opacity-0 group-hover:opacity-100 transition-opacity" /></div>
                 <div className="relative mt-4 flex items-baseline gap-1.5"><span className="num text-[2rem] leading-none tracking-[-0.03em] text-positive">{inr(r.savingsMonthly)}</span><span className="text-xs text-ink-3">{r.oneTime ? 'one-time' : 'a month'}</span></div>
                 <div className="relative font-medium leading-snug mt-3">{r.title}</div>
