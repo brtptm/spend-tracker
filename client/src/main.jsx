@@ -7,14 +7,14 @@ import { queryClient } from './lib/api.js';
 import { router } from './App.jsx';
 import { applyTheme } from './lib/theme.js';
 import './index.css';
-import Starfield from './components/Starfield.jsx';
+import SpaceBackdrop from './components/space/SpaceBackdrop.jsx';
 
 try { applyTheme(localStorage.getItem('st-theme') || 'dark'); } catch { applyTheme('dark'); }
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <MotionConfig reducedMotion="user">
-      <Starfield />
+      <SpaceBackdrop />
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
       </QueryClientProvider>

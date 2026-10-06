@@ -128,6 +128,17 @@
   .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow); backdrop-filter: blur(14px) saturate(140%); -webkit-backdrop-filter: blur(14px) saturate(140%); }
   .panel-quiet { background: var(--surface-2); border-radius: 16px; }
   :root[data-theme='light'] .panel { border-color: rgba(0, 0, 0, 0.05); }
+  /* Dark theme: frosted glass over deep space — translucent body, soft top sheen, a fine light catch on
+     the upper edge, and enough blur that text over stars or the planet's rim stays perfectly readable. */
+  :root:not([data-theme='light']) .panel {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.012) 38%, rgba(255, 255, 255, 0) 100%), rgba(9, 9, 11, 0.56);
+    border-color: rgba(255, 255, 255, 0.075);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.09), inset 0 0 0 1px rgba(255, 255, 255, 0.015), 0 30px 80px -40px rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(26px) saturate(150%); -webkit-backdrop-filter: blur(26px) saturate(150%);
+  }
+  /* Let the fixed space canvas show through: html stays black, the body itself is transparent. */
+  :root:not([data-theme='light']) body { background: transparent; }
+  :root:not([data-theme='light']) .glass { background: rgba(10, 10, 12, 0.6); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08); }
   .glass { background: var(--glass); backdrop-filter: blur(24px) saturate(180%); -webkit-backdrop-filter: blur(24px) saturate(180%); border: 1px solid var(--line); }
   .btn { display: inline-flex; align-items: center; justify-content: center; gap: .45rem; font-weight: 550; font-size: .9rem; letter-spacing: -0.01em; border-radius: 999px; padding: .62rem 1.15rem; border: 1px solid transparent; cursor: pointer; white-space: nowrap; transition: transform .15s ease, background-color .2s ease, opacity .2s ease; }
   .btn:active { transform: scale(0.98); }
