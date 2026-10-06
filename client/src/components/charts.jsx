@@ -55,7 +55,7 @@ export function MonthlyStack({ months, height = 280, keys = ORDER }) {
   const data = months.map((m) => ({ ...m, label: m.partial ? `${m.label}*` : m.label, _total: present.reduce((s, k) => s + (m[k] || 0), 0) }));
   const avg = avgOf(data.filter((m) => !m.partial).map((m) => m._total));
   // One continuous column per month: only the outermost ends are rounded,
-  // categories are separated by hairline seams, and a horizontal sheen runs
+  // categories meet seamlessly, and a horizontal sheen runs
   // across every segment so the stack reads as a single glass cylinder.
   const ends = data.map((m) => { const nz = present.filter((k) => m[k] > 0); return { bottom: nz[0], top: nz[nz.length - 1] }; });
   const roundedRect = (x, y, w, h, rt, rb) => `M${x},${y + rt} a${rt},${rt} 0 0 1 ${rt},${-rt} h${w - 2 * rt} a${rt},${rt} 0 0 1 ${rt},${rt} v${h - rt - rb} a${rb},${rb} 0 0 1 ${-rb},${rb} h${-(w - 2 * rb)} a${rb},${rb} 0 0 1 ${-rb},${-rb} z`;
@@ -63,7 +63,7 @@ export function MonthlyStack({ months, height = 280, keys = ORDER }) {
     const { x, y, width, height: h0, index } = p;
     if (!h0 || h0 < 0.5) return null;
     const isTop = ends[index]?.top === k, isBottom = ends[index]?.bottom === k;
-    const seam = isTop ? 0 : 1; // 1px gap above every segment except the top one
+    const seam = 0;
     const h = Math.max(0.5, h0 - seam), y1 = y + seam;
     const R = Math.min(width / 2, 4);
     const rt = isTop ? Math.min(R, h / (isBottom ? 2 : 1)) : 0, rb = isBottom ? Math.min(R, h / (isTop ? 2 : 1)) : 0;
@@ -72,7 +72,6 @@ export function MonthlyStack({ months, height = 280, keys = ORDER }) {
     return (
       <g opacity={dim ? 0.3 : 1} style={{ transition: 'opacity .2s' }}>
         <path d={d} fill={CAT_COLORS[k]} fillOpacity={partial ? 0.6 : 0.82} />
-        {partial && <path d={d} fill="url(#mg-hatch)" />}
         <path d={d} fill="url(#mg-sheen)" />
       </g>
     );
@@ -93,7 +92,6 @@ export function MonthlyStack({ months, height = 280, keys = ORDER }) {
                 <stop offset="0" stopColor="#fff" stopOpacity=".28" /><stop offset=".18" stopColor="#fff" stopOpacity=".08" />
                 <stop offset=".55" stopColor="#000" stopOpacity="0" /><stop offset="1" stopColor="#000" stopOpacity=".32" />
               </linearGradient>
-              <pattern id="mg-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="2.5" height="6" fill="#000" fillOpacity=".45" /></pattern>
             </defs>
             <CartesianGrid {...grid} />
             <XAxis dataKey="label" {...axis} />
