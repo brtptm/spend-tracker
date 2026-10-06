@@ -52,7 +52,7 @@ export default function Partner() {
   const t = perf.data?.totals;
 
   return (
-    <div className="grid gap-6">
+    <div className="grid grid-cols-1 gap-6">
       <PageHead title="Paytm partner API" sub="What Paytm sees — only for users who opted in. Try the endpoints live." />
       <section className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[['Impressions', t?.views ?? '—'], ['Click-through', t ? `${(t.ctr * 100).toFixed(1)}%` : '—', t ? `vs ${(t.industryCtrBaseline * 100).toFixed(1)}% industry` : ''], ['Conversions', t?.conversions ?? '—', t ? `${(t.conversionRate * 100).toFixed(0)}% of clicks` : ''], ['Revenue / 1,000 views', t ? inr(t.revenuePer1kViews) : '—', t ? `${inr(t.revenue)} total · CPM ${inr(t.revenueByModel.cpm)} · CPC ${inr(t.revenueByModel.cpc)} · CPA ${inr(t.revenueByModel.cpa)}` : '']].map(([l, v, s]) => (

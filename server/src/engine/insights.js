@@ -149,7 +149,7 @@ export function rankOffers(A, profile, { personalization = true, dismissed = new
     const baseCtr = tier === 1 ? 0.17 : tier === 2 ? 0.07 : 0.025;
     const expectedCTR = +(baseCtr * (0.7 + relevance * 0.5)).toFixed(3);
     scored.push({
-      adId: c.id, campaignId: c.id, advertiser: c.advertiser, emoji: c.emoji, targetCategory: c.category, targetSub: c.sub, offerType: c.offerType,
+      adId: c.id, campaignId: c.id, advertiser: c.advertiser, logo: c.logo, targetCategory: c.category, targetSub: c.sub, offerType: c.offerType,
       title: c.title, description: c.description, discountAmount: c.discount || 0, minOrderAmount: c.minOrder || 0, couponCode: c.code,
       relevanceScore: +relevance.toFixed(2), relevanceReason: reason, tier, expectedCTR, priority: tier === 1 ? 'high' : tier === 2 ? 'medium' : 'low',
       impressionValue: c.cpm, clickValue: c.cpc, conversionValue: c.cpa, expectedRevenuePerView: +(c.cpm / 1000 + expectedCTR * c.cpc).toFixed(2),
@@ -160,7 +160,7 @@ export function rankOffers(A, profile, { personalization = true, dismissed = new
   // Generic offers: campaigns with no signal in this user's spending (shown after personalised ones).
   const seen = new Set(scored.map((a) => a.adId));
   const generic = CAMPAIGNS.filter((c) => !seen.has(c.id) && !(dismissed.get(c.id) && Date.now() - dismissed.get(c.id) < 14 * 86400000)).map((c) => ({
-    adId: c.id, campaignId: c.id, advertiser: c.advertiser, targetCategory: c.category, targetSub: c.sub, offerType: c.offerType,
+    adId: c.id, campaignId: c.id, advertiser: c.advertiser, logo: c.logo, targetCategory: c.category, targetSub: c.sub, offerType: c.offerType,
     title: c.title, description: c.description, discountAmount: c.discount || 0, minOrderAmount: c.minOrder || 0, couponCode: c.code,
     relevanceScore: 0.1, relevanceReason: 'Popular with Paytm users this week.', tier: 4, expectedCTR: 0.012, priority: 'low',
     impressionValue: c.cpm, clickValue: c.cpc, conversionValue: c.cpa, expectedRevenuePerView: +(c.cpm / 1000 + 0.012 * c.cpc).toFixed(2), displayPosition: 'feed', color: CATEGORY[c.category].color, personalized: false,

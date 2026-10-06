@@ -3,13 +3,13 @@
 // in fixed order — a category keeps its color everywhere.
 
 export const CATEGORIES = [
-  { id: 'food', name: 'Food & Dining', emoji: '🍕', color: '#3987e5', subs: { food_delivery: 'Food delivery', restaurants: 'Restaurants', groceries: 'Groceries', street_food: 'Street food', coffee: 'Coffee shops' } },
-  { id: 'shopping', name: 'Shopping', emoji: '🛍️', color: '#d95926', subs: { electronics: 'Electronics', fashion: 'Fashion', home: 'Home & kitchen', beauty: 'Beauty & care', marketplace: 'Marketplace' } },
-  { id: 'transport', name: 'Travel & Transport', emoji: '🚕', color: '#199e70', subs: { cabs: 'Cabs & autos', flights: 'Flights', hotels: 'Hotels', bus_train: 'Bus & train', fuel: 'Fuel', metro: 'Metro' } },
-  { id: 'entertainment', name: 'Entertainment', emoji: '🎬', color: '#c98500', subs: { streaming: 'Streaming', gaming: 'Gaming', fitness: 'Gym & fitness', events: 'Movies & events', music: 'Music', software: 'Apps & software' } },
-  { id: 'bills', name: 'Bills & Utilities', emoji: '💡', color: '#d55181', subs: { electricity: 'Electricity', internet: 'Internet', mobile: 'Mobile recharge', insurance: 'Insurance', rent: 'Rent', gas: 'Gas' } },
-  { id: 'personal', name: 'Health & Finance', emoji: '🩺', color: '#008300', subs: { healthcare: 'Healthcare', emi: 'Loans & EMI', investments: 'Investments', donations: 'Donations', education: 'Education' } },
-  { id: 'p2p', name: 'Peer-to-Peer', emoji: '👥', color: '#9085e9', subs: { friends: 'Friend payments', split: 'Split bills', family: 'Family transfers' } },
+  { id: 'food', name: 'Food & Dining', emoji: '🍕', color: '#5b8def', subs: { food_delivery: 'Food delivery', restaurants: 'Restaurants', groceries: 'Groceries', street_food: 'Street food', coffee: 'Coffee shops' } },
+  { id: 'shopping', name: 'Shopping', emoji: '🛍️', color: '#c97b4a', subs: { electronics: 'Electronics', fashion: 'Fashion', home: 'Home & kitchen', beauty: 'Beauty & care', marketplace: 'Marketplace' } },
+  { id: 'transport', name: 'Travel & Transport', emoji: '🚕', color: '#3fa58a', subs: { cabs: 'Cabs & autos', flights: 'Flights', hotels: 'Hotels', bus_train: 'Bus & train', fuel: 'Fuel', metro: 'Metro' } },
+  { id: 'entertainment', name: 'Entertainment', emoji: '🎬', color: '#8a7fd6', subs: { streaming: 'Streaming', gaming: 'Gaming', fitness: 'Gym & fitness', events: 'Movies & events', music: 'Music', software: 'Apps & software' } },
+  { id: 'bills', name: 'Bills & Utilities', emoji: '💡', color: '#a98b3c', subs: { electricity: 'Electricity', internet: 'Internet', mobile: 'Mobile recharge', insurance: 'Insurance', rent: 'Rent', gas: 'Gas' } },
+  { id: 'personal', name: 'Health & Finance', emoji: '🩺', color: '#cc6a8c', subs: { healthcare: 'Healthcare', emi: 'Loans & EMI', investments: 'Investments', donations: 'Donations', education: 'Education' } },
+  { id: 'p2p', name: 'Peer-to-Peer', emoji: '👥', color: '#2b98c7', subs: { friends: 'Friend payments', split: 'Split bills', family: 'Family transfers' } },
 ];
 export const CATEGORY = Object.fromEntries(CATEGORIES.map((c) => [c.id, c]));
 export const categoryName = (id) => CATEGORY[id]?.name || 'Other';

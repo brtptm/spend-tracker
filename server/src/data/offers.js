@@ -37,6 +37,13 @@ export const CAMPAIGNS = [
   o('sip-start', 'Paytm Money', { category: 'personal', sub: 'investments', alsoForSavers: true }, { offerType: 'new_service', title: 'Turn your savings into a ₹1,000 SIP', description: 'Invest what you save — zero commission direct funds.', code: null }, { cpm: 100, cpc: 30, cpa: 600 }, { emoji: '📈', savingsLogic: 'invest_savings' }),
 ];
 
+// Logo id (client/public/logos/<id>.png) for each campaign's advertiser.
+const LOGO = { 'swiggy-300': 'swiggy', 'swiggy-one': 'swiggy', 'zomato-gold': 'zomato', 'blinkit-150': 'blinkit', 'bigbasket-1000': 'bigbasket', eatfit: 'eatfit', 'starbucks-bogo': 'starbucks',
+  'myntra-20': 'myntra', 'ajio-500': 'ajio', 'nykaa-15': 'nykaa', 'amazon-card': 'amazon', 'croma-emi': 'croma', 'uber-pass': 'uber', 'rapido-50': 'rapido', 'metro-card': 'paytm',
+  'mmt-hotel': 'makemytrip', 'travel-insurance': 'paytm', 'stream-bundle': 'paytm', 'netflix-family': 'netflix', 'bms-150': 'bookmyshow', 'budget-gym': 'fitpass',
+  'bill-autopay': 'paytm', 'jio-annual': 'jio', 'health-plan': 'paytm', 'sip-start': 'paytmmoney' };
+for (const c of CAMPAIGNS) c.logo = LOGO[c.id] || null;
+
 // Illustrative cohort benchmarks (₹/month) by monthly income band. Sample data for the demo.
 export const BENCHMARKS = {
   low: { food: 7000, shopping: 4500, transport: 3200, entertainment: 1500, bills: 4500, personal: 2500, p2p: 2500 },

@@ -4,7 +4,8 @@ import { motion } from 'motion/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { FiChevronRight } from 'react-icons/fi';
 import { api, auth } from '../lib/api.js';
-import { Logo, ErrorNote, CategoryIcon } from '../components/ui.jsx';
+import { Logo, ErrorNote } from '../components/ui.jsx';
+import BrandLogo from '../components/BrandLogo.jsx';
 import Ring from '../components/three/Ring.jsx';
 import { CAT_COLORS, CAT_NAMES } from '../lib/cats.js';
 
@@ -20,13 +21,27 @@ const PERSONAS = [
 const ease = [0.22, 1, 0.36, 1];
 const up = (d = 0) => ({ initial: { opacity: 0, y: 24 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: '-60px' }, transition: { duration: 0.8, ease, delay: d } });
 
-function Callout({ className, delay, children }) {
+/**
+ * A card suspended on a hairline thread from the top of the hero, swaying a
+ * fraction of a degree. `drop` is the thread length in px.
+ */
+function Hanging({ x, drop, delay = 0, sway = 1.4, period = 7, className = '', children, below }) {
   return (
-    <motion.div className={`absolute glass rounded-2xl px-4 py-3 shadow-2xl hidden md:block ${className}`} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: [0, -6, 0] }} transition={{ opacity: { delay, duration: 0.8 }, y: { delay, duration: 6, repeat: Infinity, ease: 'easeInOut' } }}>
-      {children}
+    <motion.div className={`absolute top-0 ${className}`} style={{ left: x, transformOrigin: 'top center' }}
+      initial={{ opacity: 0, y: -40 }} animate={{ opacity: 1, y: 0, rotate: [sway, -sway, sway] }}
+      transition={{ opacity: { delay, duration: 1 }, y: { delay, duration: 1.4, ease }, rotate: { delay, duration: period, repeat: Infinity, ease: 'easeInOut' } }}>
+      <div className="relative -translate-x-1/2 flex flex-col items-center">
+        <span className="w-px" style={{ height: drop, background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,.28))' }} />
+        <span className="w-1.5 h-1.5 -mt-[3px] rounded-full bg-white/60" />
+        <div className="-mt-[2px]">{children}</div>
+        {below && <><span className="w-px h-12 bg-white/25" /><span className="w-1.5 h-1.5 -mt-[3px] rounded-full bg-white/60" /><div className="-mt-[2px]">{below}</div></>}
+      </div>
     </motion.div>
   );
 }
+
+const Card = ({ children, className = '' }) => <div className={`glass rounded-2xl px-4 py-3 shadow-[0_24px_60px_-20px_rgba(0,0,0,.9)] whitespace-nowrap ${className}`}>{children}</div>;
+const Pendant = ({ id, size = 44 }) => <div className="rounded-[14px] p-[3px] glass shadow-[0_20px_40px_-16px_rgba(0,0,0,.9)]"><BrandLogo id={id} size={size} /></div>;
 
 export default function Landing() {
   const nav = useNavigate();
@@ -70,16 +85,32 @@ export default function Landing() {
         </section>
 
         <section className="relative max-w-[1100px] mx-auto px-5">
-          <div className="relative isolate h-[440px] sm:h-[600px]">
+          <div className="relative isolate h-[420px] sm:h-[640px]">
             <Ring segments={SAMPLE} variant="hero" interactive={false} className="-z-10">
               <motion.div className="text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.1, duration: 1 }}>
                 <div className="eyebrow">October</div>
                 <div className="num text-[2.4rem] sm:text-[3rem] mt-1">₹85,000</div>
               </motion.div>
             </Ring>
-            <Callout className="left-[2%] top-[22%]" delay={1.4}><div className="flex items-center gap-3"><CategoryIcon id="food" color={CAT_COLORS.food} size={14} /><div><div className="text-xs text-ink-3">Food & Dining</div><div className="num text-lg">₹28,000</div></div></div></Callout>
-            <Callout className="right-[3%] top-[30%]" delay={1.7}><div className="text-xs text-ink-3">You could keep</div><div className="num text-lg text-positive">₹16,750 / month</div></Callout>
-            <Callout className="left-[10%] bottom-[12%]" delay={2}><div className="text-xs text-ink-3">Swiggy One · 95% match</div><div className="font-medium text-sm">Free delivery for 3 months</div></Callout>
+            {/* Hanging elements — desktop: full cards; mobile: two quiet logo pendants. */}
+            <div className="hidden lg:block" aria-hidden="true">
+              <Hanging x="15%" drop={110} delay={0.9} period={8} sway={1}
+                below={<Card><div className="text-[11px] text-ink-3">Swiggy One · 95% match</div><div className="font-medium text-sm mt-0.5">Free delivery for 3 months</div><div className="text-[11px] text-positive mt-1">Saves ≈ ₹1,900</div></Card>}>
+                <Card><div className="flex items-center gap-3"><BrandLogo id="swiggy" size={32} /><div><div className="text-[11px] text-ink-3">Swiggy · last month</div><div className="num text-[17px]">₹12,000 <span className="text-ink-3 text-xs font-normal">45 orders</span></div></div></div></Card>
+              </Hanging>
+              <Hanging x="2%" drop={400} delay={1.6} period={9} sway={1.8}><Pendant id="uber" size={38} /></Hanging>
+              <Hanging x="33%" drop={36} delay={2} period={7} sway={2.2}><Pendant id="amazon" size={34} /></Hanging>
+              <Hanging x="84%" drop={90} delay={1.1} period={8.5} sway={1}
+                below={<Card><div className="flex items-center gap-2"><BrandLogo id="netflix" size={22} /><BrandLogo id="hotstar" size={22} /><span className="text-[11px] text-warning ml-1">Overlap</span></div><div className="text-sm mt-1.5">Two streaming plans · <span className="num">₹948</span>/mo</div></Card>}>
+                <Card><div className="text-[11px] text-ink-3">You could keep</div><div className="num text-[19px] text-positive">₹16,750<span className="text-ink-3 text-xs font-normal"> / month</span></div></Card>
+              </Hanging>
+              <Hanging x="98%" drop={300} delay={1.5} period={6.5} sway={2}><Pendant id="zomato" size={40} /></Hanging>
+              <Hanging x="67%" drop={56} delay={2.2} period={8} sway={2}><Pendant id="spotify" size={34} /></Hanging>
+            </div>
+            <div className="lg:hidden" aria-hidden="true">
+              <Hanging x="12%" drop={36} delay={1} sway={2}><Pendant id="swiggy" size={30} /></Hanging>
+              <Hanging x="88%" drop={70} delay={1.3} sway={2}><Pendant id="netflix" size={30} /></Hanging>
+            </div>
           </div>
         </section>
 

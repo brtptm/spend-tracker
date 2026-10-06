@@ -6,6 +6,7 @@ import { inr, inrShort, dt } from '../lib/format.js';
 import { Spinner, ErrorNote, Bar } from '../components/ui.jsx';
 import { OfferCard } from '../components/cards.jsx';
 import { TrendArea, SimpleBars } from '../components/charts.jsx';
+import BrandLogo from '../components/BrandLogo.jsx';
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -18,11 +19,11 @@ export default function Merchant() {
   const m = data.merchant;
   const max = Math.max(...data.compare.map((x) => x.monthly));
   return (
-    <div className="grid gap-6">
+    <div className="grid grid-cols-1 gap-6">
       <button onClick={() => nav(-1)} className="inline-flex items-center gap-1.5 text-sm text-ink-3 hover:text-ink w-fit"><FiArrowLeft /> Back</button>
       <header>
         <Link to={`/category/${m.category}`} className="text-sm hover:underline" style={{ color: m.color }}>{m.categoryName} · {m.subName}</Link>
-        <h1 className="text-[2.2rem] sm:text-[2.8rem] mt-1">{m.name}</h1>
+        <div className="flex items-center gap-4 mt-2"><BrandLogo id={m.id} name={m.name} category={m.category} size={56} /><h1 className="text-[2.2rem] sm:text-[2.8rem]">{m.name}</h1></div>
         <p className="text-ink-2">Since {dt(data.firstSeen, 'MMM yyyy')} · last payment {dt(data.lastSeen, 'd MMM')}</p>
       </header>
       <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -31,7 +32,7 @@ export default function Merchant() {
         ))}
       </section>
       <section className="grid lg:grid-cols-2 gap-5">
-        <div className="panel p-6"><h2 className="text-xl">Monthly spend</h2><div className="mt-4"><TrendArea data={data.series.filter((x) => !x.partial)} color={m.color} name={m.name} /></div></div>
+        <div className="panel p-6"><h2 className="text-xl">Monthly spend</h2><div className="mt-4"><TrendArea data={data.series.filter((x) => !x.partial)} color={m.color || "var(--gold)"} name={m.name} /></div></div>
         <div className="panel p-6">
           <h2 className="text-xl">{m.subName}: how {m.name} compares</h2>
           <ul className="mt-5 grid gap-4">

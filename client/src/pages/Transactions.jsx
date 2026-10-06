@@ -7,6 +7,7 @@ import { api } from '../lib/api.js';
 import { inr, dt, inrShort } from '../lib/format.js';
 import { Spinner, ErrorNote, PageHead, Modal, Toast, CategoryIcon, Segmented } from '../components/ui.jsx';
 import { CAT_COLORS, CAT_NAMES } from '../lib/cats.js';
+import BrandLogo from '../components/BrandLogo.jsx';
 
 
 function Recategorize({ txn, categories, onClose, onSaved }) {
@@ -97,7 +98,7 @@ export default function Transactions() {
       {list.isLoading ? <Spinner /> : list.error ? <ErrorNote error={list.error} onRetry={list.refetch} /> : !rows.length ? (
         <p className="panel p-12 text-center text-ink-3">No payments match. Try a different search.</p>
       ) : (
-        <div className="grid gap-6">
+        <div className="grid grid-cols-1 gap-6">
           {(sort.startsWith('date') ? Object.entries(rows.reduce((g, t) => { const k = t.timestamp.slice(0, 10); (g[k] ||= []).push(t); return g; }, {})) : [['all', rows]]).map(([day, items]) => (
             <section key={day}>
               {day !== 'all' && (
@@ -109,7 +110,7 @@ export default function Transactions() {
               <ul className="panel !rounded-[18px] divide-y divide-line overflow-visible">
                 {items.map((t) => (
                   <li key={t.transactionId} className="pl-4 pr-2 py-3 flex items-center gap-3.5 group">
-                    <CategoryIcon id={t.categoryAssigned} color={CAT_COLORS[t.categoryAssigned]} size={15} />
+                    <BrandLogo id={t.merchantId} name={t.merchantName} category={t.categoryAssigned} size={38} />
                     <div className="min-w-0 flex-1">
                       <Link to={`/merchant/${t.merchantId || t.merchantName.toLowerCase().replace(/\W+/g, '-')}`} className="font-medium truncate block hover:underline">{t.merchantName}</Link>
                       <div className="text-[12.5px] text-ink-3 truncate">

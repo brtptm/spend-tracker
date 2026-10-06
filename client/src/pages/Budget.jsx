@@ -45,7 +45,7 @@ export default function Budget() {
   const useSuggested = () => setDraft(Object.fromEntries(sug.data.suggestions.map((s) => [s.category, s.suggested])));
 
   return (
-    <div className="grid gap-6">
+    <div className="grid grid-cols-1 gap-6">
       <Toast message={toast} onDone={() => setToast('')} />
       <PageHead title="Budget" sub={`Day ${st.dayOfMonth} of ${st.daysInMonth}. The white line shows where you should be by today.`} />
       {st.items.length > 0 && (

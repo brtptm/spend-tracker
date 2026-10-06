@@ -58,13 +58,13 @@ export default function Dashboard() {
   const t = data.series.trend;
 
   return (
-    <div className="grid gap-6">
+    <div className="grid grid-cols-1 gap-6">
       <header className="flex flex-wrap items-end justify-between gap-4 pt-1">
         <div>
           <div className="eyebrow">{new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
           <h1 className="text-[2.2rem] sm:text-[2.75rem] mt-1">{greeting()}{firstName ? `, ${firstName}` : ''}.</h1>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 min-w-0 max-w-full">
           <Segmented label="Period" value={period} onChange={setPeriod} options={PERIODS.filter(([k]) => ['30d', 'month', 'last_month', '3m', '6m'].includes(k))} />
           <button className="btn btn-ghost btn-sm" onClick={() => api.download('/export/pdf', 'spend-tracker-report.pdf')}><FiDownload /> Report</button>
         </div>
@@ -73,7 +73,7 @@ export default function Dashboard() {
       {data.carousel?.length > 0 && <OfferCarousel offers={data.carousel} />}
 
       <section className="panel !p-0 overflow-hidden grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]" aria-label="Where your money went">
-        <div className="relative isolate min-h-[380px] sm:min-h-[440px] border-b lg:border-b-0 lg:border-r border-line">
+        <div className="relative isolate min-h-[350px] sm:min-h-[440px] border-b lg:border-b-0 lg:border-r border-line">
           <Ring segments={segments} onSelect={(id) => id && nav(`/category/${id}`)} className="-z-10">
             <div className="text-center">
               <div className="eyebrow">Spent · {s.label.toLowerCase()}</div>

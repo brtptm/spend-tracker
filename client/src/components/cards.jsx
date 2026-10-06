@@ -6,15 +6,12 @@ import { useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api.js';
 import { inr } from '../lib/format.js';
 import { SEVERITY, CategoryIcon } from './ui.jsx';
+import BrandLogo from './BrandLogo.jsx';
 
 const initials = (name) => name.replace(/[^A-Za-z0-9 ]/g, '').split(' ').filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
 
 export function Monogram({ offer, size = 40 }) {
-  return (
-    <span className="inline-grid place-items-center rounded-full shrink-0 text-white font-semibold" style={{ width: size, height: size, background: offer.color, fontSize: size * 0.36, letterSpacing: '-0.02em' }} aria-hidden="true">
-      {initials(offer.advertiser)}
-    </span>
-  );
+  return <BrandLogo id={offer.logo} name={offer.advertiser} size={size} color={offer.color} />;
 }
 
 /** Impression/click/feedback logic shared by cards and carousel slides. */
@@ -97,15 +94,19 @@ export function OfferCard({ offer }) {
   );
 }
 
-/** Decorative arc art echoing the spending ring, tinted per brand. */
+/** Decorative orbital line-art echoing the spending dial; a single brand-colored arc. */
 function SlideArt({ color }) {
+  const ticks = Array.from({ length: 72 }, (_, i) => i * 5);
+  const pt = (r, d) => { const a = ((d - 90) * Math.PI) / 180; return [120 + r * Math.cos(a), 120 + r * Math.sin(a)]; };
   return (
-    <svg viewBox="0 0 240 240" className="absolute -right-10 top-1/2 -translate-y-1/2 h-[150%] opacity-90 pointer-events-none" aria-hidden="true">
-      <defs><linearGradient id={`g${color.slice(1)}`} x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor={color} stopOpacity=".95" /><stop offset="1" stopColor={color} stopOpacity=".15" /></linearGradient></defs>
-      <circle cx="120" cy="120" r="92" fill="none" stroke="var(--surface-3)" strokeWidth="18" />
-      <circle cx="120" cy="120" r="92" fill="none" stroke={`url(#g${color.slice(1)})`} strokeWidth="18" strokeLinecap="round" strokeDasharray="400 600" transform="rotate(-110 120 120)" />
-      <circle cx="120" cy="120" r="58" fill="none" stroke="var(--surface-3)" strokeWidth="10" opacity=".7" />
-      <circle cx="120" cy="120" r="58" fill="none" stroke={color} strokeOpacity=".55" strokeWidth="10" strokeLinecap="round" strokeDasharray="120 400" transform="rotate(40 120 120)" />
+    <svg viewBox="0 0 240 240" className="absolute -right-16 top-1/2 -translate-y-1/2 h-[165%] pointer-events-none hidden sm:block" aria-hidden="true">
+      <g stroke="#fff">{ticks.map((d) => { const [x0, y0] = pt(d % 45 === 0 ? 106 : 109, d), [x1, y1] = pt(113, d); return <line key={d} x1={x0} y1={y0} x2={x1} y2={y1} strokeOpacity={d % 45 === 0 ? 0.3 : 0.1} strokeWidth=".6" />; })}</g>
+      <circle cx="120" cy="120" r="92" fill="none" stroke="#fff" strokeOpacity=".08" strokeWidth=".8" />
+      <circle cx="120" cy="120" r="66" fill="none" stroke="#fff" strokeOpacity=".06" strokeWidth=".8" strokeDasharray="1 4" />
+      <circle cx="120" cy="120" r="40" fill="none" stroke="#fff" strokeOpacity=".05" strokeWidth=".8" />
+      <circle cx="120" cy="120" r="92" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeDasharray="190 600" transform="rotate(-150 120 120)" />
+      <circle cx={pt(92, -60)[0]} cy={pt(92, -60)[1]} r="3" fill={color} stroke="#000" strokeWidth="1.5" />
+      <g className="dial-orbit" style={{ transformOrigin: '120px 120px', animationDuration: '60s' }}><circle cx="120" cy="54" r="1.4" fill="#fff" fillOpacity=".6" /></g>
     </svg>
   );
 }
@@ -116,9 +117,9 @@ function Slide({ offer, active, onRemoved }) {
   o.offer = offer;
   useImpression(ref, offer.adId, active);
   return (
-    <div ref={ref} className="relative h-full overflow-hidden rounded-[22px] p-6 sm:p-8 flex flex-col justify-between" style={{ background: `radial-gradient(120% 140% at 100% 50%, color-mix(in srgb, ${offer.color} 16%, var(--surface)) 0%, var(--surface) 55%)` }}>
+    <div ref={ref} className="relative h-full overflow-hidden rounded-[22px] p-6 sm:p-8 flex flex-col justify-between" style={{ background: `radial-gradient(120% 140% at 100% 50%, color-mix(in srgb, ${offer.color} 7%, var(--surface)) 0%, var(--surface) 50%)` }}>
       <SlideArt color={offer.color} />
-      <div className="relative flex items-start gap-3 max-w-[560px]">
+      <div className="relative flex items-start gap-3 max-w-[560px] pr-24">
         <Monogram offer={offer} size={36} />
         <div className="min-w-0">
           <div className="text-[13px] text-ink-2"><span className="text-ink font-medium">{offer.advertiser}</span> · {offer.personalized ? 'Picked for how you spend' : 'Sponsored'}</div>

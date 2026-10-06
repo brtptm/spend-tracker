@@ -130,7 +130,7 @@ export function PageHead({ title, sub, right }) {
   return (
     <header className="flex flex-wrap items-end justify-between gap-4 mb-6">
       <div><h1 className="text-[2rem] sm:text-[2.6rem]">{title}</h1>{sub && <p className="text-ink-2 mt-2 text-[15px]">{sub}</p>}</div>
-      {right}
+      {right && <div className="min-w-0 max-w-full">{right}</div>}
     </header>
   );
 }

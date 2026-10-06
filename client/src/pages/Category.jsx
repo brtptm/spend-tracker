@@ -7,6 +7,7 @@ import { inr, inrShort, dt } from '../lib/format.js';
 import { Spinner, ErrorNote, Bar, CategoryIcon, Segmented, Ticker, Toast } from '../components/ui.jsx';
 import { OfferCard, RecommendationCard } from '../components/cards.jsx';
 import { TrendArea } from '../components/charts.jsx';
+import BrandLogo from '../components/BrandLogo.jsx';
 
 export default function Category() {
   const { id } = useParams();
@@ -25,7 +26,7 @@ export default function Category() {
   }
 
   return (
-    <div className="grid gap-6">
+    <div className="grid grid-cols-1 gap-6">
       <Toast message={toast} onDone={() => setToast('')} />
       <Link to="/dashboard" className="inline-flex items-center gap-1.5 text-sm text-ink-3 hover:text-ink w-fit"><FiArrowLeft /> Dashboard</Link>
       <header className="flex flex-wrap items-end justify-between gap-4">
@@ -103,6 +104,7 @@ export default function Category() {
         <ul className="mt-3 divide-y divide-line">
           {data.recent.map((t) => (
             <li key={t.transactionId} className="py-3 flex items-center gap-3">
+              <BrandLogo id={t.merchantId} name={t.merchantName} category={t.categoryAssigned} size={34} />
               <div className="min-w-0 flex-1"><div className="font-medium truncate">{t.merchantName}</div><div className="text-xs text-ink-3">{dt(t.timestamp)}{t.description ? ` · ${t.description}` : ''}</div></div>
               <div className="num">{inr(t.amount)}</div>
             </li>

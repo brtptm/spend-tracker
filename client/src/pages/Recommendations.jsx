@@ -30,7 +30,7 @@ export default function Recommendations() {
   const im = impact.data;
 
   return (
-    <div className="grid gap-6">
+    <div className="grid grid-cols-1 gap-6">
       <Toast message={toast} onDone={() => setToast('')} />
       <PageHead title="Save money" sub="Specific changes, priced from your own spending." />
       {im && (

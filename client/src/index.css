@@ -3,34 +3,37 @@
 /* ── Tokens: graphite (dark, default) ─────────────────────────────── */
 :root {
   color-scheme: dark;
-  --bg: #000000;
-  --surface: #0f0f11;
-  --surface-2: #17171a;
-  --surface-3: #232327;
-  --line: rgba(255, 255, 255, 0.08);
+  --bg: #000000;                           /* black, no tint */
+  --surface: rgba(12, 12, 13, 0.82);        /* near-black glass */
+  --surface-solid: #0c0c0d;
+  --surface-2: rgba(255, 255, 255, 0.05);
+  --surface-3: rgba(255, 255, 255, 0.09);
+  --line: rgba(255, 255, 255, 0.07);
   --line-strong: rgba(255, 255, 255, 0.14);
   --ink: #f5f5f7;
   --ink-2: #a1a1a6;
   --ink-3: #6e6e73;
   --accent: #f5f5f7;          /* primary action: white pill */
   --on-accent: #000000;
-  --link: #2997ff;            /* links, focus */
+  --link: #e8e3d8;            /* links: warm white, no blue */
+  --gold: #c9b88a;            /* the one accent: champagne */
   --positive: #30d158;        /* savings, on track */
   --negative: #ff453a;        /* overspending */
   --warning: #ff9f0a;
-  --glass: rgba(22, 22, 24, 0.72);
+  --glass: rgba(16, 16, 17, 0.78);
   --grid: rgba(255, 255, 255, 0.06);
-  --shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 24px 60px -30px rgba(0, 0, 0, 0.9);
+  --shadow: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 30px 80px -40px rgba(0, 0, 0, 0.95);
   /* Back-compat aliases used across pages */
   --lime: var(--positive); --lime-text: var(--positive); --on-lime: #000; --cyan: var(--link); --cyan-text: var(--link); --coral: var(--negative); --amber: var(--warning);
   /* Categorical palette (validated, fixed order) */
-  --cat-food: #3987e5; --cat-shopping: #d95926; --cat-transport: #199e70; --cat-entertainment: #c98500;
-  --cat-bills: #d55181; --cat-personal: #008300; --cat-p2p: #9085e9;
+  --cat-food: #5b8def; --cat-shopping: #c97b4a; --cat-transport: #3fa58a; --cat-entertainment: #8a7fd6;
+  --cat-bills: #a98b3c; --cat-personal: #cc6a8c; --cat-p2p: #2b98c7;
 }
 :root[data-theme='light'] {
   color-scheme: light;
   --bg: #f5f5f7;
   --surface: #ffffff;
+  --surface-solid: #ffffff;
   --surface-2: #f2f2f4;
   --surface-3: #e8e8ed;
   --line: rgba(0, 0, 0, 0.08);
@@ -79,19 +82,19 @@
   body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-sans); font-size: 15px; line-height: 1.5; letter-spacing: -0.006em; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-variant-numeric: tabular-nums; }
   h1, h2, h3 { font-family: var(--font-display); margin: 0; letter-spacing: -0.035em; line-height: 1.06; }
   h1 { font-weight: 650; } h2 { font-weight: 600; letter-spacing: -0.028em; } h3 { font-weight: 600; letter-spacing: -0.018em; }
-  :focus-visible { outline: 2px solid var(--link); outline-offset: 2px; border-radius: 10px; }
-  ::selection { background: var(--link); color: #fff; }
+  :focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; border-radius: 10px; }
+  ::selection { background: var(--ink); color: #000; }
 }
 
-/* A single quiet light source from above — no patterns. */
+/* Black, with one barely-there light from above. */
 .ledger::before {
-  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
-  background: radial-gradient(1100px 520px at 50% -18%, rgba(255, 255, 255, 0.06), transparent 70%);
+  content: ''; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+  background: radial-gradient(1200px 600px at 50% -20%, rgba(255, 255, 255, 0.045), transparent 70%);
 }
 :root[data-theme='light'] .ledger::before { background: radial-gradient(1100px 520px at 50% -18%, rgba(255, 255, 255, 0.9), transparent 70%); }
 
 @layer components {
-  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow); }
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow); backdrop-filter: blur(14px) saturate(140%); -webkit-backdrop-filter: blur(14px) saturate(140%); }
   .panel-quiet { background: var(--surface-2); border-radius: 16px; }
   .glass { background: var(--glass); backdrop-filter: blur(24px) saturate(180%); -webkit-backdrop-filter: blur(24px) saturate(180%); border: 1px solid var(--line); }
   .btn { display: inline-flex; align-items: center; justify-content: center; gap: .45rem; font-weight: 550; font-size: .9rem; letter-spacing: -0.01em; border-radius: 999px; padding: .62rem 1.15rem; border: 1px solid transparent; cursor: pointer; white-space: nowrap; transition: transform .15s ease, background-color .2s ease, opacity .2s ease; }
@@ -103,7 +106,7 @@
   .btn-ghost:hover:not(:disabled) { background: var(--surface-3); }
   .btn-sm { padding: .42rem .85rem; font-size: .82rem; }
   .field { width: 100%; background: var(--surface-2); border: 1px solid transparent; color: var(--ink); border-radius: 12px; padding: .66rem .9rem; font: inherit; outline: none; transition: border-color .2s, background .2s; }
-  .field:focus { border-color: var(--link); background: var(--surface); }
+  .field:focus { border-color: var(--line-strong); background: var(--surface-solid); }
   .field::placeholder { color: var(--ink-3); }
   .label { font-size: .8rem; font-weight: 550; color: var(--ink-2); }
   .chip { display: inline-flex; align-items: center; gap: .4rem; border-radius: 999px; padding: .36rem .85rem; font-size: .8rem; font-weight: 550; background: var(--surface-2); color: var(--ink-2); cursor: pointer; transition: background .2s, color .2s; border: 0; }
@@ -125,3 +128,9 @@
 }
 .recharts-text { fill: var(--ink-3); font-size: 11.5px; }
 .recharts-cartesian-grid line { stroke: var(--grid); }
+:root[data-theme='light'] .starfield { display: none; }
+
+/* Orbit dial: slow satellites. */
+@keyframes dial-orbit { to { transform: rotate(360deg); } }
+.dial-orbit { animation: dial-orbit linear infinite; }
+@media (prefers-reduced-motion: reduce) { .dial-orbit { animation: none; } }

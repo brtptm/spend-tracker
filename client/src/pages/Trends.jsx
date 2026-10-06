@@ -5,6 +5,7 @@ import { api } from '../lib/api.js';
 import { inr, inrShort, dt } from '../lib/format.js';
 import { Spinner, ErrorNote, Segmented, PageHead, SEVERITY } from '../components/ui.jsx';
 import { MonthlyStack, Heatmap, SimpleBars } from '../components/charts.jsx';
+import BrandLogo from '../components/BrandLogo.jsx';
 
 const SEV = { high: 'critical', medium: 'warning', low: 'info', critical: 'critical' };
 
@@ -17,7 +18,7 @@ export default function Trends() {
   const peakDay = [...data.weekday].sort((a, b) => b.amount - a.amount)[0];
   const peakHour = [...data.hourly].sort((a, b) => b.amount - a.amount)[0];
   return (
-    <div className="grid gap-6">
+    <div className="grid grid-cols-1 gap-6">
       <PageHead title="Trends" sub={`${t.direction === 'stable' ? 'Spending is stable' : `Spending is ${t.direction} (${t.change > 0 ? '+' : ''}${t.change}% over the last 3 full months)`}.`}
         right={<Segmented label="Months" value={String(months)} onChange={(v) => setMonths(Number(v))} options={[['3', '3 months'], ['6', '6 months'], ['12', '12 months']]} />} />
       <section className="panel p-6"><h2 className="text-xl">Month by month</h2><div className="mt-5"><MonthlyStack months={data.series.months} height={300} /></div></section>
@@ -49,7 +50,7 @@ export default function Trends() {
           <ul className="mt-3 divide-y divide-line">
             {data.subscriptions.list.map((s) => (
               <li key={s.merchant} className="py-3 flex items-center gap-3">
-                <span className="w-2 h-2 rounded-full" style={{ background: `var(--cat-${s.category})` }} />
+                <BrandLogo id={s.merchantId} name={s.merchant} category={s.category} size={32} />
                 <Link to={`/merchant/${s.merchantId || s.merchant.toLowerCase().replace(/\W+/g, '-')}`} className="flex-1 hover:underline">{s.merchant}</Link>
                 <span className="text-xs text-ink-3">last {dt(s.lastCharged, 'd MMM')}</span>
                 <span className="num w-20 text-right">{inrShort(s.monthly)}</span>
