@@ -51,7 +51,7 @@ export default function Trends() {
             {data.subscriptions.list.map((s) => (
               <li key={s.merchant} className="py-3 flex items-center gap-3">
                 <BrandLogo id={s.merchantId} name={s.merchant} category={s.category} size={32} />
-                <Link to={`/merchant/${s.merchantId || s.merchant.toLowerCase().replace(/\W+/g, '-')}`} className="flex-1 hover:underline">{s.merchant}</Link>
+                <Link to={`/merchant/${s.merchantId || s.merchant.toLowerCase().replace(/\W+/g, '-')}`} className="flex-1">{s.merchant}</Link>
                 <span className="text-xs text-ink-3">last {dt(s.lastCharged, 'd MMM')}</span>
                 <span className="num w-20 text-right">{inrShort(s.monthly)}</span>
               </li>

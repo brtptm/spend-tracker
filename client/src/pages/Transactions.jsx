@@ -112,7 +112,7 @@ export default function Transactions() {
                   <li key={t.transactionId} className="pl-4 pr-2 py-3 flex items-center gap-3.5 group">
                     <BrandLogo id={t.merchantId} name={t.merchantName} category={t.categoryAssigned} size={38} />
                     <div className="min-w-0 flex-1">
-                      <Link to={`/merchant/${t.merchantId || t.merchantName.toLowerCase().replace(/\W+/g, '-')}`} className="font-medium truncate block hover:underline">{t.merchantName}</Link>
+                      <Link to={`/merchant/${t.merchantId || t.merchantName.toLowerCase().replace(/\W+/g, '-')}`} className="font-medium truncate block">{t.merchantName}</Link>
                       <div className="text-[12.5px] text-ink-3 truncate">
                         {t.status === 'failed' ? <span className="text-negative">Failed · </span> : t.status === 'pending' ? <span className="text-warning">Pending · </span> : null}
                         {t.description || CAT_NAMES[t.categoryAssigned]}{t.categoryConfidence < 0.6 ? ' · needs review' : ''}

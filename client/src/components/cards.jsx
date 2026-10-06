@@ -277,5 +277,5 @@ export function RecommendationCard({ rec, onAccept, onDismiss, busy }) {
 }
 
 export function MiniLink({ to, children }) {
-  return <Link to={to} className="inline-flex items-center gap-0.5 text-sm font-medium text-link hover:underline">{children}<FiChevronRight /></Link>;
+  return <Link to={to} className="inline-flex items-center gap-0.5 text-sm font-medium text-link">{children}<FiChevronRight /></Link>;
 }

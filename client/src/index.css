@@ -96,13 +96,18 @@
 }
 
 @layer base {
-  html { background: var(--bg); scrollbar-width: thin; scrollbar-color: rgba(127,127,127,.28) transparent; scrollbar-gutter: stable; }
+  html { background: var(--bg); overscroll-behavior-y: none; scrollbar-width: thin; scrollbar-color: rgba(127,127,127,.28) transparent; scrollbar-gutter: stable; }
   ::-webkit-scrollbar { width: 8px; height: 8px; background: transparent; }
   ::-webkit-scrollbar-thumb { background: rgba(127,127,127,.28); border-radius: 99px; border: 2px solid transparent; background-clip: content-box; }
   ::-webkit-scrollbar-thumb:hover { background-color: rgba(127,127,127,.45); }
   body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-sans); font-size: 15px; line-height: 1.5; letter-spacing: -0.006em; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-variant-numeric: tabular-nums; }
   h1, h2, h3 { font-family: var(--font-display); margin: 0; letter-spacing: -0.035em; line-height: 1.06; }
   h1 { font-weight: 650; } h2 { font-weight: 600; letter-spacing: -0.028em; } h3 { font-weight: 600; letter-spacing: -0.018em; }
+  /* App-like interaction: no underlines, no tap flash, instant touch response. */
+  a { color: inherit; text-decoration: none; }
+  a, button, [role='button'], [role='radio'], [role='tab'], label, summary { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+  button, [role='button'], [role='radio'], [role='tab'] { user-select: none; -webkit-user-select: none; }
+  img { -webkit-user-drag: none; user-select: none; }
   :focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; border-radius: 10px; }
   ::selection { background: var(--ink); color: var(--bg); }
 }
@@ -115,6 +120,11 @@
 :root[data-theme='light'] .ledger::before { background: radial-gradient(1200px 620px at 50% -22%, #ffffff, transparent 72%), radial-gradient(900px 500px at 100% 110%, rgba(201, 184, 138, 0.10), transparent 70%); }
 
 @layer components {
+  /* Press feedback: tiles/rows/buttons shrink a touch; plain text links dim. */
+  :where(a, button, [role='button']):not(:disabled) { transition: transform .18s cubic-bezier(.2,.8,.2,1), opacity .18s ease, background-color .2s ease, color .2s ease; }
+  :where(a, button, [role='button'])[class*='rounded']:not(:disabled):active { transform: scale(.975); }
+  :where(a, button):not([class*='rounded']):not(:disabled):active { opacity: .55; }
+  :where(a):not([class*='rounded']):hover { opacity: .78; }
   .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow); backdrop-filter: blur(14px) saturate(140%); -webkit-backdrop-filter: blur(14px) saturate(140%); }
   .panel-quiet { background: var(--surface-2); border-radius: 16px; }
   :root[data-theme='light'] .panel { border-color: rgba(0, 0, 0, 0.05); }

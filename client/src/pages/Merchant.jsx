@@ -22,7 +22,7 @@ export default function Merchant() {
     <div className="grid grid-cols-1 gap-6">
       <button onClick={() => nav(-1)} className="inline-flex items-center gap-1.5 text-sm text-ink-3 hover:text-ink w-fit"><FiArrowLeft /> Back</button>
       <header>
-        <Link to={`/category/${m.category}`} className="text-sm hover:underline" style={{ color: m.color }}>{m.categoryName} · {m.subName}</Link>
+        <Link to={`/category/${m.category}`} className="text-sm" style={{ color: m.color }}>{m.categoryName} · {m.subName}</Link>
         <div className="flex items-center gap-4 mt-2"><BrandLogo id={m.id} name={m.name} category={m.category} size={56} /><h1 className="text-[2.2rem] sm:text-[2.8rem]">{m.name}</h1></div>
         <p className="text-ink-2">Since {dt(data.firstSeen, 'MMM yyyy')} · last payment {dt(data.lastSeen, 'd MMM')}</p>
       </header>
@@ -38,7 +38,7 @@ export default function Merchant() {
           <ul className="mt-5 grid gap-4">
             {data.compare.slice(0, 6).map((x) => (
               <li key={x.id}>
-                <div className="flex justify-between text-sm mb-1.5"><Link to={`/merchant/${x.id}`} className={x.isThis ? 'font-semibold' : 'text-ink-2 hover:underline'}>{x.name}</Link><span><span className="num">{inrShort(x.monthly)}</span><span className="text-ink-3">/mo · avg {inr(x.avgTicket)}</span></span></div>
+                <div className="flex justify-between text-sm mb-1.5"><Link to={`/merchant/${x.id}`} className={x.isThis ? 'font-semibold' : 'text-ink-2'}>{x.name}</Link><span><span className="num">{inrShort(x.monthly)}</span><span className="text-ink-3">/mo · avg {inr(x.avgTicket)}</span></span></div>
                 <Bar value={x.monthly} max={max} color={x.isThis ? m.color : 'var(--ink-3)'} label={x.name} />
               </li>
             ))}

@@ -72,7 +72,7 @@ export function ErrorNote({ error, onRetry }) {
   return (
     <div role="alert" className="panel-quiet px-4 py-3 text-sm flex items-start gap-2.5" style={{ color: 'var(--coral)' }}>
       <FiAlertTriangle className="mt-0.5 shrink-0" /><span className="flex-1">{error.message || String(error)}</span>
-      {onRetry && <button className="underline font-semibold" onClick={onRetry}>Try again</button>}
+      {onRetry && <button className="font-semibold" onClick={onRetry}>Try again</button>}
     </div>
   );
 }

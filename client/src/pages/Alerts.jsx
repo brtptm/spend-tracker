@@ -23,7 +23,7 @@ export default function Alerts() {
               <span className="mt-1.5 w-2.5 h-2.5 rounded-full shrink-0" style={{ background: a.read ? 'var(--ink-3)' : s.color, boxShadow: a.read ? 'none' : `0 0 10px ${s.color}` }} />
               <div className="min-w-0 flex-1">
                 <div className="text-xs text-ink-3">{TYPES[a.type] || a.type} · {ago(a.createdAt + 'Z')}</div>
-                <Link to={a.link || '/dashboard'} onClick={() => !a.read && api.alertRead(a.alertId).then(refresh)} className="font-semibold hover:underline">{a.title}</Link>
+                <Link to={a.link || '/dashboard'} onClick={() => !a.read && api.alertRead(a.alertId).then(refresh)} className="font-semibold">{a.title}</Link>
                 {a.body && <p className="text-sm text-ink-2 mt-0.5">{a.body}</p>}
               </div>
               <div className="flex shrink-0">

@@ -80,7 +80,7 @@ export default function Landing() {
           </motion.p>
           <motion.div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.25 }}>
             <button className="btn btn-primary !px-6 !py-3 !text-[15px]" onClick={() => nav(signedIn ? '/dashboard' : '/signup')}>Get started</button>
-            <button className="inline-flex items-center gap-1 text-link text-[15px] font-medium hover:underline" disabled={!!busy} onClick={() => demo('convenience')}>{busy === 'convenience' ? 'Opening…' : 'Explore the live demo'} <FiChevronRight /></button>
+            <button className="inline-flex items-center gap-1 text-link text-[15px] font-medium" disabled={!!busy} onClick={() => demo('convenience')}>{busy === 'convenience' ? 'Opening…' : 'Explore the live demo'} <FiChevronRight /></button>
           </motion.div>
           <div className="mt-4 max-w-md mx-auto"><ErrorNote error={error} /></div>
         </section>
@@ -154,7 +154,7 @@ export default function Landing() {
                 <div className="text-[1.6rem] font-semibold tracking-[-0.03em]">{p.name}</div>
                 <div className="text-sm text-ink-3 mt-1">{p.who}</div>
                 <p className="text-ink-2 mt-5 flex-1 leading-relaxed">{p.story}</p>
-                <button className="mt-6 inline-flex items-center gap-1 text-link font-medium hover:underline self-start" disabled={!!busy} onClick={() => demo(p.id)}>{busy === p.id ? 'Opening…' : `Explore as ${p.name}`} <FiChevronRight /></button>
+                <button className="mt-6 inline-flex items-center gap-1 text-link font-medium self-start" disabled={!!busy} onClick={() => demo(p.id)}>{busy === p.id ? 'Opening…' : `Explore as ${p.name}`} <FiChevronRight /></button>
               </motion.article>
             ))}
           </div>
@@ -172,7 +172,7 @@ export default function Landing() {
           <h2 className="text-[2.4rem] sm:text-[3.6rem] tracking-[-0.045em]">Your money has a shape.</h2>
           <div className="mt-8 flex flex-wrap justify-center items-center gap-x-6 gap-y-3">
             <Link to={signedIn ? '/dashboard' : '/signup'} className="btn btn-primary !px-6 !py-3 !text-[15px]">Get started</Link>
-            <button className="inline-flex items-center gap-1 text-link text-[15px] font-medium hover:underline" disabled={!!busy} onClick={() => demo('convenience')}>Explore the live demo <FiChevronRight /></button>
+            <button className="inline-flex items-center gap-1 text-link text-[15px] font-medium" disabled={!!busy} onClick={() => demo('convenience')}>Explore the live demo <FiChevronRight /></button>
           </div>
         </section>
       </main>

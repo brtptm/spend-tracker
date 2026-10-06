@@ -52,7 +52,7 @@ export default function Category() {
                 </div>
                 <div className="mt-2"><Bar value={s.percentage} color={c.color} height={7} label={`${s.name} share`} /></div>
                 <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-ink-2">
-                  {s.merchants.slice(0, 4).map((m) => <Link key={m.id} to={`/merchant/${m.id}`} className="hover:text-ink hover:underline">{m.name} <span className="text-ink-3">{inrShort(m.monthly)} · {Math.round(m.count / Math.max(1, data.total ? (data.total / data.monthly) : 1))} /mo</span></Link>)}
+                  {s.merchants.slice(0, 4).map((m) => <Link key={m.id} to={`/merchant/${m.id}`} className="hover:text-ink">{m.name} <span className="text-ink-3">{inrShort(m.monthly)} · {Math.round(m.count / Math.max(1, data.total ? (data.total / data.monthly) : 1))} /mo</span></Link>)}
                 </div>
                 <div className="text-xs text-ink-3 mt-1">{s.perMonth} payments a month · avg {inr(s.avgTicket)}</div>
               </div>
