@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@6.0.2/dist/reveal.css" integrity="sha384-rKClnwfQQ2b7LYSOAhRvm5m4LS7QKciQTAXBpVvr30y6oGB+ZBBXlpDnvFqlv5Eu" crossorigin="anonymous" />
   <style>
     :root {
-      --ink: #f3f2ee; --ink-2: #a9a8a4; --ink-3: #6f6e6b; --line: rgba(255,255,255,.09); --line-2: rgba(255,255,255,.16);
+      --ink: #f3f2ee; --ink-2: #bcbbb6; --ink-3: #7d7c78; --line: rgba(255,255,255,.09); --line-2: rgba(255,255,255,.16);
       --gold: #e8c98a; --pos: #30d158; --neg: #ff453a; --warn: #ff9f0a;
       --food: #5b8def; --shopping: #c97b4a; --transport: #3fa58a; --ent: #8a7fd6; --bills: #a98b3c; --personal: #cc6a8c; --p2p: #2b98c7;
       --display: 'Rajdhani', 'Geist', ui-sans-serif, system-ui, sans-serif;
@@ -25,7 +25,7 @@
     #bg { position: fixed; inset: 0; z-index: 0; display: block; width: 100vw; height: 100vh; }
     /* Darken the reading side so text always sits on near-black, whatever the camera shows. */
     .veil { position: fixed; inset: 0; z-index: 0; pointer-events: none;
-      background: linear-gradient(90deg, rgba(0,0,0,.72) 0%, rgba(0,0,0,.42) 38%, rgba(0,0,0,0) 66%), radial-gradient(140% 120% at 50% 50%, transparent 55%, rgba(0,0,0,.7) 100%); }
+      background: linear-gradient(90deg, rgba(0,0,0,.78) 0%, rgba(0,0,0,.55) 42%, rgba(0,0,0,0) 72%), radial-gradient(140% 120% at 50% 50%, transparent 55%, rgba(0,0,0,.7) 100%); }
     /* Cockpit viewport frame: four corner brackets and two readouts. */
     .frame { position: fixed; inset: 22px; z-index: 2; pointer-events: none;
       background:
@@ -43,6 +43,8 @@
     .reveal { z-index: 1; font-family: var(--sans); font-size: 28px; color: var(--ink); font-variant-numeric: tabular-nums; }
     .reveal .slides { text-align: left; }
     .reveal .slides section { height: 100%; }
+    /* A soft dark halo behind all type, so stars and nebula never cut into letterforms. */
+    .reveal h1, .reveal h2, .reveal p, .reveal li, .reveal .eyebrow, .reveal .label { text-shadow: 0 0 24px rgba(0,0,0,.9), 0 2px 10px rgba(0,0,0,.75); }
     .reveal h1, .reveal h2, .reveal h3 { font-family: var(--display); color: var(--ink); letter-spacing: .005em; line-height: .98; margin: 0; text-transform: none; font-weight: 600; }
     .reveal h1 { font-size: 150px; } .reveal h2 { font-size: 84px; } .reveal h3 { font-size: 34px; }
     .reveal p { margin: 0; line-height: 1.5; }
@@ -111,7 +113,7 @@
     /* Title */
     .wordmark { display: flex; align-items: center; gap: 18px; font: 400 22px/1 var(--mark); letter-spacing: .2em; text-transform: uppercase; margin-bottom: 52px !important; }
     .title h1 { font-size: 176px; line-height: .9; }
-    .title h1 .dim { color: #57575a; }
+    .title h1 .dim { color: #6a6a6d; }
     .pills { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 56px; }
 
     /* Problem */
@@ -217,7 +219,7 @@
     .demo-steps li::before { content: counter(s, decimal-leading-zero); font: 500 16px/1 var(--mono); letter-spacing: .16em; color: var(--gold); }
     .demo-steps b { color: var(--ink); font-weight: 600; }
     .closing h1 { font-size: 168px; line-height: .9; }
-    .closing h1 .dim { color: #57575a; }
+    .closing h1 .dim { color: #6a6a6d; }
     @media (prefers-reduced-motion: reduce) {
       .reveal section .in, .reveal section .ln, .dial .seg { animation: none !important; opacity: 1 !important; transform: none !important; }
       .dial .seg { stroke-dasharray: var(--len) 1000 !important; }
@@ -238,7 +240,7 @@
     <div class="slides">
 
       <!-- 01 · Title -->
-      <section class="title" data-cam="hero" data-flow=".75">
+      <section class="title" data-cam="hero" data-zone="1325,640,235" data-flow=".75">
         <div class="stack">
           <div class="wordmark in">
             <svg width="40" height="40" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="11" fill="none" stroke="#2a2a2d" stroke-width="3.4"/><path d="M16 5a11 11 0 0 1 10.46 14.4" fill="none" stroke="#e8c98a" stroke-width="3.4" stroke-linecap="round"/></svg>
@@ -256,7 +258,7 @@
       </section>
 
       <!-- 02 · Problem -->
-      <section data-cam="side" data-flow=".35">
+      <section data-cam="side" data-zone="1390,190,200" data-flow=".35">
         <div class="stack">
           <p class="eyebrow in">The problem</p>
           <p class="big-quote in" style="--d:1">Billions of UPI payments a month. Almost no one knows where their money went.</p>
@@ -272,7 +274,7 @@
       </section>
 
       <!-- 03 · Insight -->
-      <section data-cam="close" data-flow=".55">
+      <section data-cam="close" data-zone="1370,180,190" data-flow=".55">
         <div class="stack">
           <p class="eyebrow in">Our insight</p>
           <h2 class="in" style="--d:1">The gap isn't data.<br/><span class="dim">It's understanding.</span></h2>
@@ -289,7 +291,7 @@
       </section>
 
       <!-- 04 · Two products -->
-      <section data-cam="top" data-flow=".6">
+      <section data-cam="top" data-zone="1400,160,165" data-flow=".6">
         <div class="stack">
           <p class="eyebrow in">What we built</p>
           <h2 class="in" style="--d:1">Two products. One engine.</h2>
@@ -307,7 +309,7 @@
       </section>
 
       <!-- 05 · Meet Rohan -->
-      <section data-cam="far" data-flow=".4">
+      <section data-cam="far" data-zone="1470,105,90" data-flow=".4">
         <div class="persona">
           <div>
             <p class="eyebrow in">Meet Rohan</p>
@@ -347,7 +349,7 @@
       </section>
 
       <!-- 06 · Dashboard -->
-      <section data-cam="side" data-flow=".3">
+      <section data-cam="side" data-zone="1190,700,300" data-flow=".3">
         <div class="split">
           <div>
             <p class="eyebrow in">Overview</p>
@@ -367,7 +369,7 @@
       </section>
 
       <!-- 07 · Deep dives -->
-      <section data-cam="far" data-flow=".3">
+      <section data-cam="far" data-zone="1250,720,300" data-flow=".3">
         <div class="split">
           <div>
             <p class="eyebrow in">Deep dives</p>
@@ -389,7 +391,7 @@
       </section>
 
       <!-- 08 · Save money & budgets -->
-      <section data-cam="side" data-flow=".3">
+      <section data-cam="side" data-zone="1250,720,300" data-flow=".3">
         <div class="split">
           <div>
             <p class="eyebrow in">Save money · Budgets</p>
@@ -411,7 +413,7 @@
       </section>
 
       <!-- 09 · Offers -->
-      <section data-cam="hero" data-flow=".45">
+      <section data-cam="hero" data-zone="1250,720,300" data-flow=".45">
         <div class="split">
           <div>
             <p class="eyebrow in">Offers that fit</p>
@@ -431,7 +433,7 @@
       </section>
 
       <!-- 10 · Ask your money -->
-      <section data-cam="close" data-flow=".35">
+      <section data-cam="close" data-zone="1440,130,120" data-flow=".35">
         <div class="split even">
           <div>
             <p class="eyebrow in">Ask your money</p>
@@ -452,7 +454,7 @@
       </section>
 
       <!-- 11 · AI architecture -->
-      <section data-cam="top" data-flow=".5" data-ring="1">
+      <section data-cam="top" data-zone="1420,145,140" data-flow=".5" data-ring="1">
         <div class="stack">
           <p class="eyebrow in">AI that can't invent money</p>
           <h2 class="in" style="--d:1">The engine does the maths.<br/><span class="dim">The model only writes the words.</span></h2>
@@ -476,7 +478,7 @@
       </section>
 
       <!-- 12 · Privacy -->
-      <section data-cam="far" data-flow=".25">
+      <section data-cam="far" data-zone="1430,150,150" data-flow=".25">
         <div class="stack">
           <p class="eyebrow in">Private by design</p>
           <h2 class="in" style="--d:1">Your money is not the product.<br/><span class="dim">Your consent is the switch.</span></h2>
@@ -493,7 +495,7 @@
       </section>
 
       <!-- 13 · Pipeline -->
-      <section data-cam="close" data-flow="1" data-burst="1">
+      <section data-cam="close" data-zone="1445,120,115" data-flow="1" data-burst="1">
         <div class="stack">
           <p class="eyebrow in">The partner pipeline</p>
           <h2 class="in" style="--d:1">Messy UPI in. Clean people out.</h2>
@@ -516,7 +518,7 @@
       </section>
 
       <!-- 14 · Read API -->
-      <section data-cam="side" data-flow=".9">
+      <section data-cam="side" data-zone="1460,115,105" data-flow=".9">
         <div class="split even">
           <div>
             <p class="eyebrow in">Read the person behind the phone</p>
@@ -535,7 +537,7 @@
       </section>
 
       <!-- 15 · Portal -->
-      <section data-cam="far" data-flow=".7">
+      <section data-cam="far" data-zone="1250,720,300" data-flow=".7">
         <div class="split">
           <div>
             <p class="eyebrow in">Integration Portal</p>
@@ -560,7 +562,7 @@
       </section>
 
       <!-- 16 · Security -->
-      <section data-cam="top" data-flow=".4">
+      <section data-cam="top" data-zone="1440,140,140" data-flow=".4">
         <div class="stack">
           <p class="eyebrow in">Security model</p>
           <h2 class="in" style="--d:1">Built like it handles money.<br/><span class="dim">Because it does.</span></h2>
@@ -579,7 +581,7 @@
       </section>
 
       <!-- 17 · Business -->
-      <section data-cam="hero" data-flow=".55">
+      <section data-cam="hero" data-zone="1400,165,175" data-flow=".55">
         <div class="stack">
           <p class="eyebrow in">Why it wins</p>
           <h2 class="in" style="--d:1">Everyone gets something real.</h2>
@@ -595,7 +597,7 @@
       </section>
 
       <!-- 18 · Stack -->
-      <section data-cam="side" data-flow=".35">
+      <section data-cam="side" data-zone="1390,165,180" data-flow=".35">
         <div class="stack">
           <p class="eyebrow in">How it's built</p>
           <h2 class="in" style="--d:1">Production-shaped, laptop-sized.</h2>
@@ -612,7 +614,7 @@
       </section>
 
       <!-- 19 · Next -->
-      <section data-cam="far" data-flow=".3">
+      <section data-cam="far" data-zone="1380,185,195" data-flow=".3">
         <div class="stack">
           <p class="eyebrow in">What's next</p>
           <h2 class="in" style="--d:1">Beyond UPI.</h2>
@@ -629,7 +631,7 @@
       </section>
 
       <!-- 20 · Live demo -->
-      <section data-cam="close" data-flow=".8">
+      <section data-cam="close" data-zone="1250,500,290" data-flow=".8">
         <div class="stack">
           <p class="eyebrow in">Live demo</p>
           <h2 class="in" style="--d:1">Let me show you.</h2>
@@ -646,7 +648,7 @@
       </section>
 
       <!-- 21 · Close -->
-      <section class="closing" data-cam="hero" data-flow=".9">
+      <section class="closing" data-cam="hero" data-zone="1325,640,235" data-flow=".9">
         <div class="stack">
           <div class="wordmark in">
             <svg width="40" height="40" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="11" fill="none" stroke="#2a2a2d" stroke-width="3.4"/><path d="M16 5a11 11 0 0 1 10.46 14.4" fill="none" stroke="#e8c98a" stroke-width="3.4" stroke-linecap="round"/></svg>
@@ -918,21 +920,19 @@
     const shootLine = new THREE.Line(shootGeo, shootMat); scene.add(shootLine);
     const shoot = { life: 0, t: 0, p: new THREE.Vector3(), vel: new THREE.Vector3() };
 
-    // ── Camera rig: presets per slide, orbiting a little further with every slide ──
-    const PRESETS = {
-      hero:  { d: 80,  h: 9,  ox: 33, oy: 13 },
-      side:  { d: 92,  h: 16, ox: 36, oy: 13 },
-      close: { d: 40,  h: 4,  ox: 13, oy: 5 },
-      far:   { d: 165, h: 44, ox: 52, oy: 20 },
-      top:   { d: 66,  h: 46, ox: 20, oy: 8 },
-    };
+    // ── Camera rig ──
+    // Each slide names a free area of the 1600×900 slide (data-zone="x,y,r": centre and radius in slide pixels).
+    // The camera distance and aim are solved every frame so planet + ring fill exactly that area at any window
+    // size — the 3D never drifts under the text. data-cam only sets the viewing elevation for variety.
+    const ELEV = { hero: 0.12, side: 0.17, close: 0.08, far: 0.26, top: 0.55 };
+    const WORLD_R = 22; // planet + ring + ticks
     const slides = [...document.querySelectorAll('.reveal .slides > section')];
-    const state = { th: 0, d: 64, h: 9, ox: 20, oy: 7, flow: 0.6, ring: 0 };
+    const state = { th: 0, el: 0.12, zx: 1290, zy: 640, zr: 250, flow: 0.6, ring: 0 };
     let goal = { ...state };
     function setGoal(i) {
       const s = slides[i] || slides[0];
-      const p = PRESETS[s.dataset.cam] || PRESETS.hero;
-      goal = { th: 0.55 + i * 0.36, ...p, flow: Number(s.dataset.flow ?? 0.5), ring: s.dataset.ring ? 1 : 0 };
+      const [zx, zy, zr] = (s.dataset.zone || '1290,640,250').split(',').map(Number);
+      goal = { th: 0.55 + i * 0.36, el: ELEV[s.dataset.cam] ?? 0.15, zx, zy, zr, flow: Number(s.dataset.flow ?? 0.5), ring: s.dataset.ring ? 1 : 0 };
       if (s.dataset.burst) burst = 1;
     }
     let burst = 0, px = 0, py = 0, tpx = 0, tpy = 0;
@@ -945,23 +945,28 @@
     function resize() { renderer.setSize(innerWidth, innerHeight, false); camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); }
     addEventListener('resize', resize); resize();
 
-    const UP = new THREE.Vector3(0, 1, 0), fwd = new THREE.Vector3(), right = new THREE.Vector3(), upv = new THREE.Vector3(), look = new THREE.Vector3(), tmp = new THREE.Vector3();
+    const UP = new THREE.Vector3(0, 1, 0), fwd = new THREE.Vector3(), right = new THREE.Vector3(), upv = new THREE.Vector3(), tmp = new THREE.Vector3();
     const clock = new THREE.Timer();
     function frame(ts) {
       clock.update(ts);
       const dt = Math.min(clock.getDelta(), 0.05), t = clock.getElapsed();
       const k = reduced ? 1 : Math.min(1, dt * 1.25);
-      for (const key of ['th', 'd', 'h', 'ox', 'oy', 'flow', 'ring']) state[key] += (goal[key] - state[key]) * k;
+      for (const key of ['th', 'el', 'zx', 'zy', 'zr', 'flow', 'ring']) state[key] += (goal[key] - state[key]) * k;
       px += (tpx - px) * Math.min(1, dt * 2); py += (tpy - py) * Math.min(1, dt * 2);
 
-      // Orbit position, then aim beside the planet so it sits right-of-centre behind the content.
+      // Slide pixels → normalised device coords (the 1600×900 slide is scaled and centred by Reveal).
+      const sc = Reveal.getScale() || 1, W = innerWidth, H = innerHeight, tanH = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+      const cx = ((state.zx - 800) * sc) / (W / 2), cy = -((state.zy - 450) * sc) / (H / 2), rN = (state.zr * sc) / (H / 2);
+      const D = THREE.MathUtils.clamp(WORLD_R / (tanH * rN), 28, 600);
       const th = state.th + (reduced ? 0 : Math.sin(t * 0.05) * 0.04);
-      camera.position.set(Math.sin(th) * state.d, state.h, Math.cos(th) * state.d);
+      camera.position.set(Math.sin(th) * Math.cos(state.el) * D, Math.sin(state.el) * D, Math.cos(th) * Math.cos(state.el) * D);
       fwd.copy(camera.position).multiplyScalar(-1).normalize();
       right.crossVectors(fwd, UP).normalize(); upv.crossVectors(right, fwd).normalize();
-      camera.position.addScaledVector(right, px * 3).addScaledVector(upv, -py * 2);
-      look.set(0, 0, 0).addScaledVector(right, -state.ox).addScaledVector(upv, state.oy);
-      camera.lookAt(look);
+      camera.position.addScaledVector(right, px * D * 0.03).addScaledVector(upv, -py * D * 0.02);
+      camera.lookAt(0, 0, 0);
+      // Off-axis projection: the camera looks straight at the planet and the image window slides instead, so the
+      // planet lands exactly on its zone from any angle (aiming the camera sideways would roll it at steep views).
+      camera.setViewOffset(W, H, -cx * W / 2, cy * H / 2, W, H);
       // Keep the sun behind the planet's upper-left limb from every angle, so it always wears a lit crescent.
       LIGHT.copy(fwd).multiplyScalar(0.55).addScaledVector(right, -0.62).addScaledVector(upv, 0.55).normalize();
       sun.position.copy(LIGHT).multiplyScalar(2400);
