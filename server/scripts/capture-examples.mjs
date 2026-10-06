@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const BASE = process.argv[2] || 'http://localhost:4400';
+const BASE = process.argv[2] || `http://localhost:${process.env.PORT || 7101}`;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUT = path.resolve(__dirname, '../src/partner/examples.json');
 const { ENDPOINTS } = await import('../src/partner/spec.js');

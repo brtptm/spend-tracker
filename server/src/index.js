@@ -24,7 +24,7 @@ import exporter from './routes/export.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
-const PORT = Number(process.env.PORT || 4400);
+const PORT = Number(process.env.PORT || 7101);
 
 app.set('trust proxy', 1);
 app.use(helmet({ contentSecurityPolicy: { directives: { defaultSrc: ["'self'"], styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'], fontSrc: ["'self'", 'https://fonts.gstatic.com'], imgSrc: ["'self'", 'data:', 'blob:'], workerSrc: ["'self'", 'blob:'] } } }));

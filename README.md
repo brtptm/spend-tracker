@@ -22,7 +22,7 @@ flowchart LR
 
 ```bash
 pnpm install
-pnpm dev              # API :4400 · app http://localhost:5273
+pnpm dev              # app http://localhost:7100 · API http://localhost:7101
 cp .env.example .env  # optional: OTP_DEMO=1 shows sign-in codes on screen (no SMS in the demo)
 ```
 
@@ -50,13 +50,13 @@ Create a key in the portal (**API keys → Create key**; the secret is shown onc
 
 ```bash
 # Webhook: one payment as it settles (also accepts text/plain for navigator.sendBeacon)
-curl localhost:4400/v1/events -H "Authorization: Bearer $STK_KEY" -H "Content-Type: application/json" \
+curl localhost:7101/v1/events -H "Authorization: Bearer $STK_KEY" -H "Content-Type: application/json" \
   -d '{"id":"PTM-1","phone":"+91 98765 00009","amount":"₹349","timestamp":"2026-10-06T13:12:45+05:30",
        "payee_vpa":"swiggy.payu@hdfcbank","payee_name":"PAYTM*SWIGGY LIMITED 4412093","payer_vpa":"aarav.s@paytm"}'
 # → 202 {"status":"accepted","transaction":{"merchant":"Swiggy","category":"food","subcategory":"food_delivery","confidence":0.97,…}}
 
 # Read the person behind the phone
-curl "localhost:4400/v1/users/9876500001/behavior" -H "Authorization: Bearer $STK_KEY"
+curl "localhost:7101/v1/users/9876500001/behavior" -H "Authorization: Bearer $STK_KEY"
 # → spender type, preferred apps per subcategory (Swiggy 58% / Zomato 42%), peak times, subscriptions, UPI IDs…
 ```
 
