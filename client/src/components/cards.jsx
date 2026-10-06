@@ -131,7 +131,6 @@ function Slide({ offer, active, onRemoved }) {
         <div className="flex items-center gap-3">
           <CodeButton o={o} primary />
           <span className="hidden sm:block text-xs text-ink-3 max-w-[46ch]">{offer.relevanceReason}</span>
-          <div className="ml-auto"><OfferMenu onPick={o.feedback} /></div>
         </div>
         <span className="sm:hidden text-xs text-ink-3">{offer.relevanceReason}</span>
       </div>

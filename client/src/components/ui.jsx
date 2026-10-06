@@ -152,23 +152,65 @@ export function PageHead({ title, sub, right }) {
 export const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
 export const rise = { hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } } };
 
-/**
- * Period control: a segmented bar on wider screens; on phones a single pill
- * that opens the native picker (familiar, thumb-friendly, never overflows).
- */
+const NICE = { '30 days': 'Last 30 days', '3 months': 'Last 3 months', '6 months': 'Last 6 months', '12 months': 'Last 12 months' };
+const d = (x) => x.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+function periodRange(v) {
+  const now = new Date(), y = now.getFullYear(), m = now.getMonth();
+  if (v === 'month') return `${d(new Date(y, m, 1))} – today`;
+  if (v === 'last_month') return `${d(new Date(y, m - 1, 1))} – ${d(new Date(y, m, 0))}`;
+  if (/^\d+m$/.test(v)) return `${d(new Date(y, m - parseInt(v, 10), now.getDate()))} – today`;
+  return `${d(new Date(now - 30 * 864e5))} – today`;
+}
+
+/** Period control: one pill that opens a popover listing each window with its real dates. */
 export function PeriodPicker({ options, value, onChange, label = 'Period' }) {
+  const [open, setOpen] = useState(false);
+  const wrap = useRef(null), btn = useRef(null), list = useRef(null);
   const current = options.find(([v]) => v === value)?.[1] || '';
+  useEffect(() => {
+    if (!open) return;
+    const away = (e) => { if (!wrap.current?.contains(e.target)) setOpen(false); };
+    const key = (e) => {
+      if (e.key === 'Escape') { setOpen(false); btn.current?.focus(); }
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        const items = [...(list.current?.querySelectorAll('button') || [])];
+        const i = items.indexOf(document.activeElement);
+        items[(i + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length]?.focus();
+      }
+    };
+    document.addEventListener('pointerdown', away); document.addEventListener('keydown', key);
+    requestAnimationFrame(() => list.current?.querySelector('[aria-selected="true"]')?.focus());
+    return () => { document.removeEventListener('pointerdown', away); document.removeEventListener('keydown', key); };
+  }, [open]);
   return (
-    <>
-      <div className="hidden sm:block"><Segmented label={label} value={value} onChange={onChange} options={options} /></div>
-      <label className="sm:hidden relative inline-flex items-center gap-1.5 h-9 pl-4 pr-3 rounded-full bg-surface-2 border border-line text-[14px] font-medium">
-        <span className="text-ink-3 font-normal">Showing</span> {current}
-        <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" className="text-ink-3 ml-0.5"><path d="M3 4.5 6 7.5 9 4.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
-        <select aria-label={label} value={value} onChange={(e) => onChange(e.target.value)} className="absolute inset-0 opacity-0 w-full cursor-pointer">
-          {options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-        </select>
-      </label>
-    </>
+    <div ref={wrap} className="relative">
+      <button ref={btn} type="button" aria-haspopup="listbox" aria-expanded={open} aria-label={`${label}: ${NICE[current] || current}`} onClick={() => setOpen((o) => !o)}
+        className="inline-flex items-center gap-2 h-9 pl-3.5 pr-3 rounded-full bg-surface-2 border border-line text-[13.5px] font-medium hover:bg-surface-3">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true" className="text-ink-3"><rect x="3.5" y="5" width="17" height="15" rx="3" /><path d="M3.5 10h17M8 3v4M16 3v4" /></svg>
+        <span className="sm:hidden">{current}</span><span className="hidden sm:inline">{NICE[current] || current}</span>
+        <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" className="text-ink-3 transition-transform" style={{ transform: open ? 'rotate(180deg)' : 'none' }}><path d="M3 4.5 6 7.5 9 4.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.ul ref={list} role="listbox" aria-label={label} className="absolute right-0 top-full mt-2 z-40 w-64 rounded-2xl p-1.5 border border-[var(--line-strong)] bg-[var(--surface-solid)] shadow-[0_24px_60px_-12px_rgba(0,0,0,.55)] origin-top-right"
+            initial={{ opacity: 0, y: -4, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -4, scale: 0.97 }} transition={{ duration: 0.16 }}>
+            {options.map(([v, l]) => {
+              const on = v === value;
+              return (
+                <li key={v}>
+                  <button type="button" role="option" aria-selected={on} onClick={() => { onChange(v); setOpen(false); btn.current?.focus(); }}
+                    className={`w-full flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left outline-none focus-visible:bg-surface-2 hover:bg-surface-2 ${on ? 'bg-surface-2' : ''}`}>
+                    <span><span className="block text-[14px] font-medium">{NICE[l] || l}</span><span className="block text-[11.5px] text-ink-3 mt-0.5">{periodRange(v)}</span></span>
+                    {on && <FiCheck className="shrink-0" aria-hidden="true" />}
+                  </button>
+                </li>
+              );
+            })}
+          </motion.ul>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 

@@ -26,7 +26,6 @@ function Delta({ change, pill, suffix = '' }) {
     : <span className="text-[11.5px] font-medium tabular-nums" style={{ color }}>{txt}</span>;
 }
 
-function greeting() { const h = new Date().getHours(); return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'; }
 
 function Stat({ label, value, sub, tone }) {
   return (
@@ -76,14 +75,15 @@ export default function Dashboard() {
 
   return (
     <div className="grid grid-cols-1 gap-6">
-      <header className="flex flex-wrap items-end justify-between gap-4 pt-1">
-        <div>
-          <div className="eyebrow">{new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
-          <h1 className="text-[2.2rem] sm:text-[2.75rem] mt-1">{greeting()}{firstName ? `, ${firstName}` : ''}.</h1>
+      {/* Compact header: the numbers below are the hero, not a greeting. */}
+      <header className="flex items-end justify-between gap-3">
+        <div className="min-w-0">
+          <div className="eyebrow truncate">{new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}{firstName ? ` · Hi ${firstName}` : ''}</div>
+          <h1 className="text-[1.6rem] sm:text-[2.1rem] mt-0.5">Overview</h1>
         </div>
-        <div className="flex items-center gap-2 min-w-0 max-w-full">
+        <div className="flex items-center gap-2 shrink-0">
           <PeriodPicker label="Period" value={period} onChange={setPeriod} options={PERIODS.filter(([k]) => ['30d', 'month', 'last_month', '3m', '6m'].includes(k))} />
-          <button className="btn btn-ghost btn-sm !h-9 !px-3 sm:!px-4" aria-label="Download report" onClick={() => api.download('/export/pdf', 'spend-tracker-report.pdf')}><FiDownload /><span className="hidden sm:inline">Report</span></button>
+          <button className="btn btn-ghost btn-sm !h-9 !px-3 sm:!px-3.5 border !border-[var(--line)]" aria-label="Download report" onClick={() => api.download('/export/pdf', 'spend-tracker-report.pdf')}><FiDownload /><span className="hidden sm:inline">Report</span></button>
         </div>
       </header>
 
