@@ -35,6 +35,8 @@ export default function OnDeviceAI() {
     catch (e) { setError(e); } finally { setBusy(false); }
   }
 
+  // Only offered where it can actually run: hidden while checking and on browsers without WebGPU.
+  if (s.supported !== true) return null;
   return (
     <section className="panel p-6" aria-labelledby="ondevice-h">
       <div className="flex items-center gap-2.5">
@@ -44,12 +46,10 @@ export default function OnDeviceAI() {
       </div>
       <p className="text-sm text-ink-3 mt-1.5 max-w-[62ch]">A small open model runs inside this browser on your GPU. It writes your briefing and answers when Claude isn’t available — or every time, if you’d rather your spending summary never leaves this device. Numbers still come from Spend Tracker; any amount the model makes up is thrown away.</p>
 
-      {s.supported === false ? (
-        <p className="mt-4 text-sm rounded-xl bg-surface-2 px-4 py-3 text-ink-2">{s.reason}</p>
-      ) : (
+      {(
         <>
           <div className="divide-y divide-line mt-2">
-            <Switch label="Use on-device AI" hint="Download once; it’s cached by the browser and works offline afterwards." checked={s.enabled} onChange={(v) => configure({ enabled: v })} disabled={s.supported === null} />
+            <Switch label="Use on-device AI" hint="Download once; it’s cached by the browser and works offline afterwards." checked={s.enabled} onChange={(v) => configure({ enabled: v })} />
             {s.enabled && <Switch label="Prefer on-device" hint="Don’t send your summary to Claude at all, even when it’s available." checked={s.prefer} onChange={(v) => configure({ prefer: v })} />}
           </div>
 

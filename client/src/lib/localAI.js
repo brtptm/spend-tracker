@@ -98,7 +98,9 @@ export function configure(patch) {
 }
 
 /** Use on-device AI for this response? Only when enabled and the model is already downloaded (no surprise downloads). */
-export const shouldUseLocal = (serverSource) => state.enabled && state.cached[state.model] && (state.prefer || serverSource !== 'claude');
+export const usable = () => state.enabled && state.supported === true && state.status !== 'error' && !!state.cached[state.model];
+export const prefersLocal = () => usable() && state.prefer;
+export const shouldUseLocal = (serverSource) => usable() && (state.prefer || serverSource !== 'claude');
 
 // ── Grounding: every money-like number the model writes must come from its input ──
 const NUM = /₹\s?\d[\d,]*(?:\.\d+)?|\b\d{1,3}(?:,\d{2,3})+(?:\.\d+)?\b|\b\d{3,}(?:\.\d+)?\b/g;
@@ -124,14 +126,16 @@ const SCHEMAS = {
   ask: { type: 'object', properties: { answer: S, followUps: LIST }, required: ['answer', 'followUps'] },
 };
 
+const withTimeout = (p, ms) => Promise.race([p, new Promise((_, no) => setTimeout(() => no(new Error('On-device AI timed out')), ms))]);
+
 /** Run a prompt from /api/analysis/ai/prompt on the device. Returns { data, source, model, rejected }. */
 export async function generate(prompt) {
   const eng = await load();
   const t0 = performance.now();
-  const r = await eng.chat.completions.create({
+  const r = await withTimeout(eng.chat.completions.create({
     messages: [{ role: 'system', content: prompt.system }, { role: 'user', content: prompt.task_small || prompt.task }],
     temperature: 0.3, max_tokens: prompt.max_tokens, response_format: { type: 'json_object', schema: JSON.stringify(SCHEMAS[prompt.kind]) },
-  });
+  }), 45_000);
   let out = {};
   try { out = JSON.parse(r.choices[0].message.content || '{}'); } catch { out = {}; }
   const allowed = allowedNumbers(prompt.task, prompt.task_small || '', JSON.stringify(prompt.base));
@@ -146,14 +150,11 @@ export async function generate(prompt) {
   if (prompt.kind === 'briefing') {
     const data = { headline: pick(out.headline, base.headline), summary: pick(out.summary, base.summary), observations: list(out.observations, base.observations, 4), personality: pick(out.personality, base.personality) };
     // Only credit the model if its own words survived the checks.
-    const own = data.headline !== base.headline || data.summary !== base.summary;
-    return { data, source: own ? 'on-device' : 'engine', model, ms, rejected };
+    if (data.headline === base.headline && data.summary === base.summary) throw new Error('On-device output failed the checks');
+    return { data, source: 'on-device', model, ms, rejected };
   }
   const answer = pick(out.answer, null, 5);
-  if (!answer) {
-    // Held back rather than show a guess; say so plainly.
-    return { data: { answer: 'The on-device model couldn’t answer that reliably, so I’m not going to guess. Try rephrasing it, or open the dashboard for the full breakdown.', followUps: base.followUps }, source: 'engine', model, ms, rejected };
-  }
+  if (!answer) throw new Error('On-device answer failed the checks');
   return { data: { answer, followUps: list(out.followUps, base.followUps, 3) }, source: 'on-device', model, ms, rejected };
 }
 
@@ -167,7 +168,9 @@ export async function onDevice(kind, question, model = state.model) {
     try { localStorage.setItem(k, JSON.stringify(r)); } catch { /* quota */ }
     return r;
   } catch (e) {
-    console.warn('[on-device AI] generation failed, using engine text:', e);
-    return { data: prompt.base, source: 'engine', error: e?.message || String(e) };
+    console.warn('[on-device AI] falling back to the server:', e?.message || e);
+    // GPU/runtime failures (not just a weak answer) disable on-device AI for this session.
+    if (!/failed the checks/.test(e?.message || '')) { engine = null; loadedId = null; set({ status: 'error', error: e?.message || String(e) }); }
+    throw e;
   }
 }

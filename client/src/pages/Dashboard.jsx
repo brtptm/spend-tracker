@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { motion } from 'motion/react';
 import { FiDownload, FiChevronRight } from 'react-icons/fi';
 import { api } from '../lib/api.js';
-import { useLocalAI, shouldUseLocal, onDevice, modelInfo } from '../lib/localAI.js';
+import { useLocalAI, shouldUseLocal, prefersLocal, onDevice, modelInfo } from '../lib/localAI.js';
 import { inr, inrShort, PERIODS, plural } from '../lib/format.js';
 import { Ticker, Bar, Spinner, ErrorNote, PeriodPicker, Skeleton, SourceTag, CategoryIcon, stagger, rise } from '../components/ui.jsx';
 import { InsightCard, MiniLink, OfferCarousel } from '../components/cards.jsx';
@@ -41,11 +41,15 @@ function Stat({ label, value, sub, tone }) {
 function Briefing() {
   const local = useLocalAI();
   // "Prefer on-device": don't ask the server to call Claude at all — the summary never leaves the device.
-  const preferLocal = local.enabled && local.prefer && !!local.cached[local.model];
+  const preferLocal = prefersLocal();
   const q = useQuery({ queryKey: ['briefing', preferLocal], queryFn: () => api.insights(!preferLocal), staleTime: Infinity });
   const server = q.data?.briefing;
   const useLocal = !q.isLoading && !q.error && shouldUseLocal(server?.source);
-  const lq = useQuery({ queryKey: ['briefing-local', local.model], queryFn: () => onDevice('briefing', undefined, local.model), enabled: useLocal, staleTime: Infinity, retry: false });
+  // Any on-device failure falls back to the server (Claude, or the engine if Claude is out).
+  const lq = useQuery({
+    queryKey: ['briefing-local', local.model], enabled: useLocal, staleTime: Infinity, retry: false,
+    queryFn: () => onDevice('briefing', undefined, local.model).catch(async () => server?.source === 'claude' ? server : (await api.insights(true)).briefing),
+  });
   const b = useLocal ? lq.data : server;
   const loading = q.isLoading || (useLocal && lq.isLoading);
   return (
