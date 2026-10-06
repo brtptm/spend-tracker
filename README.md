@@ -2,7 +2,7 @@
 
 **UPI payments in, people out.** Partners like Paytm stream UPI payments to one API; Spend Tracker cleans them, drops what isn't spending, categorises every rupee deterministically and keeps a living profile per phone number — readable by the partner (summaries, apps used, behaviour, monthly reports) and by the person themselves in a premium consumer app with Claude-written insights and spend-based offers.
 
-**Stack:** React 19 · Vite 8 · Tailwind 4 · Motion · Recharts · Node 24 · Express 5 · SQLite (`node:sqlite`) · Claude via the Anthropic SDK or Claude Agent SDK · pnpm workspaces
+**Stack:** React 19 · Vite 8 · Tailwind 4 · Motion · Recharts · Node 24 · Express 5 · SQLite (`node:sqlite`) · Claude (Anthropic SDK / Claude Agent SDK) · Qwen2.5 via `node-llama-cpp` (server) and WebLLM (browser) · pnpm workspaces
 
 ```mermaid
 flowchart LR
@@ -11,7 +11,7 @@ flowchart LR
     I[Ingestion pipeline\nvalidate → normalise → identify → de-dupe → filter → categorise] --> DB[(SQLite)]
     DB --> R[Read API by phone\nsummary · merchants · behaviour · report · UPI IDs]
     DB --> A[Consumer app\ndashboard · insights · budgets · offers]
-    C[Claude] -. language only, over aggregates .-> A
+    C[Claude → server Qwen → browser Qwen] -. language only, over aggregates .-> A
   end
   R -- "GET /v1/users/{phone}/…" --> P
   U[Person] -- "Continue with Paytm (phone + OTP)" --> A
@@ -20,11 +20,42 @@ flowchart LR
 
 ## Quick start
 
+Requires **Node 24+** (`.nvmrc`) and **pnpm 10+**.
+
 ```bash
-pnpm install
+pnpm run setup        # install · create .env · download the server AI model (≈1.1 GB) · build
 pnpm dev              # app http://localhost:7100 · API http://localhost:7101
-cp .env.example .env  # optional: OTP_DEMO=1 shows sign-in codes on screen (no SMS in the demo)
 ```
+
+`pnpm run setup` is safe to re-run (finished steps are skipped). Use `pnpm run setup -- --skip-model` to skip the model download, or `-- --skip-build`. Note: it must be `pnpm run setup` — plain `pnpm setup` is pnpm's own built-in command.
+
+### Commands
+
+| Command | What it does |
+|---|---|
+| `pnpm run setup` | One-time setup: dependencies, `.env`, server model, client build |
+| `pnpm dev` | App on **7100** with hot reload, API on **7101** (ports are fixed; Vite fails rather than drifting) |
+| `pnpm build` · `pnpm start` | Production build; then app + API + docs + portal on **7101** |
+| `pnpm seed` | Reset the three demo personas |
+| `pnpm --filter ./server test` | Server tests (ingestion pipeline, grounding guards) |
+| `pnpm --filter ./server model:pull` | Download / verify the server model only |
+| `pnpm --filter ./server examples` | Re-capture the docs' response examples from the running API |
+
+### Configuration (`.env`, all optional)
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `ANTHROPIC_API_KEY` | — | Claude via the API. Without it, your local Claude Code login is used if available |
+| `AI_PROVIDER` / `AI_DISABLED=1` | `auto` | Force `api` · `agent-sdk` · `off`; `AI_DISABLED=1` skips Claude |
+| `SERVER_LLM` / `SERVER_LLM_MODEL` | on if downloaded / Qwen2.5 1.5B Q4_K_M | `off` disables the in-process model; any `hf:org/repo:QUANT` GGUF works |
+| `OTP_DEMO=1` | off | Show “Continue with Paytm” codes on screen (no SMS provider in the demo) |
+| `PORTAL_DEMO=1` | off | One-click “Use demo account” on the portal sign-in (never in production) |
+| `PORTAL_ADMIN_PASSWORD` | dev-only demo password | Required in production to create the portal admin |
+| `SIMULATE_HISTORY=0` | on | Skip the simulated 14-day Paytm backfill on first start |
+| `PORT` | `7101` | API (and production app) port |
+| `JWT_SECRET` · `DB_FILE` · `CLIENT_ORIGIN` | generated · `server/data/spend.db` · same origin | Sessions, database path, CORS |
+
+`pnpm run setup` creates `.env` with `OTP_DEMO=1` and `PORTAL_DEMO=1` so the demo works out of the box.
 
 | Surface | URL | Who |
 |---|---|---|
@@ -40,7 +71,7 @@ cp .env.example .env  # optional: OTP_DEMO=1 shows sign-in codes on screen (no S
 | Rohan — convenience spender (Bengaluru): ~79 delivery orders/month, Netflix + Hotstar overlap, duplicate Swiggy charge, 1 a.m. ₹38,990 laptop | phone `98765 00001` |
 | Neha — deal-hunting fashionista (Mumbai) | phone `98765 00002` |
 | Kabir — subscription collector (Pune) | phone `98765 00003` |
-| Integration Portal (Paytm) | `integrations@paytm.demo` / `paytm-partner-2026` (development only; production requires `PORTAL_ADMIN_PASSWORD`) |
+| Integration Portal (Paytm) | **Use demo account** on `/portal/login` (with `PORTAL_DEMO=1`), or `integrations@paytm.demo` / `paytm-partner-2026` (development only; production requires `PORTAL_ADMIN_PASSWORD`) |
 
 Email login also works for the personas (`rohan@demo.spendtracker.app`, password `spend-smart-2026`). `pnpm seed` resets them.
 
@@ -98,7 +129,7 @@ curl "localhost:7101/v1/users/9876500001/behavior" -H "Authorization: Bearer $ST
 
 **AI** is picked automatically: `ANTHROPIC_API_KEY` → local Claude Code login (Claude Agent SDK) → **in-process server model** → **on-device model in the browser** (opt-in) → built-in engine. Every number comes from the engine; the model only writes language over a ~700-token aggregate summary (never raw transactions), and any failure falls back instantly.
 
-**Server model (no Ollama, no external service).** Qwen2.5 1.5B runs inside the Node process via `node-llama-cpp` (llama.cpp with Metal/CUDA/Vulkan/CPU). Download it once with `pnpm --filter ./server model:pull` (≈1.1 GB into `server/data/models`, gitignored); the server then uses it whenever Claude is unavailable or a Claude call fails — ~1–2 s per answer on Apple Silicon, one request at a time, data never sent to a third party. It never downloads during a request; `SERVER_LLM=off` disables it, `SERVER_LLM_MODEL=hf:org/repo:QUANT` swaps the model.
+**Server model (no Ollama, no external service).** Qwen2.5 1.5B runs inside the Node process via `node-llama-cpp` (llama.cpp with Metal/CUDA/Vulkan/CPU). `pnpm run setup` downloads it once (≈1.1 GB into `server/data/models`, gitignored; or `pnpm --filter ./server model:pull`); the server then uses it whenever Claude is unavailable or a Claude call fails — ~1–2 s per answer on Apple Silicon, one request at a time, data never sent to a third party. It never downloads during a request; `SERVER_LLM=off` disables it, `SERVER_LLM_MODEL=hf:org/repo:QUANT` swaps the model.
 
 **On-device AI (WebLLM).** Settings → On-device AI downloads a small open model once (Qwen2.5 1.5B, 869 MB, recommended — or 0.5B Lite, 278 MB; cached by the browser) and runs it on the GPU via WebGPU in a Web Worker. It writes the briefing and Ask answers when Claude is unavailable — or always, with *Prefer on-device*, so the summary never leaves the device. Safeguards (shared by both small models): the server builds the prompt (small models get an easier "rewrite the engine's draft" task), decoding is constrained to a JSON schema, and any rupee amount not present in the input is rejected along with instruction echoes. Needs desktop Chrome/Edge or recent Safari; phones fall back to the engine.
 
@@ -107,23 +138,28 @@ curl "localhost:7101/v1/users/9876500001/behavior" -H "Authorization: Bearer $ST
 - Persona histories are generated (deterministic per user) to stand in for Paytm's feed; partner-API ingestion is real.
 - Peer comparisons use illustrative cohort benchmarks; delivery fees are estimated at ₹45/order.
 - Demo profiles include 30 days of simulated offer events so revenue isn't empty (the portal says so). Offers and coupon codes are samples.
+- On first start the portal gets a **simulated 14-day Paytm backfill**: ≈2,200 messy UPI payments for 30 synthetic users, pushed through the *real* ingestion pipeline and labelled `simulated` in Deliveries (`SIMULATE_HISTORY=0` to skip).
+- Small models (server and browser Qwen) phrase well but can misplace a correct number; the guards stop invented figures, not every wording mistake. Claude stays first whenever it is available.
 - There is no SMS provider: with `OTP_DEMO=1` the sign-in code is shown on screen.
 
 ## Layout
 
 ```
 server/src
-  partner/   ingest.js (pipeline, MCC map) · keys.js (scoped hashed keys) · spec.js (docs + OpenAPI) · examples.json (captured)
+  partner/   ingest.js (pipeline, MCC map) · keys.js (scoped hashed keys) · spec.js (docs + OpenAPI) · examples.json (captured) · simulate.js (backfill)
   routes/    v1.js (partner API) · portal.js · auth.js (incl. Paytm OTP) · spending · analysis · recommendations · ads · budget · alerts · export
   engine/    categorize.js · analytics.js · insights.js
-  ai/        claude.js (API / Agent SDK / engine) · index.js
+  ai/        claude.js (API / Agent SDK) · serverModel.js (in-process Qwen) · grounding.js (small-model guards) · index.js (provider chain, prompts)
   data/      catalog.js · generator.js · offers.js
-server/scripts/capture-examples.mjs   regenerate docs examples from the live API
+server/scripts/   capture-examples.mjs (docs examples) · model-pull.mjs (server model)
+server/test/      ingestion pipeline · grounding guards (node --test)
+scripts/setup.mjs one-command setup
 client/src
   pages/docs/      developer docs (from /v1/spec)
   pages/portal/    Integration Portal
   pages/           Landing · Auth · Connect · Dashboard · Category · Merchant · Trends · Recommendations · Offers · Budget · Transactions · Alerts · Settings
-  components/      OrbitDial · charts · cards · ui · Shell · PaytmSignIn · BrandLogo · PageBoundary
+  components/      OrbitDial · charts · cards · ui · Shell · PaytmSignIn · BrandLogo · PageBoundary · OnDeviceAI
+  lib/             api · portalApi · localAI + llm.worker (WebLLM) · theme · format
 ```
 
-Production: `pnpm build && pnpm start` serves the app, docs, portal and API on one port.
+Production: `pnpm build && pnpm start` serves the app, docs, portal and API on one port (7101).
