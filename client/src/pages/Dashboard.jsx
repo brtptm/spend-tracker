@@ -138,25 +138,27 @@ export default function Dashboard() {
         </div>
       </section>
 
-      <section className="grid lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] gap-5">
-        <div className="panel p-6 sm:p-7">
-          <div className="flex items-center justify-between"><h2 className="text-lg">Insights</h2><MiniLink to="/alerts">All alerts</MiniLink></div>
-          <div className="mt-1 divide-y divide-line">{data.insights.map((i) => <InsightCard key={i.id} insight={i} />)}</div>
+      <section className="panel p-6 sm:p-7" aria-label="Insights">
+        <div className="flex items-center justify-between"><h2 className="text-lg">Insights</h2><MiniLink to="/alerts">All alerts</MiniLink></div>
+        <div className="mt-4 -mx-6 px-6 sm:mx-0 sm:px-0 flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-3 overflow-x-auto sm:overflow-visible snap-x snap-mandatory scroll-px-6 no-scrollbar">
+          {data.insights.map((i, k) => <div key={i.id} className={`shrink-0 w-[84%] sm:w-auto snap-start ${k === 0 ? 'sm:col-span-2' : ''}`}><InsightCard insight={i} featured={k === 0} /></div>)}
         </div>
-        <div className="panel p-6 sm:p-7">
-          <div className="flex items-center justify-between"><h2 className="text-lg">Ways to keep more</h2><MiniLink to="/recommendations">{inr(sv.monthly)}/mo</MiniLink></div>
-          <ul className="mt-2 divide-y divide-line">
-            {data.recommendations.map((r) => (
-              <li key={r.id}>
-                <Link to="/recommendations" className="flex items-center gap-3.5 py-4 -mx-2 px-2 rounded-xl hover:bg-surface-2/70 transition-colors">
-                  <CategoryIcon id={r.category} size={15} />
-                  <div className="min-w-0 flex-1"><div className="font-medium leading-snug">{r.title}</div><div className="text-xs text-ink-3 mt-0.5">{r.difficulty} · {r.timeToImplement}</div></div>
-                  <div className="text-right"><div className="num text-positive">{inr(r.savingsMonthly)}</div><div className="text-[11px] text-ink-3">a month</div></div>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
+      </section>
+
+      <section className="panel p-6 sm:p-7" aria-label="Ways to keep more">
+        <div className="flex items-center justify-between"><h2 className="text-lg">Ways to keep more</h2><MiniLink to="/recommendations">{inr(sv.monthly)}/mo<span className="hidden sm:inline">&nbsp;in total</span></MiniLink></div>
+        <ul className="mt-4 -mx-6 px-6 sm:mx-0 sm:px-0 flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-3 overflow-x-auto sm:overflow-visible snap-x snap-mandatory scroll-px-6 no-scrollbar">
+          {data.recommendations.map((r) => (
+            <li key={r.id} className="shrink-0 w-[78%] sm:w-auto snap-start">
+              <Link to="/recommendations" className="group relative h-full flex flex-col overflow-hidden rounded-2xl border border-line bg-white/[.025] p-5 transition-colors hover:bg-white/[.045] hover:border-white/[.12]">
+                <div className="pointer-events-none absolute -top-16 -right-16 w-44 h-44 rounded-full blur-3xl opacity-[.08]" style={{ background: 'var(--positive)' }} aria-hidden="true" />
+                <div className="relative flex items-center gap-2.5"><CategoryIcon id={r.category} size={12} /><span className="text-[11px] text-ink-3">{r.difficulty} · {r.timeToImplement}</span><FiChevronRight className="ml-auto text-ink-3 opacity-0 group-hover:opacity-100 transition-opacity" /></div>
+                <div className="relative mt-4 flex items-baseline gap-1.5"><span className="num text-[2rem] leading-none tracking-[-0.03em] text-positive">{inr(r.savingsMonthly)}</span><span className="text-xs text-ink-3">{r.oneTime ? 'one-time' : 'a month'}</span></div>
+                <div className="relative font-medium leading-snug mt-3">{r.title}</div>
+              </Link>
+            </li>
+          ))}
+        </ul>
       </section>
     </div>
   );

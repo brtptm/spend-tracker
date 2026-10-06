@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
-import { FiChevronRight, FiChevronLeft, FiCopy, FiCheck, FiMoreHorizontal, FiX } from 'react-icons/fi';
+import { FiChevronRight, FiChevronLeft, FiCopy, FiCheck, FiMoreHorizontal, FiX, FiArrowUpRight } from 'react-icons/fi';
 import { useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api.js';
-import { inr } from '../lib/format.js';
+import { inrShort, inr } from '../lib/format.js';
 import { SEVERITY, CategoryIcon } from './ui.jsx';
 import BrandLogo from './BrandLogo.jsx';
 
@@ -195,21 +195,59 @@ export function OfferCarousel({ offers: initial, interval = 6500 }) {
   );
 }
 
-export function InsightCard({ insight, compact }) {
-  const s = SEVERITY[insight.severity] || SEVERITY.info;
+// The single number each insight is about: a % change, an amount, or the saving.
+function insightHero(i) {
+  const m = i.metrics;
+  if (m?.percentageDifference != null) return { value: `${m.percentageDifference > 0 ? '+' : '−'}${Math.abs(m.percentageDifference)}%`, note: 'vs similar users' };
+  const pct = i.description?.match(/(up|down) (\d+)%/);
+  if (pct) return { value: `${pct[1] === 'up' ? '+' : '−'}${pct[2]}%`, note: 'vs your 3-month average' };
+  const amt = i.description?.match(/₹[\d,]+(\/month)?/);
+  if (amt) return { value: amt[0].replace('/month', ''), note: amt[1] ? 'a month' : i.type === 'anomaly' ? 'single payment' : '' };
+  if (i.potentialSavings) return { value: inr(i.potentialSavings), note: 'a month' };
+  return null;
+}
+
+/** Insight tile: hero number, severity chip, peer bar when available, saving chip. */
+export function InsightCard({ insight: i, featured }) {
+  const s = SEVERITY[i.severity] || SEVERITY.info;
+  const hero = insightHero(i);
+  const m = i.metrics;
+  const max = m ? Math.max(m.current, m.average) * 1.08 : 1;
   const body = (
-    <div className="flex gap-3.5">
-      <span className="mt-[7px] w-2 h-2 rounded-full shrink-0" style={{ background: s.color }} aria-hidden="true" />
-      <div className="min-w-0 flex-1">
-        <div className="text-xs font-medium" style={{ color: s.color }}>{s.label}</div>
-        <div className="font-medium mt-0.5">{insight.title}</div>
-        {!compact && <p className="text-sm text-ink-2 mt-1">{insight.description}</p>}
-        {insight.action && !compact && <p className="text-sm text-ink-3 mt-1">{insight.action}</p>}
+    <div className="relative h-full flex flex-col overflow-hidden rounded-2xl border border-line bg-white/[.025] p-5 transition-colors group-hover:bg-white/[.045] group-hover:border-white/[.12]">
+      <div className="pointer-events-none absolute -top-16 -right-16 w-48 h-48 rounded-full blur-3xl opacity-[.09]" style={{ background: s.color }} aria-hidden="true" />
+      <div className="relative flex items-center gap-2.5">
+        <CategoryIcon id={i.category} size={12} />
+        <span className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium" style={{ color: s.color, background: `color-mix(in srgb, ${s.color} 12%, transparent)` }}>
+          <span className="w-1.5 h-1.5 rounded-full" style={{ background: s.color }} />{s.label}
+        </span>
+        <FiArrowUpRight className="ml-auto text-ink-3 opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true" />
       </div>
-      {insight.potentialSavings > 0 && <div className="text-right shrink-0"><div className="num text-base text-positive">{inr(insight.potentialSavings)}</div><div className="text-[11px] text-ink-3">a month</div></div>}
+      <div className={`relative mt-4 ${featured ? 'sm:flex sm:items-end sm:gap-8' : ''}`}>
+        {hero && <div className="shrink-0"><div className="num text-[2rem] leading-none tracking-[-0.03em]" style={{ color: s.color }}>{hero.value}</div>{hero.note && <div className="text-[11px] text-ink-3 mt-1.5">{hero.note}</div>}</div>}
+        <div className={`min-w-0 ${hero ? (featured ? 'mt-3 sm:mt-0' : 'mt-3') : ''}`}>
+          <div className="font-medium leading-snug">{i.title}</div>
+          <p className="text-[13px] text-ink-3 mt-1 line-clamp-2">{i.action || i.description}</p>
+        </div>
+      </div>
+      {(m || i.potentialSavings > 0) && (
+        <div className="relative mt-auto pt-4 flex flex-col items-start sm:flex-row sm:items-center gap-3 sm:gap-4">
+          {m && (
+            <div className="w-full sm:flex-1 min-w-0" title={`You ${inr(m.current)} · similar users ${inr(m.average)}`}>
+              <div className="relative h-2.5">
+                <div className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-white/[.08]" />
+                <div className="absolute left-0 top-1/2 h-[3px] -translate-y-1/2 rounded-full" style={{ width: `${(m.current / max) * 100}%`, background: `linear-gradient(90deg, color-mix(in srgb, ${s.color} 25%, transparent), ${s.color})` }} />
+                <div className="absolute top-0 bottom-0 w-[2px] rounded-full bg-ink-2" style={{ left: `${(m.average / max) * 100}%` }} />
+              </div>
+              <div className="flex justify-between text-[10.5px] text-ink-3 mt-1"><span>You {inrShort(m.current)}</span><span>Peers {inrShort(m.average)}</span></div>
+            </div>
+          )}
+          {i.potentialSavings > 0 && <span className="sm:ml-auto shrink-0 rounded-full px-2.5 py-1 text-[12px] font-medium text-positive" style={{ background: 'color-mix(in srgb, var(--positive) 12%, transparent)' }}>Save <span className="num">{inr(i.potentialSavings)}</span>/mo</span>}
+        </div>
+      )}
     </div>
   );
-  return insight.link ? <Link to={insight.link} className="block py-4 rounded-xl -mx-2 px-2 hover:bg-surface-2/60 transition-colors">{body}</Link> : <div className="py-4">{body}</div>;
+  return i.link ? <Link to={i.link} className="group block h-full">{body}</Link> : <div className="group h-full">{body}</div>;
 }
 
 export function RecommendationCard({ rec, onAccept, onDismiss, busy }) {
