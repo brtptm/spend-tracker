@@ -70,7 +70,7 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <section className="panel !p-0 overflow-hidden grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]" aria-label="Where your money went">
+      <section className="panel !p-0 overflow-hidden grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:h-[clamp(500px,calc(100dvh-296px),780px)]" aria-label="Where your money went">
         <div className="relative isolate min-h-[350px] sm:min-h-[440px] border-b lg:border-b-0 lg:border-r border-line">
           <Ring segments={segments} onSelect={(id) => id && nav(`/category/${id}`)} className="-z-10">
             <div className="text-center">
@@ -80,12 +80,12 @@ export default function Dashboard() {
             </div>
           </Ring>
         </div>
-        <div className="p-6 sm:p-7">
+        <div className="p-6 sm:p-7 flex flex-col min-h-0">
           <div className="flex items-center justify-between"><h2 className="text-lg">Categories</h2><span className="text-xs text-ink-3">Tap to explore</span></div>
-          <ul className="mt-3">
+          <ul className="mt-3 lg:flex-1 lg:min-h-0 flex flex-col lg:justify-around">
             {s.byCategory.map((c) => (
               <li key={c.id}>
-                <Link to={`/category/${c.id}`} className="flex items-center gap-3.5 py-3 -mx-2 px-2 rounded-xl hover:bg-surface-2/70 transition-colors group">
+                <Link to={`/category/${c.id}`} className="flex items-center gap-3.5 py-2.5 lg:py-2 -mx-2 px-2 rounded-xl hover:bg-surface-2/70 transition-colors group">
                   <CategoryIcon id={c.id} color={c.color} size={15} />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-baseline justify-between gap-3"><span className="font-medium truncate">{c.name}</span><span className="num text-[15px]">{inr(c.amount)}</span></div>
@@ -130,7 +130,7 @@ export default function Dashboard() {
               {data.budget.items.slice(0, 4).map((b) => (
                 <li key={b.category}>
                   <div className="flex justify-between text-sm mb-2"><span>{b.name}</span><span className="text-ink-3"><span className="text-ink num">{inrShort(b.spent)}</span> of {inrShort(b.budget)}</span></div>
-                  <Bar value={b.spent} max={b.budget} marker={b.expectedByToday} color={b.status === 'over' ? 'var(--negative)' : b.status === 'at_risk' ? 'var(--warning)' : 'var(--positive)'} label={`${b.name} budget`} />
+                  <Bar value={b.spent} max={b.budget} marker={b.expectedByToday} height={4} color={b.status === 'over' ? 'var(--negative)' : b.status === 'at_risk' ? 'var(--warning)' : 'var(--positive)'} label={`${b.name} budget`} />
                 </li>
               ))}
             </ul>

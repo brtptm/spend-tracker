@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, AreaChart, Area, ReferenceLine, Cell } from 'recharts';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, AreaChart, Area, ReferenceLine, LabelList } from 'recharts';
 import { inr, inrShort } from '../lib/format.js';
 
 import { CAT_COLORS, CAT_NAMES } from '../lib/cats.js';
@@ -43,26 +43,48 @@ const Legend = ({ items, note }) => (
   </ul>
 );
 
-/** Stacked monthly columns by category: slim, segmented with hairline gaps; hover isolates a month. */
+// Matte glass fill: each capsule fades from its color to a translucent base.
+const Glass = ({ id, color, top = 0.92, bottom = 0.28 }) => (
+  <linearGradient id={id} x1="0" y1="0" x2="0" y2="1"><stop offset="0" style={{ stopColor: color, stopOpacity: top }} /><stop offset="1" style={{ stopColor: color, stopOpacity: bottom }} /></linearGradient>
+);
+
+/** Stacked monthly columns: each category a separate glass capsule; totals on top; hover isolates a month. */
 export function MonthlyStack({ months, height = 280, keys = ORDER }) {
   const [hover, setHover] = useState(null);
   const present = keys.filter((k) => months.some((m) => m[k] > 0));
   const data = months.map((m) => ({ ...m, label: m.partial ? `${m.label}*` : m.label, _total: present.reduce((s, k) => s + (m[k] || 0), 0) }));
   const avg = avgOf(data.filter((m) => !m.partial).map((m) => m._total));
+  const capsule = (k) => (p) => {
+    const { x, y, width, height: h0, index } = p;
+    if (!h0 || h0 < 1) return null;
+    const h = Math.max(1, h0 - 3), r = Math.min(6, width / 2, h / 2);
+    const dim = hover != null && hover !== index, partial = data[index]?.partial;
+    return (
+      <g opacity={dim ? 0.3 : 1} style={{ transition: 'opacity .2s' }}>
+        <rect x={x} y={y + 1.5} width={width} height={h} rx={r} fill={partial ? `url(#mgp-${k})` : `url(#mg-${k})`} />
+        <rect x={x + 0.5} y={y + 2} width={width - 1} height={Math.max(0, h - 1)} rx={r} fill="none" stroke={CAT_COLORS[k]} strokeOpacity={partial ? 0.7 : 0.45} strokeDasharray={partial ? '3 3' : undefined} />
+      </g>
+    );
+  };
+  const TotalLabel = ({ x, y, width, index }) => {
+    const m = data[index]; if (!m?._total) return null;
+    return <text x={x + width / 2} y={y - 9} textAnchor="middle" fill={hover === index ? 'var(--ink)' : 'var(--ink-3)'} fontSize={11} fontWeight={500} style={{ transition: 'fill .2s' }}>{inrShort(m._total)}</text>;
+  };
   return (
     <figure>
       <div style={{ height }}>
         <ResponsiveContainer>
-          <BarChart data={data} margin={{ top: 18, right: 0, left: 0, bottom: 0 }} barCategoryGap="38%"
+          <BarChart data={data} margin={{ top: 24, right: 0, left: 0, bottom: 0 }} barCategoryGap="30%"
             onMouseMove={(s) => setHover(s?.activeTooltipIndex ?? null)} onMouseLeave={() => setHover(null)}>
+            <defs>{present.map((k) => [<Glass key={k} id={`mg-${k}`} color={CAT_COLORS[k]} />, <Glass key={`${k}p`} id={`mgp-${k}`} color={CAT_COLORS[k]} top={0.35} bottom={0.08} />])}</defs>
             <CartesianGrid {...grid} />
             <XAxis dataKey="label" {...axis} />
             <YAxis {...axis} width={48} tickFormatter={inrShort} tickCount={4} />
             <Tooltip content={<Tip names={CAT_NAMES} />} cursor={false} />
-            {avg > 0 && <ReferenceLine y={avg} stroke="rgba(255,255,255,.28)" strokeDasharray="3 4" label={<AvgLabel value={inrShort(avg)} />} />}
+            {avg > 0 && <ReferenceLine y={avg} stroke="rgba(255,255,255,.22)" strokeDasharray="2 5" label={<AvgLabel value={inrShort(avg)} />} />}
             {present.map((k, i) => (
-              <Bar key={k} dataKey={k} stackId="s" fill={CAT_COLORS[k]} stroke="var(--bg)" strokeWidth={2} radius={i === present.length - 1 ? [6, 6, 2, 2] : 2} maxBarSize={30} isAnimationActive animationDuration={700}>
-                {data.map((m, j) => <Cell key={j} fillOpacity={(hover != null && hover !== j) ? 0.28 : m.partial ? 0.55 : 1} style={{ transition: 'fill-opacity .2s' }} />)}
+              <Bar key={k} dataKey={k} stackId="s" fill={CAT_COLORS[k]} shape={capsule(k)} maxBarSize={36} animationDuration={800}>
+                {i === present.length - 1 && <LabelList dataKey="_total" content={<TotalLabel />} />}
               </Bar>
             ))}
           </BarChart>
@@ -85,13 +107,14 @@ export function TrendArea({ data, dataKey = 'amount', color = 'var(--ink)', heig
     <div style={{ height }}>
       <ResponsiveContainer>
         <AreaChart data={data} margin={{ top: 18, right: 10, left: 0, bottom: 0 }}>
-          <defs><linearGradient id={id} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={color} stopOpacity={0.22} /><stop offset="100%" stopColor={color} stopOpacity={0} /></linearGradient></defs>
+          <defs><linearGradient id={id} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={color} stopOpacity={0.32} /><stop offset="60%" stopColor={color} stopOpacity={0.08} /><stop offset="100%" stopColor={color} stopOpacity={0} /></linearGradient></defs>
           <CartesianGrid {...grid} />
           <XAxis dataKey="label" {...axis} />
           <YAxis {...axis} width={48} tickFormatter={inrShort} tickCount={4} />
           <Tooltip content={<Tip names={{ [dataKey]: name }} />} cursor={{ stroke: 'rgba(255,255,255,.18)', strokeWidth: 1 }} />
           {avg > 0 && <ReferenceLine y={avg} stroke="rgba(255,255,255,.24)" strokeDasharray="3 4" label={<AvgLabel value={inrShort(avg)} />} />}
-          <Area type="monotone" dataKey={dataKey} name={name} stroke={color} strokeWidth={1.75} fill={`url(#${id})`} dot={<LastDot />} activeDot={{ r: 4, stroke: 'var(--bg)', strokeWidth: 2, fill: color }} animationDuration={900} />
+          <Area type="monotone" dataKey={dataKey} stroke={color} strokeOpacity={0.25} strokeWidth={7} fill="none" isAnimationActive={false} tooltipType="none" activeDot={false} />
+          <Area type="monotone" dataKey={dataKey} name={name} stroke={color} strokeWidth={2} fill={`url(#${id})`} dot={<LastDot />} activeDot={{ r: 4, stroke: 'var(--bg)', strokeWidth: 2, fill: color }} animationDuration={900} />
         </AreaChart>
       </ResponsiveContainer>
     </div>
@@ -171,18 +194,28 @@ export function SimpleBars({ data, dataKey = 'amount', xKey = 'label', color = '
   const [hover, setHover] = useState(null);
   const values = data.map((d) => d[dataKey] || 0);
   const peak = values.indexOf(Math.max(...values));
+  const gid = `sb-${String(color).replace(/\W/g, '')}`;
+  const capsule = ({ x, y, width, height: h, index }) => {
+    if (!h || h < 1) return null;
+    const lit = hover != null ? hover === index : index === peak, r = Math.min(width / 2, h / 2);
+    return (
+      <g opacity={lit ? 1 : 0.45} style={{ transition: 'opacity .2s' }}>
+        <rect x={x} y={y} width={width} height={h} rx={r} fill={`url(#${gid})`} />
+        <rect x={x + 0.5} y={y + 0.5} width={width - 1} height={Math.max(0, h - 1)} rx={r} fill="none" stroke={color} strokeOpacity={0.5} />
+      </g>
+    );
+  };
   return (
     <div style={{ height }}>
       <ResponsiveContainer>
-        <BarChart data={data} margin={{ top: 10, right: 0, left: 0, bottom: 0 }} barCategoryGap="30%"
+        <BarChart data={data} margin={{ top: 10, right: 0, left: 0, bottom: 0 }} barCategoryGap="28%"
           onMouseMove={(s) => setHover(s?.activeTooltipIndex ?? null)} onMouseLeave={() => setHover(null)}>
+          <defs><Glass id={gid} color={color} top={0.95} bottom={0.18} /></defs>
           <CartesianGrid {...grid} />
           <XAxis dataKey={xKey} {...axis} interval="preserveStartEnd" minTickGap={6} />
           <YAxis {...axis} width={52} tickFormatter={tickFormat} allowDecimals={false} tickCount={4} />
           <Tooltip content={<Tip names={{ [dataKey]: name }} fmt={format} />} cursor={false} />
-          <Bar dataKey={dataKey} name={name} fill={color} radius={[99, 99, 99, 99]} maxBarSize={14} animationDuration={700}>
-            {data.map((_, i) => <Cell key={i} fillOpacity={hover != null ? (hover === i ? 1 : 0.25) : i === peak ? 1 : 0.42} style={{ transition: 'fill-opacity .2s' }} />)}
-          </Bar>
+          <Bar dataKey={dataKey} name={name} fill={color} shape={capsule} maxBarSize={18} animationDuration={700} />
         </BarChart>
       </ResponsiveContainer>
     </div>

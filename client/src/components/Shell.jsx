@@ -112,7 +112,7 @@ export default function Shell() {
       </header>
 
       <main className="min-w-0 px-4 sm:px-6 lg:px-10 py-6 lg:py-9 pb-28 lg:pb-12">
-        <div className="max-w-[1240px] mx-auto">
+        <div className="max-w-[1480px] mx-auto">
           <AnimatePresence mode="wait">
             <motion.div key={loc.pathname} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
               <Outlet context={{ openAsk: () => setAsk(true), firstName: first }} />
