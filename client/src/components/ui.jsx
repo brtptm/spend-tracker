@@ -1,22 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import { animate, motion, useInView, AnimatePresence } from 'motion/react';
 import { FiAlertTriangle, FiInbox, FiX, FiLoader, FiCheck } from 'react-icons/fi';
-import {
-  PiHamburgerDuotone, PiShoppingBagOpenDuotone, PiTaxiDuotone, PiFilmSlateDuotone, PiLightningDuotone, PiFirstAidKitDuotone, PiUsersThreeDuotone, PiWalletDuotone,
-} from 'react-icons/pi';
+import { PiForkKnifeFill, PiShoppingBagFill, PiCarProfileFill, PiFilmSlateFill, PiLightningFill, PiHeartbeatFill, PiUsersFill, PiWalletFill } from 'react-icons/pi';
 import { inr } from '../lib/format.js';
 
-export const CAT_ICON = { food: PiHamburgerDuotone, shopping: PiShoppingBagOpenDuotone, transport: PiTaxiDuotone, entertainment: PiFilmSlateDuotone, bills: PiLightningDuotone, personal: PiFirstAidKitDuotone, p2p: PiUsersThreeDuotone, total: PiWalletDuotone };
+export const CAT_ICON = { food: PiForkKnifeFill, shopping: PiShoppingBagFill, transport: PiCarProfileFill, entertainment: PiFilmSlateFill, bills: PiLightningFill, personal: PiHeartbeatFill, p2p: PiUsersFill, total: PiWalletFill };
 
-export function Logo({ size = 28, text = true }) {
+export function Logo({ size = 26, text = true }) {
   return (
     <span className="inline-flex items-center gap-2.5">
       <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
-        <ellipse cx="16" cy="16" rx="13" ry="5.6" fill="none" stroke="var(--cyan)" strokeWidth="1.8" transform="rotate(-24 16 16)" />
-        <circle cx="16" cy="16" r="5.4" fill="var(--lime)" />
-        <circle cx="27" cy="11.3" r="2.3" fill="var(--cyan)" />
+        <circle cx="16" cy="16" r="11" fill="none" stroke="var(--surface-3)" strokeWidth="4" />
+        <path d="M16 5a11 11 0 0 1 10.46 14.4" fill="none" stroke="var(--ink)" strokeWidth="4" strokeLinecap="round" />
       </svg>
-      {text && <span className="font-display font-bold text-[1.12rem] tracking-tight" style={{ fontVariationSettings: "'wdth' 88" }}>Spend Tracker</span>}
+      {text && <span className="font-semibold text-[1.02rem] tracking-[-0.02em]">Spend Tracker</span>}
     </span>
   );
 }
@@ -39,26 +36,28 @@ export function Ticker({ value, format = inr, duration = 1.1 }) {
   return <span ref={ref}>{format(0)}</span>;
 }
 
-export function CategoryIcon({ id, color, size = 20 }) {
-  const Icon = CAT_ICON[id] || PiWalletDuotone;
-  return <span className="inline-grid place-items-center rounded-xl shrink-0" style={{ width: size * 1.9, height: size * 1.9, background: `color-mix(in srgb, ${color} 18%, transparent)`, color }}><Icon size={size} /></span>;
+/** Apple-Card style: white glyph on a solid category circle. */
+export function CategoryIcon({ id, color, size = 18 }) {
+  const Icon = CAT_ICON[id] || PiWalletFill;
+  const d = Math.round(size * 2);
+  return <span className="inline-grid place-items-center rounded-full shrink-0 text-white" style={{ width: d, height: d, background: color || `var(--cat-${id}, var(--surface-3))` }}><Icon size={size} /></span>;
 }
 
-export function Bar({ value, max = 100, color = 'var(--cyan)', height = 8, marker, label }) {
+export function Bar({ value, max = 100, color = 'var(--ink)', height = 5, marker, label }) {
   const v = Math.max(0, Math.min(100, (value / (max || 1)) * 100));
   return (
     <div className="relative w-full rounded-full bg-surface-3 overflow-hidden" style={{ height }} role="progressbar" aria-valuenow={Math.round(v)} aria-valuemin={0} aria-valuemax={100} aria-label={label}>
       <motion.div className="h-full rounded-full" style={{ background: color }} initial={{ width: 0 }} animate={{ width: `${v}%` }} transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }} />
-      {marker != null && <span className="absolute top-0 bottom-0 w-0.5 bg-ink" style={{ left: `${Math.min(100, (marker / (max || 1)) * 100)}%` }} />}
+      {marker != null && <span className="absolute -top-0.5 -bottom-0.5 w-[2px] rounded-full bg-ink-2" style={{ left: `${Math.min(100, (marker / (max || 1)) * 100)}%` }} />}
     </div>
   );
 }
 
 export const SEVERITY = {
-  critical: { color: 'var(--coral)', label: 'Overspending' },
-  warning: { color: 'var(--amber)', label: 'Heads up' },
-  info: { color: 'var(--cyan)', label: 'Opportunity' },
-  positive: { color: 'var(--lime-text)', label: 'Doing well' },
+  critical: { color: 'var(--negative)', label: 'Overspending' },
+  warning: { color: 'var(--warning)', label: 'Heads up' },
+  info: { color: 'var(--link)', label: 'Opportunity' },
+  positive: { color: 'var(--positive)', label: 'Doing well' },
 };
 
 export function Spinner({ label = 'Loading' }) {
@@ -95,12 +94,13 @@ export function Modal({ title, onClose, children, wide }) {
   );
 }
 
+/** iOS-style segmented control. */
 export function Segmented({ options, value, onChange, label }) {
   return (
-    <div role="radiogroup" aria-label={label} className="inline-flex p-1 rounded-full bg-surface-2 border border-line">
+    <div role="radiogroup" aria-label={label} className="inline-flex p-[3px] rounded-[11px] bg-surface-2 max-w-full overflow-x-auto no-scrollbar">
       {options.map(([v, l]) => (
-        <button key={v} role="radio" aria-checked={value === v} onClick={() => onChange(v)} className="relative px-3.5 py-1.5 text-[13px] font-semibold rounded-full transition-colors" style={{ color: value === v ? 'var(--bg)' : 'var(--ink-2)' }}>
-          {value === v && <motion.span layoutId={`seg-${label}`} className="absolute inset-0 rounded-full bg-ink" transition={{ type: 'spring', damping: 30, stiffness: 400 }} />}
+        <button key={v} role="radio" aria-checked={value === v} onClick={() => onChange(v)} className="relative px-3.5 py-[5px] text-[13px] font-medium rounded-[9px] whitespace-nowrap transition-colors" style={{ color: value === v ? 'var(--ink)' : 'var(--ink-2)' }}>
+          {value === v && <motion.span layoutId={`seg-${label}`} className="absolute inset-0 rounded-[9px] bg-surface-3 shadow-[0_1px_3px_rgba(0,0,0,.3)]" transition={{ type: 'spring', damping: 32, stiffness: 420 }} />}
           <span className="relative">{l}</span>
         </button>
       ))}
@@ -114,7 +114,7 @@ export function Toast({ message, onDone }) {
     <AnimatePresence>
       {message && (
         <motion.div role="status" className="fixed bottom-24 lg:bottom-8 left-1/2 z-50 -translate-x-1/2 glass rounded-full px-5 py-2.5 text-sm font-semibold flex items-center gap-2" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }}>
-          <FiCheck style={{ color: 'var(--lime-text)' }} /> {message}
+          <FiCheck style={{ color: 'var(--positive)' }} /> {message}
         </motion.div>
       )}
     </AnimatePresence>
@@ -123,13 +123,13 @@ export function Toast({ message, onDone }) {
 
 export function SourceTag({ source }) {
   if (!source) return null;
-  return <span className="text-xs text-ink-3">{source === 'claude' ? '✦ Written by Claude' : 'Spend Tracker engine'}</span>;
+  return <span className="text-xs text-ink-3">{source === 'claude' ? 'Written by Claude' : 'Spend Tracker engine'}</span>;
 }
 
 export function PageHead({ title, sub, right }) {
   return (
     <header className="flex flex-wrap items-end justify-between gap-4 mb-6">
-      <div><h1 className="text-[2rem] sm:text-[2.4rem]">{title}</h1>{sub && <p className="text-ink-2 mt-1.5">{sub}</p>}</div>
+      <div><h1 className="text-[2rem] sm:text-[2.6rem]">{title}</h1>{sub && <p className="text-ink-2 mt-2 text-[15px]">{sub}</p>}</div>
       {right}
     </header>
   );

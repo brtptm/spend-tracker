@@ -35,7 +35,7 @@ export default function Recommendations() {
       <PageHead title="Save money" sub="Specific changes, priced from your own spending." />
       {im && (
         <motion.section className="grid sm:grid-cols-3 gap-4" variants={stagger} initial="hidden" animate="show">
-          <motion.div variants={rise} className="panel p-6" style={{ background: 'linear-gradient(135deg, color-mix(in srgb, var(--lime) 12%, var(--surface)), var(--surface) 70%)' }}>
+          <motion.div variants={rise} className="panel p-6">
             <div className="text-sm text-ink-3">You could keep</div>
             <div className="num text-4xl text-lime-text mt-1"><Ticker value={im.potential.monthly} /></div>
             <div className="text-sm text-ink-2 mt-1">a month · {inr(im.potential.annual)} a year</div>

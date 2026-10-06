@@ -15,7 +15,7 @@ import spending from './routes/spending.js';
 import analysis from './routes/analysis.js';
 import recommendations from './routes/recommendations.js';
 import ads from './routes/ads.js';
-import paytm, { PARTNER_KEY } from './routes/paytm.js';
+import paytm, { PARTNER_KEY, usingDemoKey } from './routes/paytm.js';
 import budget from './routes/budget.js';
 import alerts from './routes/alerts.js';
 import exporter from './routes/export.js';
@@ -64,6 +64,6 @@ const describe = (ai) => (ai.provider === 'api' ? `Claude API (${ai.model})` : a
 app.listen(PORT, () => {
   console.log(`◎ Spend Tracker API on http://localhost:${PORT}`);
   console.log(`  AI: ${describe(aiStatus())}`);
-  console.log(`  Partner API key: ${PARTNER_KEY === 'demo-paytm-partner-key' ? 'demo-paytm-partner-key (set PAYTM_API_KEY in production)' : 'from PAYTM_API_KEY'}`);
+  console.log(`  Partner API: ${!PARTNER_KEY ? 'disabled (set PAYTM_API_KEY)' : usingDemoKey ? 'demo key "demo-paytm-partner-key" (development only)' : 'key from PAYTM_API_KEY'}`);
 });
 if (aiStatus().provider === 'engine') probeAgentSdk().then((ai) => ai.enabled && console.log(`  AI: ${describe(ai)}`));

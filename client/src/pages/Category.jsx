@@ -59,7 +59,7 @@ export default function Category() {
           </div>
         </div>
         <div className="grid gap-5 content-start">
-          <div className="panel p-6" style={{ background: `linear-gradient(140deg, color-mix(in srgb, ${c.color} 14%, var(--surface)), var(--surface) 65%)` }}>
+          <div className="panel p-6">
             <h2 className="text-xl">What stands out</h2>
             <ul className="mt-4 grid gap-3">{data.keyInsights.map((k) => <li key={k} className="flex gap-3"><span className="mt-2 w-1.5 h-1.5 rounded-full shrink-0" style={{ background: c.color }} />{k}</li>)}</ul>
           </div>
@@ -99,7 +99,7 @@ export default function Category() {
       )}
 
       <section className="panel p-6">
-        <div className="flex items-center justify-between"><h2 className="text-xl">Recent payments</h2><Link to={`/transactions?category=${c.id}`} className="text-sm text-cyan-text font-semibold inline-flex items-center gap-1">All <FiChevronRight /></Link></div>
+        <div className="flex items-center justify-between"><h2 className="text-xl">Recent payments</h2><Link to={`/transactions?category=${c.id}`} className="text-sm text-link font-medium inline-flex items-center gap-1">All <FiChevronRight /></Link></div>
         <ul className="mt-3 divide-y divide-line">
           {data.recent.map((t) => (
             <li key={t.transactionId} className="py-3 flex items-center gap-3">

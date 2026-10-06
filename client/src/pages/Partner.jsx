@@ -66,7 +66,7 @@ export default function Partner() {
         {me?.user?.consentPartner
           ? <span>You’ve <b>opted in</b> to sharing insights with Paytm.</span>
           : <span>You haven’t opted in — partner calls for your user ID return <b>403</b>.</span>}
-        <Link to="/settings" className="text-cyan-text font-semibold">Change in Settings</Link>
+        <Link to="/settings" className="text-link font-medium">Change in Settings</Link>
       </section>
 
       <section className="grid lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.3fr)] gap-5 items-start">

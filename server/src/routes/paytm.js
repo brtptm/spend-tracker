@@ -9,10 +9,16 @@ import { adPerformance } from './ads.js';
 import { CAMPAIGNS } from '../data/offers.js';
 import { aiAdStrategy } from '../ai/index.js';
 
-export const PARTNER_KEY = process.env.PAYTM_API_KEY || 'demo-paytm-partner-key';
+// A well-known demo key is allowed only outside production. In production the
+// partner API stays disabled until PAYTM_API_KEY is configured.
+const DEMO_KEY = 'demo-paytm-partner-key';
+const isProd = process.env.NODE_ENV === 'production';
+export const PARTNER_KEY = process.env.PAYTM_API_KEY || (isProd ? null : DEMO_KEY);
+export const usingDemoKey = PARTNER_KEY === DEMO_KEY;
 const r = Router();
 
 r.use((req, _res, next) => {
+  if (!PARTNER_KEY) throw new HttpError(503, 'Partner API is not configured. Set PAYTM_API_KEY.');
   const key = req.get('x-api-key') || '';
   const a = Buffer.from(key), b = Buffer.from(PARTNER_KEY);
   if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) throw new HttpError(401, 'Missing or invalid x-api-key.');

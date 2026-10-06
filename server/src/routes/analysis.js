@@ -22,6 +22,7 @@ r.get('/dashboard', (req, res) => {
     series,
     insights: ctx.insights.slice(0, 5),
     offers: ctx.offers.top,
+    carousel: ctx.offers.all.filter((o) => o.personalized).slice(0, 5).concat(ctx.offers.all.some((o) => o.personalized) ? [] : ctx.offers.generic.slice(0, 4)),
     recommendations: ctx.recs.filter((x) => x.status === 'active').slice(0, 3),
     savingsPotential: { monthly: active.reduce((s, x) => s + x.savingsMonthly, 0), annual: active.reduce((s, x) => s + x.savingsAnnual, 0) },
     budget: ctx.budgets,

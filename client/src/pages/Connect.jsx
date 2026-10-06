@@ -5,7 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { FiCheck, FiX, FiUploadCloud, FiArrowLeft } from 'react-icons/fi';
 import { api } from '../lib/api.js';
 import { Logo, ErrorNote, Segmented } from '../components/ui.jsx';
-import Universe from '../components/three/Universe.jsx';
+import Ring from '../components/three/Ring.jsx';
 import { CAT_COLORS, CAT_NAMES } from '../lib/cats.js';
 import { useSignOut } from '../components/Shell.jsx';
 
@@ -59,14 +59,14 @@ export default function Connect() {
         <AnimatePresence mode="wait">
           {step === 0 && (
             <motion.section key="consent" className="w-full max-w-xl" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
-              <div className="flex items-center gap-3 text-sm"><span className="font-semibold" style={{ color: '#00baf2' }}>Paytm</span><span className="text-ink-3">wants to share data with</span><span className="font-semibold">Spend Tracker</span></div>
+              <div className="flex items-center gap-3 text-sm"><span className="font-semibold">Paytm</span><span className="text-ink-3">wants to share data with</span><span className="font-semibold">Spend Tracker</span></div>
               <h1 className="text-4xl mt-4">Connect your payment history</h1>
               <div className="panel p-6 mt-6 grid sm:grid-cols-2 gap-6">
-                <div><div className="text-sm font-semibold text-lime-text mb-3">We’ll read</div><ul className="grid gap-2 text-sm">{['Amounts, dates and times', 'Merchant names and categories', 'Payment method and status'].map((x) => <li key={x} className="flex gap-2"><FiCheck className="mt-1 shrink-0 text-lime-text" />{x}</li>)}</ul></div>
+                <div><div className="text-sm font-semibold text-positive mb-3">We’ll read</div><ul className="grid gap-2 text-sm">{['Amounts, dates and times', 'Merchant names and categories', 'Payment method and status'].map((x) => <li key={x} className="flex gap-2"><FiCheck className="mt-1 shrink-0 text-positive" />{x}</li>)}</ul></div>
                 <div><div className="text-sm font-semibold text-ink-3 mb-3">We never see</div><ul className="grid gap-2 text-sm text-ink-2">{['Your balance or bank passwords', 'Your UPI PIN or card numbers', 'Messages or contacts'].map((x) => <li key={x} className="flex gap-2"><FiX className="mt-1 shrink-0" />{x}</li>)}</ul></div>
               </div>
               <label className="panel-quiet p-4 mt-4 flex gap-3 cursor-pointer">
-                <input type="checkbox" checked={share} onChange={(e) => setShare(e.target.checked)} className="mt-1 accent-[var(--lime)] w-4 h-4" />
+                <input type="checkbox" checked={share} onChange={(e) => setShare(e.target.checked)} className="mt-1 accent-[var(--link)] w-4 h-4" />
                 <span className="text-sm"><b>Share my spending insights with Paytm</b><span className="block text-ink-2 mt-0.5">Lets Paytm tailor offers in the Paytm app using your spending profile. Optional — change it any time in Settings.</span></span>
               </label>
               <button className="btn btn-primary w-full mt-6" onClick={() => setStep(1)}>Allow and continue</button>
@@ -86,15 +86,15 @@ export default function Connect() {
                   <p className="text-sm text-ink-3 mt-5">This prototype simulates the Paytm feed. Pick the history that’s closest to yours.</p>
                   <div role="radiogroup" aria-label="Sample history" className="mt-3 grid sm:grid-cols-3 gap-3">
                     {SAMPLES.map((s) => (
-                      <button key={s.id} role="radio" aria-checked={persona === s.id} onClick={() => setPersona(s.id)} className="panel p-4 text-left transition-colors" style={persona === s.id ? { borderColor: 'var(--lime)', boxShadow: '0 0 0 1px var(--lime)' } : undefined}>
+                      <button key={s.id} role="radio" aria-checked={persona === s.id} onClick={() => setPersona(s.id)} className="panel p-4 text-left transition-colors" style={persona === s.id ? { borderColor: 'var(--ink)', boxShadow: '0 0 0 1px var(--ink)' } : undefined}>
                         <div className="font-semibold">{s.title}</div><div className="text-sm text-ink-2 mt-1">{s.body}</div>
                       </button>
                     ))}
                   </div>
                 </>
               ) : (
-                <label className="panel mt-5 p-8 grid place-items-center text-center cursor-pointer border-dashed hover:border-cyan">
-                  <FiUploadCloud size={28} className="text-cyan-text" />
+                <label className="panel mt-5 p-8 grid place-items-center text-center cursor-pointer border-dashed hover:border-[var(--link)]">
+                  <FiUploadCloud size={28} className="text-link" />
                   <span className="font-semibold mt-3">{csv ? csv.name : 'Choose a Paytm statement CSV'}</span>
                   <span className="text-sm text-ink-3 mt-1">Needs date, amount and merchant (or “Paid to”) columns.</span>
                   <input type="file" accept=".csv,text/csv" className="sr-only" onChange={onFile} />
@@ -107,8 +107,8 @@ export default function Connect() {
 
           {step === 2 && (
             <motion.section key="run" className="w-full relative isolate min-h-[70dvh] rounded-[28px] overflow-hidden border border-line grid place-items-end" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <Universe planets={PLANETS.slice(0, phase + 3)} variant="dashboard" interactive={false} className="-z-10" />
-              <div className="w-full p-8 sm:p-12 text-center" style={{ background: 'linear-gradient(transparent, var(--bg) 60%)' }} role="status">
+              <Ring key={phase} segments={PLANETS.slice(0, phase + 3)} interactive={false} className="-z-10" />
+              <div className="w-full p-8 sm:p-12 text-center" style={{ background: 'linear-gradient(transparent, var(--bg) 62%)' }} role="status">
                 <h1 className="text-3xl sm:text-4xl">Mapping your money</h1>
                 <ol className="mt-5 grid gap-1.5 text-ink-3">
                   {STEPS.map((s, i) => <li key={s} className={i <= phase ? 'text-ink' : ''}>{i < phase ? '✓ ' : i === phase ? '… ' : ''}{s}</li>)}

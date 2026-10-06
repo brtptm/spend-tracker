@@ -13,8 +13,8 @@ function Toggle({ label, hint, checked, onChange }) {
       <span><span className="font-semibold block">{label}</span>{hint && <span className="text-sm text-ink-3">{hint}</span>}</span>
       <span className="relative shrink-0 mt-1">
         <input type="checkbox" className="peer sr-only" checked={!!checked} onChange={(e) => onChange(e.target.checked)} />
-        <span className="block w-11 h-6 rounded-full bg-surface-3 border border-line transition-colors peer-checked:bg-[var(--lime)] peer-checked:border-[var(--lime)] peer-focus-visible:outline-2 peer-focus-visible:outline-[var(--cyan)]" />
-        <span className="absolute top-1 left-1 w-4 h-4 rounded-full bg-ink transition-transform peer-checked:translate-x-5 peer-checked:bg-[var(--on-lime)]" />
+        <span className="block w-11 h-6 rounded-full bg-surface-3 border border-line transition-colors peer-checked:bg-[var(--positive)] peer-checked:border-[var(--positive)] peer-focus-visible:outline-2 peer-focus-visible:outline-[var(--link)]" />
+        <span className="absolute top-1 left-1 w-4 h-4 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5" />
       </span>
     </label>
   );

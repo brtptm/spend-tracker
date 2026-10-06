@@ -4,22 +4,22 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { FiLogOut, FiX, FiArrowUp } from 'react-icons/fi';
 import {
-  PiChartDonutDuotone, PiReceiptDuotone, PiTrendUpDuotone, PiLightbulbDuotone, PiTicketDuotone, PiTargetDuotone, PiBellDuotone,
-  PiPlugsConnectedDuotone, PiGearSixDuotone, PiSparkleDuotone, PiDotsThreeOutlineDuotone,
+  PiSquaresFourLight, PiListBulletsLight, PiChartLineUpLight, PiLeafLight, PiTagLight, PiTargetLight, PiBellSimpleLight,
+  PiPlugsLight, PiGearSixLight, PiSparkleLight, PiDotsThreeBold,
 } from 'react-icons/pi';
 import { api, auth, useMe, useHealth } from '../lib/api.js';
 import { Logo, SourceTag } from './ui.jsx';
 
 const NAV = [
-  { to: '/dashboard', label: 'Dashboard', icon: PiChartDonutDuotone, mobile: true },
-  { to: '/transactions', label: 'Transactions', icon: PiReceiptDuotone, mobile: true },
-  { to: '/trends', label: 'Trends', icon: PiTrendUpDuotone },
-  { to: '/recommendations', label: 'Save money', icon: PiLightbulbDuotone, mobile: true },
-  { to: '/offers', label: 'Offers for you', icon: PiTicketDuotone, mobile: true },
-  { to: '/budget', label: 'Budget', icon: PiTargetDuotone },
-  { to: '/alerts', label: 'Alerts', icon: PiBellDuotone, badge: 'alerts' },
-  { to: '/partner', label: 'Paytm partner API', icon: PiPlugsConnectedDuotone },
-  { to: '/settings', label: 'Settings', icon: PiGearSixDuotone },
+  { to: '/dashboard', label: 'Overview', icon: PiSquaresFourLight, mobile: true },
+  { to: '/transactions', label: 'Transactions', icon: PiListBulletsLight, mobile: true },
+  { to: '/offers', label: 'Offers', icon: PiTagLight, mobile: true },
+  { to: '/recommendations', label: 'Save money', icon: PiLeafLight, mobile: true },
+  { to: '/trends', label: 'Trends', icon: PiChartLineUpLight },
+  { to: '/budget', label: 'Budget', icon: PiTargetLight },
+  { to: '/alerts', label: 'Alerts', icon: PiBellSimpleLight, badge: 'alerts' },
+  { to: '/partner', label: 'Partner API', icon: PiPlugsLight },
+  { to: '/settings', label: 'Settings', icon: PiGearSixLight },
 ];
 
 export function useSignOut() {
@@ -45,15 +45,15 @@ function AskDrawer({ onClose }) {
     <motion.div className="fixed inset-0 z-50 bg-black/50 flex justify-end" onClick={onClose} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
       <motion.aside className="h-full w-full sm:w-[440px] glass !border-y-0 !border-r-0 flex flex-col" onClick={(e) => e.stopPropagation()} initial={{ x: 60 }} animate={{ x: 0 }} exit={{ x: 60 }} transition={{ type: 'spring', damping: 30, stiffness: 320 }} aria-label="Ask your money">
         <header className="flex items-center justify-between px-5 h-16 border-b border-line">
-          <div className="flex items-center gap-2 font-display font-semibold text-lg"><PiSparkleDuotone className="text-lime-text" /> Ask your money</div>
+          <div className="flex items-center gap-2 font-semibold text-[17px]"><PiSparkleLight /> Ask your money</div>
           <button onClick={onClose} className="w-8 h-8 grid place-items-center rounded-full hover:bg-surface-2" aria-label="Close"><FiX /></button>
         </header>
         <div className="flex-1 overflow-y-auto p-5 grid content-start gap-5">
           {!history.length && <p className="text-ink-2">Ask anything about your spending — answers use your own numbers. {!health?.ai?.enabled && <span className="text-ink-3">AI is off right now, so answers are limited.</span>}</p>}
           {history.map((h, i) => (
             <div key={i} className="grid gap-2">
-              <div className="justify-self-end max-w-[85%] rounded-2xl rounded-br-md px-4 py-2.5 bg-ink text-bg text-sm">{h.question}</div>
-              <div className="max-w-[92%] rounded-2xl rounded-bl-md px-4 py-3 bg-surface-2 text-sm leading-relaxed" style={h.error ? { color: 'var(--coral)' } : undefined}>
+              <div className="justify-self-end max-w-[85%] rounded-[18px] rounded-br-md px-4 py-2.5 text-sm text-white" style={{ background: 'var(--link)' }}>{h.question}</div>
+              <div className="max-w-[92%] rounded-[18px] rounded-bl-md px-4 py-3 bg-surface-2 text-sm leading-relaxed" style={h.error ? { color: 'var(--coral)' } : undefined}>
                 {h.pending ? <span className="text-ink-3">Reading your transactions…</span> : <>{h.answer}<div className="mt-2"><SourceTag source={h.source} /></div></>}
               </div>
             </div>
@@ -85,21 +85,21 @@ export default function Shell() {
   const link = (n, cls) => (
     <NavLink key={n.to} to={n.to} onClick={() => setMore(false)} className={({ isActive }) => `${cls} ${isActive ? 'bg-surface-2 text-ink' : 'text-ink-2 hover:text-ink hover:bg-surface-2/60'}`}>
       {({ isActive }) => (<>
-        <n.icon size={20} style={isActive ? { color: 'var(--lime-text)' } : undefined} />
+        <n.icon size={19} />
         <span className="flex-1">{n.label}</span>
-        {n.badge === 'alerts' && unread > 0 && <span className="min-w-5 h-5 px-1.5 rounded-full text-[11px] font-bold grid place-items-center" style={{ background: 'var(--coral)', color: '#fff' }}>{unread}</span>}
+        {n.badge === 'alerts' && unread > 0 && <span className="min-w-5 h-5 px-1.5 rounded-full text-[11px] font-semibold grid place-items-center text-white" style={{ background: 'var(--negative)' }}>{unread}</span>}
       </>)}
     </NavLink>
   );
 
   return (
-    <div className="ledger min-h-dvh lg:grid lg:grid-cols-[256px_1fr]">
-      <aside className="hidden lg:flex flex-col gap-6 sticky top-0 h-dvh border-r border-line px-4 py-6">
-        <Link to="/dashboard" className="px-2"><Logo /></Link>
-        <button onClick={() => setAsk(true)} className="mx-1 flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold border border-line hover:border-cyan transition-colors" style={{ background: 'linear-gradient(135deg, color-mix(in srgb, var(--lime) 10%, transparent), transparent)' }}>
-          <PiSparkleDuotone size={18} className="text-lime-text" /> Ask your money <kbd className="ml-auto text-[10px] text-ink-3">AI</kbd>
+    <div className="ledger min-h-dvh lg:grid lg:grid-cols-[240px_1fr]">
+      <aside className="hidden lg:flex flex-col gap-7 sticky top-0 h-dvh border-r border-line px-3 py-6">
+        <Link to="/dashboard" className="px-3"><Logo /></Link>
+        <button onClick={() => setAsk(true)} className="mx-1 flex items-center gap-2.5 rounded-xl px-3 py-2 text-[13.5px] text-ink-2 bg-surface-2 hover:text-ink transition-colors">
+          <PiSparkleLight size={17} /> Ask your money <kbd className="ml-auto text-[10px] text-ink-3 font-sans">AI</kbd>
         </button>
-        <nav aria-label="Main" className="flex flex-col gap-0.5">{items.map((n) => link(n, 'flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] font-medium transition-colors'))}</nav>
+        <nav aria-label="Main" className="flex flex-col gap-px">{items.map((n) => link(n, 'flex items-center gap-3 px-3 py-2 rounded-[10px] text-[13.5px] transition-colors'))}</nav>
         <div className="mt-auto px-2">
           {me?.user && <div className="text-sm"><div className="font-semibold">{me.user.name}</div><div className="text-ink-3 text-xs">{me.user.city || me.user.email}</div></div>}
           <button onClick={signOut} className="mt-3 flex items-center gap-2 text-sm text-ink-3 hover:text-ink"><FiLogOut /> Sign out</button>
@@ -108,7 +108,7 @@ export default function Shell() {
 
       <header className="lg:hidden sticky top-0 z-30 glass !border-x-0 !border-t-0 px-4 h-14 flex items-center justify-between">
         <Link to="/dashboard"><Logo size={24} /></Link>
-        <button onClick={() => setAsk(true)} className="chip"><PiSparkleDuotone className="text-lime-text" /> Ask</button>
+        <button onClick={() => setAsk(true)} className="chip"><PiSparkleLight /> Ask</button>
       </header>
 
       <main className="min-w-0 px-4 sm:px-6 lg:px-10 py-6 lg:py-9 pb-28 lg:pb-12">
@@ -123,9 +123,9 @@ export default function Shell() {
 
       <nav aria-label="Main" className="lg:hidden fixed bottom-0 inset-x-0 z-30 glass !border-x-0 !border-b-0 grid grid-cols-5" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
         {items.filter((n) => n.mobile).map((n) => (
-          <NavLink key={n.to} to={n.to} className={({ isActive }) => `flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium ${isActive ? 'text-lime-text' : 'text-ink-3'}`}><n.icon size={22} />{n.label.split(' ')[0]}</NavLink>
+          <NavLink key={n.to} to={n.to} className={({ isActive }) => `flex flex-col items-center gap-0.5 py-2.5 text-[10.5px] font-medium ${isActive ? 'text-ink' : 'text-ink-3'}`}><n.icon size={23} />{n.label.split(' ')[0]}</NavLink>
         ))}
-        <button onClick={() => setMore(true)} className="flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium text-ink-3 relative"><PiDotsThreeOutlineDuotone size={22} />More{unread > 0 && <span className="absolute top-2 right-[30%] w-2 h-2 rounded-full" style={{ background: 'var(--coral)' }} />}</button>
+        <button onClick={() => setMore(true)} className="flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium text-ink-3 relative"><PiDotsThreeBold size={22} />More{unread > 0 && <span className="absolute top-2 right-[30%] w-2 h-2 rounded-full" style={{ background: 'var(--coral)' }} />}</button>
       </nav>
 
       <AnimatePresence>

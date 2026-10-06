@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router';
 import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
-import { FiSearch, FiTrash2, FiEdit2 } from 'react-icons/fi';
+import { FiSearch, FiTrash2, FiEdit2, FiMoreHorizontal } from 'react-icons/fi';
+import { isToday, isYesterday, format } from 'date-fns';
 import { api } from '../lib/api.js';
-import { inr, dt } from '../lib/format.js';
-import { Spinner, ErrorNote, PageHead, Modal, Toast, CategoryIcon } from '../components/ui.jsx';
+import { inr, dt, inrShort } from '../lib/format.js';
+import { Spinner, ErrorNote, PageHead, Modal, Toast, CategoryIcon, Segmented } from '../components/ui.jsx';
 import { CAT_COLORS, CAT_NAMES } from '../lib/cats.js';
 
-const SOURCE = { user: 'You', ai: 'Claude', rule: 'Auto' };
 
 function Recategorize({ txn, categories, onClose, onSaved }) {
   const [cat, setCat] = useState(txn.categoryAssigned);
@@ -36,6 +36,23 @@ function Recategorize({ txn, categories, onClose, onSaved }) {
     </Modal>
   );
 }
+
+function RowMenu({ onEdit, onDelete, label }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="relative">
+      <button className="w-8 h-8 grid place-items-center rounded-full text-ink-3 hover:text-ink hover:bg-surface-2 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity" aria-label={`Options for ${label}`} aria-expanded={open} onClick={() => setOpen((x) => !x)}><FiMoreHorizontal /></button>
+      {open && (
+        <div className="absolute right-0 top-9 z-20 glass rounded-xl p-1 w-44 text-sm shadow-2xl" role="menu" onMouseLeave={() => setOpen(false)}>
+          <button role="menuitem" className="w-full flex items-center gap-2 text-left px-3 py-2 rounded-lg hover:bg-surface-3" onClick={() => { setOpen(false); onEdit(); }}><FiEdit2 size={13} /> Change category</button>
+          <button role="menuitem" className="w-full flex items-center gap-2 text-left px-3 py-2 rounded-lg hover:bg-surface-3 text-negative" onClick={() => { setOpen(false); onDelete(); }}><FiTrash2 size={13} /> Delete</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const dayLabel = (d) => (isToday(d) ? 'Today' : isYesterday(d) ? 'Yesterday' : format(d, Date.now() - d < 6 * 864e5 ? 'EEEE' : 'EEE, d MMM yyyy'));
 
 export default function Transactions() {
   const qc = useQueryClient();
@@ -67,39 +84,51 @@ export default function Transactions() {
     <div className="grid gap-5">
       <Toast message={toast} onDone={() => setToast('')} />
       {edit && cats.data && <Recategorize txn={edit} categories={cats.data.categories} onClose={() => setEdit(null)} onSaved={(all) => { setEdit(null); setToast(all ? 'Saved — future payments will follow this' : 'Saved'); qc.invalidateQueries(); }} />}
-      <PageHead title="Transactions" sub={first ? `${first.total.toLocaleString('en-IN')} payments · ${inr(first.totalAmount)} completed` : ' '} />
+      <PageHead title="Transactions" sub={first ? `${first.total.toLocaleString('en-IN')} payments · ${inrShort(first.totalAmount)} spent` : ' '} />
       <div className="flex flex-wrap gap-3 items-center">
         <label className="relative flex-1 min-w-[220px]"><span className="sr-only">Search</span><FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-3" />
-          <input className="field !pl-10" placeholder="Search merchant, note or category" value={q} onChange={(e) => setQ(e.target.value)} /></label>
-        <select className="field !w-auto" value={sort} onChange={(e) => setParam('sort', e.target.value)} aria-label="Sort">
-          <option value="date_desc">Newest first</option><option value="date_asc">Oldest first</option><option value="amount_desc">Largest first</option><option value="amount_asc">Smallest first</option>
-        </select>
+          <input className="field !pl-10" placeholder="Search" value={q} onChange={(e) => setQ(e.target.value)} /></label>
+        <Segmented label="Sort" value={sort} onChange={(v) => setParam('sort', v)} options={[['date_desc', 'Newest'], ['amount_desc', 'Largest'], ['date_asc', 'Oldest']]} />
       </div>
-      <div className="flex gap-2 overflow-x-auto pb-1" role="group" aria-label="Filter by category">
+      <div className="flex gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1" role="group" aria-label="Filter by category">
         <button className="chip shrink-0" aria-pressed={!category} onClick={() => setParam('category', '')}>All</button>
         {Object.entries(CAT_NAMES).map(([id, n]) => <button key={id} className="chip shrink-0" aria-pressed={category === id} onClick={() => setParam('category', id)}><span className="w-2 h-2 rounded-full" style={{ background: CAT_COLORS[id] }} />{n}</button>)}
       </div>
-      {list.isLoading ? <Spinner /> : list.error ? <ErrorNote error={list.error} onRetry={list.refetch} /> : (
-        <section className="panel">
-          <ul className="divide-y divide-line">
-            {rows.map((t) => (
-              <li key={t.transactionId} className="px-4 sm:px-5 py-3.5 flex items-center gap-3.5 group">
-                <CategoryIcon id={t.categoryAssigned} color={CAT_COLORS[t.categoryAssigned]} size={16} />
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2"><Link to={`/merchant/${t.merchantId || t.merchantName.toLowerCase().replace(/\W+/g, '-')}`} className="font-medium truncate hover:underline">{t.merchantName}</Link>{t.status !== 'completed' && <span className="text-[11px] rounded-full px-2 py-0.5" style={{ background: t.status === 'failed' ? 'color-mix(in srgb, var(--coral) 18%, transparent)' : 'var(--surface-3)', color: t.status === 'failed' ? 'var(--coral)' : 'var(--ink-2)' }}>{t.status}</span>}</div>
-                  <div className="text-xs text-ink-3 truncate">{dt(t.timestamp)} · {t.paymentMethod} · {CAT_NAMES[t.categoryAssigned]}{t.categoryConfidence < 0.6 ? ' (needs review)' : ''} · {SOURCE[t.categorySource] || 'Auto'}{t.description ? ` · ${t.description}` : ''}</div>
+      {list.isLoading ? <Spinner /> : list.error ? <ErrorNote error={list.error} onRetry={list.refetch} /> : !rows.length ? (
+        <p className="panel p-12 text-center text-ink-3">No payments match. Try a different search.</p>
+      ) : (
+        <div className="grid gap-6">
+          {(sort.startsWith('date') ? Object.entries(rows.reduce((g, t) => { const k = t.timestamp.slice(0, 10); (g[k] ||= []).push(t); return g; }, {})) : [['all', rows]]).map(([day, items]) => (
+            <section key={day}>
+              {day !== 'all' && (
+                <div className="flex items-baseline justify-between px-1 mb-2">
+                  <h2 className="text-[15px] font-semibold tracking-[-0.01em]">{dayLabel(new Date(items[0].timestamp))}</h2>
+                  <span className="text-[13px] text-ink-3">{inr(items.filter((t) => t.status === 'completed').reduce((a, t) => a + t.amount, 0))}</span>
                 </div>
-                <div className={`num text-right ${t.status === 'failed' ? 'line-through text-ink-3' : ''}`}>{inr(t.amount)}</div>
-                <div className="flex opacity-60 group-hover:opacity-100 focus-within:opacity-100">
-                  <button className="w-8 h-8 grid place-items-center rounded-full hover:bg-surface-2" aria-label={`Recategorise ${t.merchantName}`} onClick={() => setEdit(t)}><FiEdit2 size={14} /></button>
-                  <button className="w-8 h-8 grid place-items-center rounded-full hover:bg-surface-2 hover:text-coral" aria-label={`Delete payment to ${t.merchantName}`} onClick={() => remove(t)}><FiTrash2 size={14} /></button>
-                </div>
-              </li>
-            ))}
-            {!rows.length && <li className="p-10 text-center text-ink-3">No payments match. Try a different search.</li>}
-          </ul>
-          {list.hasNextPage && <div className="p-4 border-t border-line text-center"><button className="btn btn-ghost btn-sm" disabled={list.isFetchingNextPage} onClick={() => list.fetchNextPage()}>{list.isFetchingNextPage ? 'Loading…' : 'Load more'}</button></div>}
-        </section>
+              )}
+              <ul className="panel !rounded-[18px] divide-y divide-line overflow-visible">
+                {items.map((t) => (
+                  <li key={t.transactionId} className="pl-4 pr-2 py-3 flex items-center gap-3.5 group">
+                    <CategoryIcon id={t.categoryAssigned} color={CAT_COLORS[t.categoryAssigned]} size={15} />
+                    <div className="min-w-0 flex-1">
+                      <Link to={`/merchant/${t.merchantId || t.merchantName.toLowerCase().replace(/\W+/g, '-')}`} className="font-medium truncate block hover:underline">{t.merchantName}</Link>
+                      <div className="text-[12.5px] text-ink-3 truncate">
+                        {t.status === 'failed' ? <span className="text-negative">Failed · </span> : t.status === 'pending' ? <span className="text-warning">Pending · </span> : null}
+                        {t.description || CAT_NAMES[t.categoryAssigned]}{t.categoryConfidence < 0.6 ? ' · needs review' : ''}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className={`num text-[15px] ${t.status === 'failed' ? 'line-through text-ink-3' : ''}`}>{inr(t.amount)}</div>
+                      <div className="text-[11px] text-ink-3">{format(new Date(t.timestamp), 'h:mm a')} · {t.paymentMethod}</div>
+                    </div>
+                    <RowMenu label={t.merchantName} onEdit={() => setEdit(t)} onDelete={() => remove(t)} />
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))}
+          {list.hasNextPage && <div className="text-center"><button className="btn btn-ghost btn-sm" disabled={list.isFetchingNextPage} onClick={() => list.fetchNextPage()}>{list.isFetchingNextPage ? 'Loading…' : 'Show more'}</button></div>}
+        </div>
       )}
     </div>
   );

@@ -2,30 +2,31 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { motion } from 'motion/react';
 import { useQueryClient } from '@tanstack/react-query';
-import { FiArrowRight, FiCheck, FiX, FiLock } from 'react-icons/fi';
-import { PiTagDuotone, PiMagnifyingGlassDuotone, PiUserFocusDuotone, PiTicketDuotone, PiTargetDuotone, PiPlugsConnectedDuotone } from 'react-icons/pi';
+import { FiChevronRight } from 'react-icons/fi';
 import { api, auth } from '../lib/api.js';
-import { Logo, ErrorNote } from '../components/ui.jsx';
-import Universe from '../components/three/Universe.jsx';
+import { Logo, ErrorNote, CategoryIcon } from '../components/ui.jsx';
+import Ring from '../components/three/Ring.jsx';
 import { CAT_COLORS, CAT_NAMES } from '../lib/cats.js';
 
 const SAMPLE = [['food', 28000], ['shopping', 18000], ['transport', 12000], ['entertainment', 10000], ['bills', 8000], ['p2p', 6000], ['personal', 3000]]
   .map(([id, amount]) => ({ id, amount, name: CAT_NAMES[id], color: CAT_COLORS[id] }));
 
 const PERSONAS = [
-  { id: 'convenience', name: 'Rohan', who: '32 · Bengaluru · convenience spender', story: '79 food deliveries a month, two overlapping streaming plans and a 1 a.m. laptop purchase the anomaly detector flags.', save: '₹17k+/month found' },
-  { id: 'fashion', name: 'Neha', who: '27 · Mumbai · deal-hunting fashionista', story: 'Late-night Myntra and Nykaa carts, coupon-savvy — sees the sale she was waiting for, at the right time.', save: 'Offers she actually uses' },
-  { id: 'subscriptions', name: 'Kabir', who: '35 · Pune · subscription collector', story: 'Netflix, Hotstar, SonyLIV, Prime, Spotify, YouTube, Adobe, a gym — and Adobe charged twice this month.', save: '₹4,900/month in subscriptions' },
+  { id: 'convenience', name: 'Rohan', who: 'Bengaluru · convenience spender', story: '79 deliveries a month, two overlapping streaming plans, and a 1 a.m. laptop purchase worth a second look.' },
+  { id: 'fashion', name: 'Neha', who: 'Mumbai · deal hunter', story: 'Late-night Myntra and Nykaa carts and a coupon for everything — offers that land at the right moment.' },
+  { id: 'subscriptions', name: 'Kabir', who: 'Pune · subscription collector', story: 'Four streaming apps, two music apps, Adobe and a gym — with one charge billed twice.' },
 ];
 
-const FEATURES = [
-  [PiTagDuotone, 'Every payment, sorted', 'Swiggy, “Sharma Sweets Corner” or a friend’s UPI — categorised automatically, and it learns from your corrections.'],
-  [PiMagnifyingGlassDuotone, 'Deep dives that explain', '77 orders a month, ₹45 in fees each, biryani at 1 pm — the patterns behind the totals.'],
-  [PiUserFocusDuotone, 'Your spending personality', 'Convenience spender? Deal hunter? Know your peaks, your loyalties and your savings potential.'],
-  [PiTicketDuotone, 'Offers that fit', 'A Swiggy coupon because you order Swiggy — never because of your age. Dismiss once, it learns.'],
-  [PiTargetDuotone, 'Budgets with a pace', '“₹2,800 a day keeps you on track” — budgets that warn you before the month ends, not after.'],
-  [PiPlugsConnectedDuotone, 'APIs for Paytm', 'Consented behaviour profiles, segments and ad recommendations for partners — with performance feedback.'],
-];
+const ease = [0.22, 1, 0.36, 1];
+const up = (d = 0) => ({ initial: { opacity: 0, y: 24 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: '-60px' }, transition: { duration: 0.8, ease, delay: d } });
+
+function Callout({ className, delay, children }) {
+  return (
+    <motion.div className={`absolute glass rounded-2xl px-4 py-3 shadow-2xl hidden md:block ${className}`} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: [0, -6, 0] }} transition={{ opacity: { delay, duration: 0.8 }, y: { delay, duration: 6, repeat: Infinity, ease: 'easeInOut' } }}>
+      {children}
+    </motion.div>
+  );
+}
 
 export default function Landing() {
   const nav = useNavigate();
@@ -42,137 +43,110 @@ export default function Landing() {
 
   return (
     <div className="ledger min-h-dvh overflow-x-hidden">
-      <div className="relative isolate">
-        <Universe planets={SAMPLE} variant="hero" interactive={false} offset={[5, 0.4, 0]} className="-z-10" />
-        <div className="absolute inset-0 -z-10 pointer-events-none hidden lg:block" style={{ background: 'linear-gradient(90deg, var(--bg) 0%, color-mix(in srgb, var(--bg) 82%, transparent) 36%, transparent 62%)' }} />
-        <div className="absolute inset-0 -z-10 pointer-events-none lg:hidden" style={{ background: 'color-mix(in srgb, var(--bg) 70%, transparent)' }} />
-        <div className="absolute inset-x-0 bottom-0 h-40 -z-10 pointer-events-none" style={{ background: 'linear-gradient(transparent, var(--bg))' }} />
-
-        <header className="max-w-[1240px] mx-auto px-4 sm:px-8 h-16 flex items-center justify-between">
-          <Logo />
-          <nav className="flex items-center gap-2">
-            {signedIn ? <Link to="/dashboard" className="btn btn-primary btn-sm">Open dashboard</Link>
-              : <><Link to="/signin" className="btn btn-sm text-ink-2 hover:text-ink">Sign in</Link><Link to="/signup" className="btn btn-primary btn-sm">Get started</Link></>}
+      <header className="sticky top-0 z-30 glass !border-x-0 !border-t-0">
+        <div className="max-w-[1100px] mx-auto px-5 h-14 flex items-center justify-between">
+          <Logo size={22} />
+          <nav className="flex items-center gap-1 text-[13px]">
+            {signedIn ? <Link to="/dashboard" className="btn btn-primary btn-sm">Open Spend Tracker</Link>
+              : <><Link to="/signin" className="px-3 py-1.5 text-ink-2 hover:text-ink">Sign in</Link><Link to="/signup" className="btn btn-primary btn-sm">Get started</Link></>}
           </nav>
-        </header>
-
-        <section className="max-w-[1240px] mx-auto px-4 sm:px-8 min-h-[80dvh] lg:min-h-[700px] flex items-center pb-28 pt-6">
-          <motion.div className="max-w-xl" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}>
-            <p className="inline-flex items-center gap-2 rounded-full glass px-3.5 py-1.5 text-sm text-ink-2"><span className="w-2 h-2 rounded-full bg-lime" style={{ boxShadow: '0 0 10px var(--lime)' }} />Built on your Paytm history</p>
-            <h1 className="mt-6 text-[2.7rem] leading-[1.02] sm:text-6xl lg:text-[4.4rem] font-bold" style={{ fontVariationSettings: "'wdth' 85" }}>
-              See where your money really orbits.
-            </h1>
-            <p className="mt-6 text-lg text-ink-2 max-w-[46ch]">
-              Spend Tracker reads every payment, shows exactly where it goes, finds the money you could keep — and only shows offers that match how you actually spend.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <button className="btn btn-primary" onClick={() => (signedIn ? nav('/dashboard') : nav('/signup'))}>Connect with Paytm <FiArrowRight /></button>
-              <button className="btn btn-ghost glass" disabled={!!busy} onClick={() => demo('convenience')}>{busy === 'convenience' ? 'Opening…' : 'Explore a live demo'}</button>
-            </div>
-            <div className="mt-4 max-w-md"><ErrorNote error={error} /></div>
-            <p className="mt-6 text-sm text-ink-3">Each planet is a spending category, sized by what you spend. The light flowing out is your money.</p>
-          </motion.div>
-        </section>
-      </div>
+        </div>
+      </header>
 
       <main>
-        {/* Core insight */}
-        <section className="max-w-[1240px] mx-auto px-4 sm:px-8 py-16 sm:py-24">
-          <h2 className="text-3xl sm:text-5xl max-w-[18ch]" style={{ fontVariationSettings: "'wdth' 85" }}>Old ads guess. We look.</h2>
-          <div className="mt-10 grid md:grid-cols-2 gap-5">
-            <div className="panel p-7">
-              <div className="flex items-center gap-2 text-ink-3 text-sm font-semibold"><FiX /> Demographic targeting</div>
-              <p className="mt-4 text-xl font-display">“Male, 25–35, high income.”</p>
-              <p className="mt-2 text-ink-2">So he gets a random watch ad. It’s ignored — industry click-through is around 1–2%.</p>
-            </div>
-            <div className="panel p-7" style={{ borderColor: 'color-mix(in srgb, var(--lime) 45%, var(--line))', background: 'linear-gradient(135deg, color-mix(in srgb, var(--lime) 8%, var(--surface)), var(--surface) 70%)' }}>
-              <div className="flex items-center gap-2 text-lime-text text-sm font-semibold"><FiCheck /> Spending-based relevance</div>
-              <p className="mt-4 text-xl font-display">“Spent ₹12,000 on Swiggy last month, 45 orders.”</p>
-              <p className="mt-2 text-ink-2">So he sees free delivery that pays for itself in three orders. He saves; Swiggy keeps a customer; Paytm earns. Everyone wins.</p>
-            </div>
+        <section className="max-w-[1100px] mx-auto px-5 pt-20 sm:pt-28 text-center">
+          <motion.p className="text-ink-2 font-medium" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>Spend Tracker for Paytm</motion.p>
+          <motion.h1 className="mt-3 text-[3rem] sm:text-[4.6rem] lg:text-[5.6rem] leading-[0.98] tracking-[-0.05em] font-semibold" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, ease }}>
+            Every rupee.<br /><span className="text-ink-3">Finally in focus.</span>
+          </motion.h1>
+          <motion.p className="mt-6 text-lg sm:text-xl text-ink-2 max-w-[40ch] mx-auto leading-relaxed" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, ease, delay: 0.1 }}>
+            See exactly where your money goes, keep more of it, and get offers that actually fit how you spend.
+          </motion.p>
+          <motion.div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.25 }}>
+            <button className="btn btn-primary !px-6 !py-3 !text-[15px]" onClick={() => nav(signedIn ? '/dashboard' : '/signup')}>Get started</button>
+            <button className="inline-flex items-center gap-1 text-link text-[15px] font-medium hover:underline" disabled={!!busy} onClick={() => demo('convenience')}>{busy === 'convenience' ? 'Opening…' : 'Explore the live demo'} <FiChevronRight /></button>
+          </motion.div>
+          <div className="mt-4 max-w-md mx-auto"><ErrorNote error={error} /></div>
+        </section>
+
+        <section className="relative max-w-[1100px] mx-auto px-5">
+          <div className="relative isolate h-[440px] sm:h-[600px]">
+            <Ring segments={SAMPLE} variant="hero" interactive={false} className="-z-10">
+              <motion.div className="text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.1, duration: 1 }}>
+                <div className="eyebrow">October</div>
+                <div className="num text-[2.4rem] sm:text-[3rem] mt-1">₹85,000</div>
+              </motion.div>
+            </Ring>
+            <Callout className="left-[2%] top-[22%]" delay={1.4}><div className="flex items-center gap-3"><CategoryIcon id="food" color={CAT_COLORS.food} size={14} /><div><div className="text-xs text-ink-3">Food & Dining</div><div className="num text-lg">₹28,000</div></div></div></Callout>
+            <Callout className="right-[3%] top-[30%]" delay={1.7}><div className="text-xs text-ink-3">You could keep</div><div className="num text-lg text-positive">₹16,750 / month</div></Callout>
+            <Callout className="left-[10%] bottom-[12%]" delay={2}><div className="text-xs text-ink-3">Swiggy One · 95% match</div><div className="font-medium text-sm">Free delivery for 3 months</div></Callout>
           </div>
         </section>
 
-        {/* Features */}
-        <section className="border-t border-line">
-          <div className="max-w-[1240px] mx-auto px-4 sm:px-8 py-16 sm:py-24">
-            <h2 className="text-3xl sm:text-4xl max-w-[22ch]">Everything your bank statement never told you</h2>
-            <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-10">
-              {FEATURES.map(([Icon, t, b]) => (
-                <div key={t}>
-                  <Icon size={30} className="text-cyan-text" aria-hidden="true" />
-                  <h3 className="text-xl mt-3">{t}</h3>
-                  <p className="text-ink-2 mt-2">{b}</p>
-                </div>
-              ))}
-            </div>
+        <section className="max-w-[1100px] mx-auto px-5 py-24 sm:py-32">
+          <motion.h2 {...up()} className="text-[2.4rem] sm:text-[3.6rem] tracking-[-0.045em] max-w-[16ch]">Old ads guess.<br /><span className="text-ink-3">We look.</span></motion.h2>
+          <div className="mt-12 grid md:grid-cols-2 gap-5">
+            <motion.div {...up(0.05)} className="panel p-8 sm:p-10">
+              <div className="eyebrow">Demographic targeting</div>
+              <p className="mt-5 text-[1.6rem] leading-tight tracking-[-0.03em] font-semibold text-ink-3">“Male, 25–35, high income.”</p>
+              <p className="mt-4 text-ink-2">So he sees a random watch ad, and ignores it. Typical click-through: 1–2%.</p>
+            </motion.div>
+            <motion.div {...up(0.12)} className="panel p-8 sm:p-10">
+              <div className="eyebrow">Spend Tracker</div>
+              <p className="mt-5 text-[1.6rem] leading-tight tracking-[-0.03em] font-semibold">“₹12,000 on Swiggy last month. 45 orders.”</p>
+              <p className="mt-4 text-ink-2">So he sees free delivery that pays for itself in three orders. He saves, Swiggy keeps a customer, Paytm earns.</p>
+            </motion.div>
           </div>
         </section>
 
-        {/* Personas */}
-        <section className="border-t border-line">
-          <div className="max-w-[1240px] mx-auto px-4 sm:px-8 py-16 sm:py-24">
-            <h2 className="text-3xl sm:text-4xl">Step into someone’s wallet</h2>
-            <p className="text-ink-2 mt-3 max-w-[60ch]">Three demo profiles with 12 months of realistic Paytm-style history. Pick one and explore the full app.</p>
-            <div className="mt-10 grid md:grid-cols-3 gap-5">
-              {PERSONAS.map((p) => (
-                <article key={p.id} className="panel p-6 flex flex-col">
-                  <div className="num text-3xl">{p.name}</div>
-                  <div className="text-sm text-ink-3 mt-1">{p.who}</div>
-                  <p className="text-ink-2 mt-4 flex-1">{p.story}</p>
-                  <div className="mt-4 text-sm font-semibold text-lime-text">{p.save}</div>
-                  <button className="btn btn-ghost mt-5" disabled={!!busy} onClick={() => demo(p.id)}>{busy === p.id ? 'Opening…' : `Explore as ${p.name}`} <FiArrowRight /></button>
-                </article>
-              ))}
-            </div>
+        <section className="max-w-[1100px] mx-auto px-5 pb-24 sm:pb-32">
+          <motion.h2 {...up()} className="text-[2.2rem] sm:text-[3rem] tracking-[-0.04em] max-w-[20ch]">Everything your statement never told you.</motion.h2>
+          <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-5 auto-rows-[minmax(220px,auto)]">
+            <motion.div {...up(0)} className="panel p-8 lg:col-span-2 flex flex-col justify-between">
+              <div className="eyebrow">Deep dives</div>
+              <div><div className="num text-[3.4rem] leading-none">2.5<span className="text-ink-3 text-[2rem]"> orders/day</span></div><p className="text-ink-2 mt-3 max-w-[48ch]">Seventy-seven deliveries a month at ₹45 in fees each — the patterns behind the totals, down to the hour and the dish.</p></div>
+            </motion.div>
+            <motion.div {...up(0.06)} className="panel p-8 flex flex-col justify-between"><div className="eyebrow">Categorisation</div><p className="text-[1.35rem] font-semibold tracking-[-0.025em] leading-snug">Swiggy, “Sharma Sweets Corner” or a friend’s UPI — sorted automatically, and it learns from you.</p></motion.div>
+            <motion.div {...up(0.1)} className="panel p-8 flex flex-col justify-between"><div className="eyebrow">Spending personality</div><p className="text-[1.35rem] font-semibold tracking-[-0.025em] leading-snug">Convenience spender, deal hunter or collector — know your peaks and your habits.</p></motion.div>
+            <motion.div {...up(0.14)} className="panel p-8 flex flex-col justify-between"><div className="eyebrow">Budgets with a pace</div><div><div className="num text-[2.6rem] leading-none">₹2,800<span className="text-ink-3 text-[1.4rem]"> / day</span></div><p className="text-ink-2 mt-3">keeps you on track — told before the month ends, not after.</p></div></motion.div>
+            <motion.div {...up(0.18)} className="panel p-8 flex flex-col justify-between"><div className="eyebrow">For Paytm</div><p className="text-[1.35rem] font-semibold tracking-[-0.025em] leading-snug">Consent-gated partner APIs: behaviour profiles, segments and ad performance.</p></motion.div>
           </div>
         </section>
 
-        {/* Win-win-win */}
-        <section className="border-t border-line">
-          <div className="max-w-[1240px] mx-auto px-4 sm:px-8 py-16 sm:py-24 grid lg:grid-cols-[1fr_1.2fr] gap-12 items-start">
-            <div>
-              <h2 className="text-3xl sm:text-4xl max-w-[16ch]">Relevance is the business model</h2>
-              <p className="text-ink-2 mt-4 max-w-[48ch]">When offers match real spending, people click them because they save money. That’s why behaviour-based placements can command higher CPMs — without a single pop-up.</p>
-              <p className="text-xs text-ink-3 mt-4">Figures are projections from the brief, not measured results.</p>
-            </div>
-            <dl className="grid sm:grid-cols-3 gap-5">
-              {[['Users', 'Keep ₹15–20k/month', 'by seeing where it goes'], ['Advertisers', '10–20% CTR', 'vs ~1–2% generic'], ['Paytm', '₹30–150 eCPM', 'from relevant placements']].map(([who, v, s]) => (
-                <div key={who} className="panel p-6"><dt className="text-sm text-ink-3">{who}</dt><dd className="num text-2xl mt-2">{v}</dd><dd className="text-sm text-ink-2 mt-1">{s}</dd></div>
-              ))}
-            </dl>
-          </div>
-        </section>
-
-        {/* Privacy */}
-        <section className="border-t border-line">
-          <div className="max-w-[1240px] mx-auto px-4 sm:px-8 py-16 grid md:grid-cols-[auto_1fr] gap-6 items-start">
-            <FiLock size={30} className="text-cyan-text" aria-hidden="true" />
-            <div>
-              <h2 className="text-2xl sm:text-3xl">Consent first. Always.</h2>
-              <ul className="mt-4 grid sm:grid-cols-3 gap-4 text-ink-2">
-                <li>Partner APIs only return data for users who opted in — and you can switch it off any time.</li>
-                <li>Offers are ranked by what you spend, never by age, gender or income.</li>
-                <li>Turn off personalised offers, export everything as CSV or PDF, or delete your account.</li>
-              </ul>
-            </div>
+        <section className="max-w-[1100px] mx-auto px-5 pb-24 sm:pb-32">
+          <motion.h2 {...up()} className="text-[2.2rem] sm:text-[3rem] tracking-[-0.04em]">Step into a wallet.</motion.h2>
+          <p className="text-ink-2 mt-3 text-lg">Three demo profiles with a year of realistic Paytm-style history.</p>
+          <div className="mt-10 grid md:grid-cols-3 gap-5">
+            {PERSONAS.map((p, i) => (
+              <motion.article key={p.id} {...up(i * 0.06)} className="panel p-7 flex flex-col">
+                <div className="text-[1.6rem] font-semibold tracking-[-0.03em]">{p.name}</div>
+                <div className="text-sm text-ink-3 mt-1">{p.who}</div>
+                <p className="text-ink-2 mt-5 flex-1 leading-relaxed">{p.story}</p>
+                <button className="mt-6 inline-flex items-center gap-1 text-link font-medium hover:underline self-start" disabled={!!busy} onClick={() => demo(p.id)}>{busy === p.id ? 'Opening…' : `Explore as ${p.name}`} <FiChevronRight /></button>
+              </motion.article>
+            ))}
           </div>
         </section>
 
         <section className="border-t border-line">
-          <div className="max-w-[1240px] mx-auto px-4 sm:px-8 py-20 text-center">
-            <h2 className="text-4xl sm:text-5xl max-w-[18ch] mx-auto" style={{ fontVariationSettings: "'wdth' 85" }}>Your money has a shape. Go see it.</h2>
-            <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <Link to={signedIn ? '/dashboard' : '/signup'} className="btn btn-primary">Get started</Link>
-              <button className="btn btn-ghost" disabled={!!busy} onClick={() => demo('convenience')}>Explore a live demo</button>
-            </div>
+          <div className="max-w-[1100px] mx-auto px-5 py-20 grid md:grid-cols-3 gap-8 text-[15px]">
+            <div><h3 className="text-lg">Consent first</h3><p className="text-ink-2 mt-2">Partner APIs only return data for people who opted in — and it can be switched off any time.</p></div>
+            <div><h3 className="text-lg">Spending, not demographics</h3><p className="text-ink-2 mt-2">Offers are ranked by what you buy. Never by age, gender or income.</p></div>
+            <div><h3 className="text-lg">Yours to take</h3><p className="text-ink-2 mt-2">Export everything as CSV or PDF, turn off personalisation, or delete your account.</p></div>
+          </div>
+        </section>
+
+        <section className="max-w-[1100px] mx-auto px-5 py-24 text-center">
+          <h2 className="text-[2.4rem] sm:text-[3.6rem] tracking-[-0.045em]">Your money has a shape.</h2>
+          <div className="mt-8 flex flex-wrap justify-center items-center gap-x-6 gap-y-3">
+            <Link to={signedIn ? '/dashboard' : '/signup'} className="btn btn-primary !px-6 !py-3 !text-[15px]">Get started</Link>
+            <button className="inline-flex items-center gap-1 text-link text-[15px] font-medium hover:underline" disabled={!!busy} onClick={() => demo('convenience')}>Explore the live demo <FiChevronRight /></button>
           </div>
         </section>
       </main>
       <footer className="border-t border-line">
-        <div className="max-w-[1240px] mx-auto px-4 sm:px-8 py-8 flex flex-wrap gap-4 items-center justify-between text-sm text-ink-3">
-          <Logo size={20} />
-          <span>Hackathon prototype · demo data is simulated · React, Node.js, SQLite, three.js & Claude</span>
+        <div className="max-w-[1100px] mx-auto px-5 py-6 flex flex-wrap gap-3 items-center justify-between text-xs text-ink-3">
+          <span>Spend Tracker · hackathon prototype · demo data is simulated</span><span>React · Node.js · SQLite · three.js · Claude</span>
         </div>
       </footer>
     </div>

@@ -34,7 +34,7 @@ export default function Alerts() {
           ); })}
         </ul>
       ) : <Empty title="No alerts" body="We’ll tell you about unusual payments, budget pace and offers that fit." />}
-      <p className="text-sm text-ink-3">Choose which alerts you get in <Link to="/settings" className="text-cyan-text font-semibold">Settings</Link>.</p>
+      <p className="text-sm text-ink-3">Choose which alerts you get in <Link to="/settings" className="text-link font-medium">Settings</Link>.</p>
     </div>
   );
 }

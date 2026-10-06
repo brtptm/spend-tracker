@@ -39,7 +39,13 @@ const log = (userId, adId, type, value = 0, meta = null) => db.prepare('INSERT I
 r.get('/relevant', (req, res) => {
   const ctx = context(req.user);
   const limit = Math.min(12, Number(req.query.limit) || 4);
-  res.json({ personalization: !!req.user.ad_personalization, offers: limit > 4 ? ctx.offers.all.slice(0, limit) : ctx.offers.top });
+  const personalized = ctx.offers.all.filter((o) => o.personalized);
+  res.json({
+    personalization: !!req.user.ad_personalization,
+    offers: limit > 4 ? personalized.slice(0, limit) : ctx.offers.top,
+    personalized, // ranked by this user's spending
+    generic: [...ctx.offers.all.filter((o) => !o.personalized), ...ctx.offers.generic], // everything else, after
+  });
 });
 r.post('/:adId/view', (req, res) => {
   valid(req.params.adId);
