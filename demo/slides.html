@@ -148,12 +148,13 @@
     .dial .seg { fill: none; stroke-width: 14; stroke-linecap: butt; stroke-dasharray: 0 1000; filter: drop-shadow(0 0 8px currentColor); }
     .reveal section.present .dial .seg { animation: arc 1.6s cubic-bezier(.2,.8,.2,1) forwards; animation-delay: calc(var(--i) * 110ms + 300ms); }
     @keyframes arc { to { stroke-dasharray: var(--len) 1000; } }
-    .dial .ticks { position: absolute; inset: -26px; border-radius: 50%;
+    /* Tick ring sized to the box edge (closest-side), so it stays inside the dial and never reaches the pill below. */
+    .dial .ticks { position: absolute; inset: 0; border-radius: 50%;
       background: repeating-conic-gradient(from 0deg, rgba(255,255,255,.22) 0 .25deg, transparent .25deg 3deg);
-      -webkit-mask: radial-gradient(circle, transparent 66%, #000 66.5%, #000 70%, transparent 70.5%); mask: radial-gradient(circle, transparent 66%, #000 66.5%, #000 70%, transparent 70.5%); }
+      -webkit-mask: radial-gradient(closest-side, transparent 80%, #000 80.5%, #000 86%, transparent 86.5%); mask: radial-gradient(closest-side, transparent 80%, #000 80.5%, #000 86%, transparent 86.5%); }
     .dial .center { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
     .dial .center .num { font-size: 60px; line-height: 1; letter-spacing: 0; }
-    .keep { margin-top: 18px; display: inline-flex; gap: 10px; align-items: baseline; justify-self: center; padding: 10px 18px; border-radius: 4px; background: rgba(48,209,88,.1); color: var(--pos); font-size: 22px; }
+    .keep { margin-top: 10px; display: inline-flex; gap: 10px; align-items: baseline; justify-self: center; padding: 10px 18px; border-radius: 4px; background: rgba(48,209,88,.1); color: var(--pos); font-size: 22px; }
 
     /* Screens */
     /* Overlapping screens stay inside their column (≈840px) so they never cover the text. */
