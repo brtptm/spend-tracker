@@ -41,7 +41,7 @@ function Hanging({ x, drop, delay = 0, sway = 1.4, period = 7, className = '', c
 }
 
 const Card = ({ children, className = '' }) => <div className={`glass rounded-2xl px-4 py-3 shadow-[var(--shadow-float)] whitespace-nowrap ${className}`}>{children}</div>;
-const Pendant = ({ id, size = 44 }) => <div className="rounded-[14px] p-[3px] glass shadow-[var(--shadow-float)]"><BrandLogo id={id} size={size} /></div>;
+const Pendant = ({ id, size = 44 }) => <div className="rounded-[28%] shadow-[var(--shadow-float)]"><BrandLogo id={id} size={size} /></div>;
 
 export default function Landing() {
   const nav = useNavigate();

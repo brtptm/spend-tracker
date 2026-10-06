@@ -1,4 +1,16 @@
 import { useState } from 'react';
+
+// Edge colour of a logo (top-middle pixel), cached per id. App icons often have transparent
+// rounded corners; painting the tile in that colour makes the icon meet the tile seamlessly.
+const EDGE = new Map();
+function edgeColor(img) {
+  try {
+    const c = document.createElement('canvas'); c.width = c.height = 24;
+    const g = c.getContext('2d', { willReadFrequently: true }); g.drawImage(img, 0, 0, 24, 24);
+    const [r, gr, b, a] = g.getImageData(12, 1, 1, 1).data;
+    return a > 200 ? `rgb(${r},${gr},${b})` : '#fff';
+  } catch { return '#fff'; }
+}
 import { siPaytm, siJio, siAirtel, siBigbasket, siIkea, siUber, siNetflix, siSpotify, siYoutube, siStarbucks, siSwiggy, siZomato, siSteam } from 'simple-icons';
 import LOGOS from '../lib/logos.json';
 import { CategoryIcon } from './ui.jsx';
@@ -15,8 +27,9 @@ function personHue(name) { let h = 0; for (const c of name) h = (h * 31 + c.char
  * Merchant/advertiser logo in a squircle tile.
  * Order: downloaded logo (≥64px) → vector brand mark → person avatar (P2P) → category glyph / monogram.
  */
-export default function BrandLogo({ id, name = '', category, size = 40, color }) {
+export default function BrandLogo({ id, name = '', category, size = 40, color, className = '' }) {
   const [broken, setBroken] = useState(false);
+  const [edge, setEdge] = useState(() => EDGE.get(id));
   const radius = Math.round(size * 0.28);
   const tile = { width: size, height: size, borderRadius: radius };
   const pngW = id ? LOGOS[id] : 0;
@@ -24,14 +37,16 @@ export default function BrandLogo({ id, name = '', category, size = 40, color })
 
   if (id && pngW >= MIN_PNG && !broken) {
     return (
-      <span className="relative inline-block shrink-0 overflow-hidden bg-white" style={{ ...tile, boxShadow: '0 0 0 1px var(--line), 0 4px 14px -6px rgba(0,0,0,.6)' }}>
-        <img src={`/logos/${id}.png`} alt="" loading="lazy" decoding="async" onError={() => setBroken(true)} className="w-full h-full object-contain" />
+      <span className={`relative inline-block shrink-0 overflow-hidden ${className}`} style={{ ...tile, background: edge || '#fff', boxShadow: '0 0 0 1px var(--line), 0 4px 14px -6px rgba(0,0,0,.35)' }}>
+        <img src={`/logos/${id}.png`} alt="" loading="lazy" decoding="async" onError={() => setBroken(true)}
+          onLoad={(e) => { if (!EDGE.has(id)) EDGE.set(id, edgeColor(e.currentTarget)); setEdge(EDGE.get(id)); }}
+          className="w-full h-full object-contain" />
       </span>
     );
   }
   if (vector) {
     return (
-      <span className="inline-grid place-items-center shrink-0" style={{ ...tile, background: `#${vector.hex}`, boxShadow: '0 4px 14px -6px rgba(0,0,0,.6)' }} aria-hidden="true">
+      <span className={`inline-grid place-items-center shrink-0 ${className}`} style={{ ...tile, background: `#${vector.hex}`, boxShadow: '0 4px 14px -6px rgba(0,0,0,.6)' }} aria-hidden="true">
         <svg viewBox="0 0 24 24" width={size * 0.56} height={size * 0.56} fill={vector.hex === 'FFFFFF' ? '#000' : '#fff'}><path d={vector.path} /></svg>
       </span>
     );
@@ -39,7 +54,7 @@ export default function BrandLogo({ id, name = '', category, size = 40, color })
   if (id && pngW && !broken) {
     // Low-res logo: show it small inside a tile so it stays crisp.
     return (
-      <span className="inline-grid place-items-center shrink-0 bg-white" style={tile}>
+      <span className={`inline-grid place-items-center shrink-0 bg-white ${className}`} style={tile}>
         <img src={`/logos/${id}.png`} alt="" loading="lazy" onError={() => setBroken(true)} style={{ width: Math.min(pngW, size * 0.62), height: Math.min(pngW, size * 0.62) }} />
       </span>
     );
