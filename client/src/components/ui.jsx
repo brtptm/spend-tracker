@@ -48,7 +48,7 @@ export function CategoryIcon({ id, color, size = 18 }) {
 export function Bar({ value, max = 100, color = 'var(--ink)', height = 5, marker, label }) {
   const v = Math.max(0, Math.min(100, (value / (max || 1)) * 100));
   return (
-    <div className="relative w-full rounded-full bg-fg/[.06]" style={{ height }} role="progressbar" aria-valuenow={Math.round(v)} aria-valuemin={0} aria-valuemax={100} aria-label={label}>
+    <div className="meter relative w-full rounded-full bg-fg/[.06]" style={{ height }} role="progressbar" aria-valuenow={Math.round(v)} aria-valuemin={0} aria-valuemax={100} aria-label={label}>
       <motion.div className="h-full rounded-full" style={{ background: `linear-gradient(90deg, color-mix(in srgb, ${color} 55%, transparent), ${color})`, boxShadow: `0 0 12px -2px color-mix(in srgb, ${color} 55%, transparent)` }} initial={{ width: 0 }} animate={{ width: `${v}%` }} transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }} />
       {marker != null && <span className="absolute -top-0.5 -bottom-0.5 w-[2px] rounded-full bg-ink-2" style={{ left: `${Math.min(100, (marker / (max || 1)) * 100)}%` }} />}
     </div>
@@ -110,10 +110,10 @@ export function Modal({ title, onClose, children, wide }) {
 /** iOS-style segmented control. */
 export function Segmented({ options, value, onChange, label }) {
   return (
-    <div role="radiogroup" aria-label={label} className="inline-flex p-[3px] rounded-[11px] bg-surface-2 max-w-full overflow-x-auto no-scrollbar">
+    <div role="radiogroup" aria-label={label} className="ctl seg inline-flex p-[3px] rounded-[11px] bg-surface-2 max-w-full overflow-x-auto no-scrollbar">
       {options.map(([v, l]) => (
-        <button key={v} role="radio" aria-checked={value === v} onClick={() => onChange(v)} className="relative px-3.5 py-[5px] text-[13px] font-medium rounded-[9px] whitespace-nowrap transition-colors" style={{ color: value === v ? 'var(--ink)' : 'var(--ink-2)' }}>
-          {value === v && <motion.span layoutId={`seg-${label}`} className="absolute inset-0 rounded-[9px] bg-surface-3 shadow-[0_1px_3px_rgba(0,0,0,.3)]" transition={{ type: 'spring', damping: 32, stiffness: 420 }} />}
+        <button key={v} role="radio" aria-checked={value === v} onClick={() => onChange(v)} className="seg-opt relative px-3.5 py-[5px] text-[13px] font-medium rounded-[9px] whitespace-nowrap transition-colors" style={{ color: value === v ? 'var(--ink)' : 'var(--ink-2)' }}>
+          {value === v && <motion.span layoutId={`seg-${label}`} className="seg-opt absolute inset-0 rounded-[9px] bg-surface-3 shadow-[0_1px_3px_rgba(0,0,0,.3)]" transition={{ type: 'spring', damping: 32, stiffness: 420 }} />}
           <span className="relative">{l}</span>
         </button>
       ))}
@@ -187,7 +187,7 @@ export function PeriodPicker({ options, value, onChange, label = 'Period' }) {
   return (
     <div ref={wrap} className="relative">
       <button ref={btn} type="button" aria-haspopup="listbox" aria-expanded={open} aria-label={`${label}: ${NICE[current] || current}`} onClick={() => setOpen((o) => !o)}
-        className="inline-flex items-center gap-2 h-9 pl-3.5 pr-3 rounded-full bg-surface-2 border border-line text-[13.5px] font-medium hover:bg-surface-3">
+        className="ctl inline-flex items-center gap-2 h-9 pl-3.5 pr-3 rounded-full bg-surface-2 border border-line text-[13.5px] font-medium hover:bg-surface-3">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true" className="text-ink-3"><rect x="3.5" y="5" width="17" height="15" rx="3" /><path d="M3.5 10h17M8 3v4M16 3v4" /></svg>
         <span className="sm:hidden">{current}</span><span className="hidden sm:inline">{NICE[current] || current}</span>
         <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" className="text-ink-3 transition-transform" style={{ transform: open ? 'rotate(180deg)' : 'none' }}><path d="M3 4.5 6 7.5 9 4.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>

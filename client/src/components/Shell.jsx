@@ -23,6 +23,8 @@ const NAV = [
   { to: '/settings', label: 'Settings', icon: PiGearSixLight },
 ];
 
+const initials = (name = '') => name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join('') || '·';
+
 export function useSignOut() {
   const qc = useQueryClient(); const nav = useNavigate();
   return async () => { try { await api.logout(); } catch {} auth.setToken(null); qc.clear(); nav('/'); };
@@ -94,11 +96,12 @@ export default function Shell() {
   const items = me?.hasData ? NAV : NAV.filter((n) => n.to === '/settings');
   const first = me?.user?.name?.split(' ')[0];
 
-  const link = (n, cls) => (
-    <NavLink key={n.to} to={n.to} onClick={() => setMore(false)} className={({ isActive }) => `${cls} ${isActive ? 'bg-surface-3 text-ink font-medium' : 'text-ink-2 hover:text-ink hover:bg-surface-2/50'}`}>
-      {({ isActive }) => (<>
+  const link = (n, cls, i) => (
+    <NavLink key={n.to} to={n.to} onClick={() => setMore(false)} className={({ isActive }) => `${cls} ${isActive ? 'is-active bg-surface-3 text-ink font-medium' : 'text-ink-2 hover:text-ink hover:bg-surface-2/50'}`}>
+      {() => (<>
         <n.icon size={19} />
         <span className="flex-1">{n.label}</span>
+        {i != null && !(n.badge === 'alerts' && unread > 0) && <span className="console-idx">{String(i + 1).padStart(2, '0')}</span>}
         {n.badge === 'alerts' && unread > 0 && <span className="min-w-5 h-5 px-1.5 rounded-full text-[11px] font-semibold grid place-items-center text-white" style={{ background: 'var(--negative)' }}>{unread}</span>}
       </>)}
     </NavLink>
@@ -108,18 +111,21 @@ export default function Shell() {
     <div className="ledger min-h-dvh lg:grid lg:grid-cols-[252px_1fr]">
       {/* Floating sidebar: the outer aside holds the sticky slot, the inner panel is the glass card (same surface as the page's cards). */}
       <aside className="hidden lg:block sticky top-0 h-dvh py-3 pl-3">
-        <div className="panel !rounded-[20px] h-full flex flex-col gap-7 px-3 py-6">
+        <div className="panel no-marks rounded-[20px] h-full flex flex-col gap-7 px-3 py-6">
         <Link to="/dashboard" className="px-3"><Logo /></Link>
-        <button onClick={() => setAsk(true)} className="mx-1 flex items-center gap-2.5 rounded-xl px-3 py-2 text-[13.5px] text-ink-2 bg-surface-2 hover:text-ink transition-colors">
+        <button onClick={() => setAsk(true)} className="ctl mx-1 flex items-center gap-2.5 rounded-xl px-3 py-2 text-[13.5px] text-ink-2 bg-surface-2 hover:text-ink transition-colors">
           <PiSparkleLight size={17} /> Ask your money <kbd className="ml-auto text-[10px] text-ink-3 font-sans">AI</kbd>
         </button>
-        <nav aria-label="Main" className="flex flex-col gap-px">{items.map((n) => link(n, 'flex items-center gap-3 px-3 py-2 rounded-[10px] text-[13.5px] transition-colors'))}</nav>
-        <div className="mt-auto px-2">
-          {me?.user && <div className="text-sm"><div className="font-semibold">{me.user.name}</div><div className="text-ink-3 text-xs">{me.user.city || me.user.email}</div></div>}
-          <div className="mt-3 flex items-center justify-between">
-            <button onClick={signOut} className="flex items-center gap-2 text-sm text-ink-3 hover:text-ink"><FiLogOut /> Sign out</button>
-            <ThemeToggle />
+        <nav aria-label="Main" className="flex flex-col gap-px">{items.map((n, i) => link(n, 'console-link flex items-center gap-3 px-3 py-2 rounded-[10px] text-[13.5px] transition-colors', i))}</nav>
+        {/* Account row: who's signed in, plus the two account actions, on one line. */}
+        <div className="mt-auto -mx-3 -mb-6 px-3 py-3.5 border-t border-line flex items-center gap-2">
+          <span className="account-avatar shrink-0 w-8 h-8 rounded-full grid place-items-center text-[12px] font-semibold bg-surface-3 text-ink" aria-hidden="true">{initials(me?.user?.name)}</span>
+          <div className="min-w-0 flex-1 leading-tight pl-0.5">
+            <div className="text-[13.5px] font-semibold truncate">{me?.user?.name || 'Signed in'}</div>
+            {(me?.user?.city || me?.user?.email) && <div className="text-ink-3 text-xs truncate mt-0.5">{me.user.city || me.user.email}</div>}
           </div>
+          <ThemeToggle className="ctl !w-[30px] !h-[30px] shrink-0" />
+          <button onClick={signOut} className="ctl shrink-0 w-[30px] h-[30px] grid place-items-center rounded-full bg-surface-2 hover:bg-surface-3 text-ink-2 hover:text-ink transition-colors" aria-label="Sign out" title="Sign out"><FiLogOut size={15} /></button>
         </div>
         </div>
       </aside>
