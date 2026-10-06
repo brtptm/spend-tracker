@@ -139,6 +139,8 @@ r.post('/ai/prompt', (req, res) => {
 r.post('/ask', async (req, res) => {
   const q = String(req.body?.question || '').trim();
   if (q.length < 3 || q.length > 300) throw new HttpError(400, 'Ask a question between 3 and 300 characters.');
+  // engine_only: the user chose "Prefer on-device" — never send their summary to Claude.
+  if (req.body?.engine_only === true) return res.json({ source: 'engine', data: { answer: 'The on-device model couldn’t answer this one, and you’ve chosen not to send your data to Claude. Your dashboard and the category deep dives have the full breakdown.', followUps: ['Where do I overspend?', 'How much do I spend on food delivery?', 'Which subscriptions should I cancel?'] } });
   const ctx = context(req.user);
   res.json(await askMoney(ctx.user, ctx.A, ctx.recs, ctx.profile, q));
 });

@@ -9,7 +9,7 @@ import {
 } from 'react-icons/pi';
 import { api, auth, useMe, useHealth } from '../lib/api.js';
 import { Logo, SourceTag, ThemeToggle } from './ui.jsx';
-import { localAI, usable, prefersLocal, shouldUseLocal, onDevice, refreshCached, checkSupport } from '../lib/localAI.js';
+import { localAI, usable, wantsPrivate, shouldUseLocal, onDevice, refreshCached, checkSupport } from '../lib/localAI.js';
 import PageBoundary from './PageBoundary.jsx';
 
 const NAV = [
@@ -40,9 +40,12 @@ function AskDrawer({ onClose }) {
     setHistory((h) => [...h, { question, pending: true }]);
     try {
       // On-device first when the user prefers it; otherwise ask the server and fall back on-device if Claude is out.
-      // Any on-device failure falls back to the server (Claude, or the engine if Claude is out).
-      let r = prefersLocal() ? null : await api.ask(question);
-      if (shouldUseLocal(r?.source)) { const server = r; r = await onDevice('ask', question).catch(async () => server || api.ask(question)); }
+      // On-device failure falls back to the server. With "Prefer on-device" the fallback is engine-only,
+      // so the user's summary is never sent to Claude.
+      const private_ = wantsPrivate();
+      let r = private_ ? null : await api.ask(question);
+      if (shouldUseLocal(r?.source)) { const server = r; r = await onDevice('ask', question).catch(async () => server || api.ask(question, { engineOnly: private_ })); }
+      else if (private_) r = await api.ask(question, { engineOnly: true }); // private, model unavailable: engine only
       setHistory((h) => [...h.slice(0, -1), { question, ...r.data, source: r.source, model: r.model }]);
     }
     catch (e) { setHistory((h) => [...h.slice(0, -1), { question, answer: e.message, error: true }]); }

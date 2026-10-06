@@ -38,7 +38,7 @@ export const api = {
   merchant: (id) => http.get(`/analysis/merchant/${id}`),
   comparison: () => http.get('/analysis/comparison'),
   profile: () => http.get('/analysis/behavioral-profile'),
-  ask: (question) => http.post('/analysis/ask', { question }),
+  ask: (question, opts = {}) => http.post('/analysis/ask', { question, engine_only: !!opts.engineOnly }),
   aiPrompt: (kind, question) => http.post('/analysis/ai/prompt', { kind, question }),
   recs: () => http.get('/recommendations/all'),
   impact: () => http.get('/recommendations/impact'),

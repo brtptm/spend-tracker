@@ -100,6 +100,8 @@ export function configure(patch) {
 /** Use on-device AI for this response? Only when enabled and the model is already downloaded (no surprise downloads). */
 export const usable = () => state.enabled && state.supported === true && state.status !== 'error' && !!state.cached[state.model];
 export const prefersLocal = () => usable() && state.prefer;
+/** The user's privacy choice, independent of whether the model works right now: if true, never call Claude. */
+export const wantsPrivate = () => state.enabled && state.prefer;
 export const shouldUseLocal = (serverSource) => usable() && (state.prefer || serverSource !== 'claude');
 
 // ── Grounding: every money-like number the model writes must come from its input ──
