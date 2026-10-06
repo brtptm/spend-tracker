@@ -23,6 +23,18 @@ const NAV = [
   { to: '/settings', label: 'Settings', icon: PiGearSixLight },
 ];
 
+/** Dark theme only: a quiet cockpit readout — status light and local time, ticking once a second. */
+function ShipStatus() {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => { const t = setInterval(() => setNow(new Date()), 1000); return () => clearInterval(t); }, []);
+  return (
+    <div className="hud-only mb-5 gap-1.5 font-mono text-[10px] uppercase tracking-[.16em] text-ink-3" aria-hidden="true">
+      <div className="flex items-center gap-2"><span className="status-led" /> Systems nominal</div>
+      <div className="flex justify-between"><span>Local</span><span className="text-ink-2 tabular-nums">{now.toLocaleTimeString('en-GB')}</span></div>
+    </div>
+  );
+}
+
 export function useSignOut() {
   const qc = useQueryClient(); const nav = useNavigate();
   return async () => { try { await api.logout(); } catch {} auth.setToken(null); qc.clear(); nav('/'); };
@@ -94,11 +106,12 @@ export default function Shell() {
   const items = me?.hasData ? NAV : NAV.filter((n) => n.to === '/settings');
   const first = me?.user?.name?.split(' ')[0];
 
-  const link = (n, cls) => (
-    <NavLink key={n.to} to={n.to} onClick={() => setMore(false)} className={({ isActive }) => `${cls} ${isActive ? 'bg-surface-3 text-ink font-medium' : 'text-ink-2 hover:text-ink hover:bg-surface-2/50'}`}>
-      {({ isActive }) => (<>
+  const link = (n, cls, i) => (
+    <NavLink key={n.to} to={n.to} onClick={() => setMore(false)} className={({ isActive }) => `${cls} ${isActive ? 'is-active bg-surface-3 text-ink font-medium' : 'text-ink-2 hover:text-ink hover:bg-surface-2/50'}`}>
+      {() => (<>
         <n.icon size={19} />
         <span className="flex-1">{n.label}</span>
+        {i != null && !(n.badge === 'alerts' && unread > 0) && <span className="console-idx">{String(i + 1).padStart(2, '0')}</span>}
         {n.badge === 'alerts' && unread > 0 && <span className="min-w-5 h-5 px-1.5 rounded-full text-[11px] font-semibold grid place-items-center text-white" style={{ background: 'var(--negative)' }}>{unread}</span>}
       </>)}
     </NavLink>
@@ -113,8 +126,9 @@ export default function Shell() {
         <button onClick={() => setAsk(true)} className="mx-1 flex items-center gap-2.5 rounded-xl px-3 py-2 text-[13.5px] text-ink-2 bg-surface-2 hover:text-ink transition-colors">
           <PiSparkleLight size={17} /> Ask your money <kbd className="ml-auto text-[10px] text-ink-3 font-sans">AI</kbd>
         </button>
-        <nav aria-label="Main" className="flex flex-col gap-px">{items.map((n) => link(n, 'flex items-center gap-3 px-3 py-2 rounded-[10px] text-[13.5px] transition-colors'))}</nav>
+        <nav aria-label="Main" className="flex flex-col gap-px">{items.map((n, i) => link(n, 'console-link flex items-center gap-3 px-3 py-2 rounded-[10px] text-[13.5px] transition-colors', i))}</nav>
         <div className="mt-auto px-2">
+          <ShipStatus />
           {me?.user && <div className="text-sm"><div className="font-semibold">{me.user.name}</div><div className="text-ink-3 text-xs">{me.user.city || me.user.email}</div></div>}
           <div className="mt-3 flex items-center justify-between">
             <button onClick={signOut} className="flex items-center gap-2 text-sm text-ink-3 hover:text-ink"><FiLogOut /> Sign out</button>

@@ -48,7 +48,7 @@ export function CategoryIcon({ id, color, size = 18 }) {
 export function Bar({ value, max = 100, color = 'var(--ink)', height = 5, marker, label }) {
   const v = Math.max(0, Math.min(100, (value / (max || 1)) * 100));
   return (
-    <div className="relative w-full rounded-full bg-fg/[.06]" style={{ height }} role="progressbar" aria-valuenow={Math.round(v)} aria-valuemin={0} aria-valuemax={100} aria-label={label}>
+    <div className="meter relative w-full rounded-full bg-fg/[.06]" style={{ height }} role="progressbar" aria-valuenow={Math.round(v)} aria-valuemin={0} aria-valuemax={100} aria-label={label}>
       <motion.div className="h-full rounded-full" style={{ background: `linear-gradient(90deg, color-mix(in srgb, ${color} 55%, transparent), ${color})`, boxShadow: `0 0 12px -2px color-mix(in srgb, ${color} 55%, transparent)` }} initial={{ width: 0 }} animate={{ width: `${v}%` }} transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }} />
       {marker != null && <span className="absolute -top-0.5 -bottom-0.5 w-[2px] rounded-full bg-ink-2" style={{ left: `${Math.min(100, (marker / (max || 1)) * 100)}%` }} />}
     </div>

@@ -93,6 +93,7 @@
   --color-lime: var(--positive);
   --font-display: 'Geist', -apple-system, BlinkMacSystemFont, 'SF Pro Display', ui-sans-serif, system-ui, sans-serif;
   --font-sans: 'Geist', -apple-system, BlinkMacSystemFont, 'SF Pro Text', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 @layer base {
@@ -125,8 +126,10 @@
   :where(a, button, [role='button'])[class*='rounded']:not(:disabled):active { transform: scale(.975); }
   :where(a, button):not([class*='rounded']):not(:disabled):active { opacity: .55; }
   :where(a):not([class*='rounded']):hover { opacity: .78; }
-  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow); backdrop-filter: blur(14px) saturate(140%); -webkit-backdrop-filter: blur(14px) saturate(140%); }
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow); -webkit-backdrop-filter: blur(14px) saturate(140%); backdrop-filter: blur(14px) saturate(140%); }
   .panel-quiet { background: var(--surface-2); border-radius: 16px; }
+  .panel { position: relative; }
+  .hud-only, .console-idx { display: none; }
   :root[data-theme='light'] .panel { border-color: rgba(0, 0, 0, 0.05); }
   /* Dark theme: frosted glass over deep space — translucent body, soft top sheen, a fine light catch on
      the upper edge, and enough blur that text over stars or the planet's rim stays perfectly readable. */
@@ -134,12 +137,12 @@
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.012) 38%, rgba(255, 255, 255, 0) 100%), rgba(9, 9, 11, 0.56);
     border-color: rgba(255, 255, 255, 0.075);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.09), inset 0 0 0 1px rgba(255, 255, 255, 0.015), 0 30px 80px -40px rgba(0, 0, 0, 0.95);
-    backdrop-filter: blur(26px) saturate(150%); -webkit-backdrop-filter: blur(26px) saturate(150%);
+    -webkit-backdrop-filter: blur(26px) saturate(150%); backdrop-filter: blur(26px) saturate(150%);
   }
   /* Let the fixed space canvas show through: html stays black, the body itself is transparent. */
   :root:not([data-theme='light']) body { background: transparent; }
   :root:not([data-theme='light']) .glass { background: rgba(10, 10, 12, 0.6); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08); }
-  .glass { background: var(--glass); backdrop-filter: blur(24px) saturate(180%); -webkit-backdrop-filter: blur(24px) saturate(180%); border: 1px solid var(--line); }
+  .glass { background: var(--glass); -webkit-backdrop-filter: blur(24px) saturate(180%); backdrop-filter: blur(24px) saturate(180%); border: 1px solid var(--line); }
   .btn { display: inline-flex; align-items: center; justify-content: center; gap: .45rem; font-weight: 550; font-size: .9rem; letter-spacing: -0.01em; border-radius: 999px; padding: .62rem 1.15rem; border: 1px solid transparent; cursor: pointer; white-space: nowrap; transition: transform .15s ease, background-color .2s ease, opacity .2s ease; }
   .btn:active { transform: scale(0.98); }
   .btn:disabled { opacity: .45; cursor: not-allowed; }
@@ -194,3 +197,55 @@
 :root:not([data-theme='light']) .num { font-weight: 600; letter-spacing: 0.005em; font-size-adjust: 0.53; }
 :root:not([data-theme='light']) .eyebrow { font-family: 'Geist Mono', ui-monospace, monospace; font-size: .68rem; font-weight: 500; text-transform: uppercase; letter-spacing: .16em; }
 :root:not([data-theme='light']) .wordmark { font-family: 'Michroma', var(--font-sans); font-weight: 400; font-size: .7rem; text-transform: uppercase; letter-spacing: .12em; white-space: nowrap; }
+
+/* ── Dark theme: spaceship interior ────────────────────────────────────
+   Instrument modules, not cards: machined corners, registration marks, segmented meters, a side
+   console with indicator lights, and a faint bulkhead grid. Everything is hairline and low-contrast —
+   the data stays the brightest thing on screen. Light theme is untouched. */
+:root:not([data-theme='light']) {
+  --tick: rgba(255, 255, 255, 0.26);
+  --indicator: #e8c98a;                     /* instrument amber: the one "lit" colour */
+}
+/* Bulkhead grid: barely-there panel seams, fading out toward the edges of view. */
+:root:not([data-theme='light']) .ledger::after {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.034) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.034) 1px, transparent 1px);
+  background-size: 72px 72px; background-position: -1px -1px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 55% 35%, #000 20%, transparent 85%);
+  mask-image: radial-gradient(ellipse 80% 70% at 55% 35%, #000 20%, transparent 85%);
+}
+/* Instrument modules: tighter machined radius + registration marks in each corner. */
+:root:not([data-theme='light']) .panel { border-radius: 14px; }
+:root:not([data-theme='light']) .panel::before {
+  content: ''; position: absolute; inset: 7px; pointer-events: none; border-radius: 0;
+  background:
+    linear-gradient(var(--tick), var(--tick)) left top / 8px 1px no-repeat,
+    linear-gradient(var(--tick), var(--tick)) left top / 1px 8px no-repeat,
+    linear-gradient(var(--tick), var(--tick)) right top / 8px 1px no-repeat,
+    linear-gradient(var(--tick), var(--tick)) right top / 1px 8px no-repeat,
+    linear-gradient(var(--tick), var(--tick)) left bottom / 8px 1px no-repeat,
+    linear-gradient(var(--tick), var(--tick)) left bottom / 1px 8px no-repeat,
+    linear-gradient(var(--tick), var(--tick)) right bottom / 8px 1px no-repeat,
+    linear-gradient(var(--tick), var(--tick)) right bottom / 1px 8px no-repeat;
+}
+/* Segmented meters, like a power readout. */
+:root:not([data-theme='light']) .meter {
+  border-radius: 1px;
+  -webkit-mask-image: repeating-linear-gradient(90deg, #000 0 11px, transparent 11px 14px);
+  mask-image: repeating-linear-gradient(90deg, #000 0 11px, transparent 11px 14px);
+}
+:root:not([data-theme='light']) .meter > * { border-radius: 0; }
+/* Side console: uppercase technical labels, channel numbers, an amber indicator on the active row. */
+:root:not([data-theme='light']) .hud-only { display: grid; }
+:root:not([data-theme='light']) .console-link { position: relative; font-family: var(--font-display); font-weight: 600; font-size: 13.5px; text-transform: uppercase; letter-spacing: .09em; border-radius: 8px; }
+:root:not([data-theme='light']) .console-link .console-idx { display: inline; font-family: var(--font-mono); font-size: 10px; letter-spacing: .08em; color: var(--ink-3); opacity: .6; }
+:root:not([data-theme='light']) .console-link.is-active { background: linear-gradient(90deg, rgba(232, 201, 138, 0.10), rgba(255, 255, 255, 0.03) 60%); }
+:root:not([data-theme='light']) .console-link.is-active::before {
+  content: ''; position: absolute; left: -3px; top: 9px; bottom: 9px; width: 2px; border-radius: 2px;
+  background: var(--indicator); box-shadow: 0 0 10px var(--indicator), 0 0 2px var(--indicator);
+}
+:root:not([data-theme='light']) .console-link.is-active .console-idx { color: var(--indicator); opacity: 1; }
+.status-led { width: 6px; height: 6px; border-radius: 50%; background: var(--positive); box-shadow: 0 0 8px var(--positive); animation: led 3.2s ease-in-out infinite; }
+@keyframes led { 50% { opacity: .45; } }
+@media (prefers-reduced-motion: reduce) { .status-led { animation: none; } }
+@media (max-width: 640px) { :root:not([data-theme='light']) .eyebrow { letter-spacing: .1em; font-size: .64rem; } }
