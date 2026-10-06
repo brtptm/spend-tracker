@@ -27,7 +27,14 @@ const app = express();
 const PORT = Number(process.env.PORT || 7101);
 
 app.set('trust proxy', 1);
-app.use(helmet({ contentSecurityPolicy: { directives: { defaultSrc: ["'self'"], styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'], fontSrc: ["'self'", 'https://fonts.gstatic.com'], imgSrc: ["'self'", 'data:', 'blob:'], workerSrc: ["'self'", 'blob:'] } } }));
+// CSP: on-device AI (WebLLM) downloads model weights from Hugging Face and its WebGPU kernels
+// from the MLC GitHub release, and compiles WebAssembly — nothing else is fetched cross-origin.
+app.use(helmet({ contentSecurityPolicy: { directives: {
+  defaultSrc: ["'self'"], scriptSrc: ["'self'", "'wasm-unsafe-eval'"],
+  styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'], fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+  imgSrc: ["'self'", 'data:', 'blob:'], workerSrc: ["'self'", 'blob:'],
+  connectSrc: ["'self'", 'https://huggingface.co', 'https://*.huggingface.co', 'https://*.hf.co', 'https://raw.githubusercontent.com'],
+} } }));
 app.use(cors({ origin: process.env.CLIENT_ORIGIN?.split(',') || true }));
 // Partner API: own body parsing, auth, per-key limits and error envelope.
 app.use('/v1', cors({ origin: true }), v1);

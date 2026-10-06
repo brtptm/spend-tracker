@@ -39,6 +39,7 @@ export const api = {
   comparison: () => http.get('/analysis/comparison'),
   profile: () => http.get('/analysis/behavioral-profile'),
   ask: (question) => http.post('/analysis/ask', { question }),
+  aiPrompt: (kind, question) => http.post('/analysis/ai/prompt', { kind, question }),
   recs: () => http.get('/recommendations/all'),
   impact: () => http.get('/recommendations/impact'),
   acceptRec: (id) => http.post(`/recommendations/${id}/accept`),

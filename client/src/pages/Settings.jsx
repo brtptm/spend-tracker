@@ -6,6 +6,7 @@ import { api, auth, useMe, useHealth } from '../lib/api.js';
 import { useTheme } from '../lib/theme.js';
 import { PageHead, Segmented, ErrorNote, Toast } from '../components/ui.jsx';
 import { useSignOut } from '../components/Shell.jsx';
+import OnDeviceAI from '../components/OnDeviceAI.jsx';
 
 function Toggle({ label, hint, checked, onChange }) {
   return (
@@ -63,8 +64,10 @@ export default function Settings() {
           <Toggle label="Share spending insights with Paytm" hint="Lets Paytm use your spending profile for offers in the Paytm app. When off, partner APIs return 403 for you." checked={u.consentPartner} onChange={(v) => save({ consentPartner: v }, v ? 'Sharing turned on' : 'Sharing turned off')} />
           <Toggle label="Personalised offers" hint="Rank offers by how you spend. When off, you’ll see general offers only." checked={u.adPersonalization} onChange={(v) => save({ adPersonalization: v })} />
         </div>
-        <p className="text-sm text-ink-3 mt-3">{health?.ai?.enabled ? `Insights are written by Claude (${health.ai.provider === 'agent-sdk' ? 'via local Claude Code login' : 'API'}). Only aggregated totals are sent — never raw transactions.` : 'AI is off; everything runs on this server.'}</p>
+        <p className="text-sm text-ink-3 mt-3">{health?.ai?.enabled ? `Insights are written by Claude (${health.ai.provider === 'agent-sdk' ? 'via local Claude Code login' : 'API'}). Only aggregated totals are sent — never raw transactions.` : 'Claude isn’t available right now. Turn on on-device AI below, or insights use the built-in engine.'}</p>
       </section>
+
+      <OnDeviceAI />
 
       <section className="panel p-6">
         <h2 className="text-xl">Alerts</h2>

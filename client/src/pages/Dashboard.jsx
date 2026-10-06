@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { motion } from 'motion/react';
 import { FiDownload, FiChevronRight } from 'react-icons/fi';
 import { api } from '../lib/api.js';
+import { useLocalAI, shouldUseLocal, onDevice, modelInfo } from '../lib/localAI.js';
 import { inr, inrShort, PERIODS, plural } from '../lib/format.js';
 import { Ticker, Bar, Spinner, ErrorNote, PeriodPicker, Skeleton, SourceTag, CategoryIcon, stagger, rise } from '../components/ui.jsx';
 import { InsightCard, MiniLink, OfferCarousel } from '../components/cards.jsx';
@@ -38,13 +39,23 @@ function Stat({ label, value, sub, tone }) {
 }
 
 function Briefing() {
-  const q = useQuery({ queryKey: ['briefing'], queryFn: () => api.insights(true), staleTime: Infinity });
-  const b = q.data?.briefing;
+  const local = useLocalAI();
+  // "Prefer on-device": don't ask the server to call Claude at all — the summary never leaves the device.
+  const preferLocal = local.enabled && local.prefer && !!local.cached[local.model];
+  const q = useQuery({ queryKey: ['briefing', preferLocal], queryFn: () => api.insights(!preferLocal), staleTime: Infinity });
+  const server = q.data?.briefing;
+  const useLocal = !q.isLoading && !q.error && shouldUseLocal(server?.source);
+  const lq = useQuery({ queryKey: ['briefing-local', local.model], queryFn: () => onDevice('briefing', undefined, local.model), enabled: useLocal, staleTime: Infinity, retry: false });
+  const b = useLocal ? lq.data : server;
+  const loading = q.isLoading || (useLocal && lq.isLoading);
   return (
     <section className="panel p-7" aria-labelledby="brief-h">
-      <div className="flex items-center justify-between gap-3"><span className="eyebrow">Your briefing</span><span className="flex items-center gap-2">{b?.generatedAt && <span className="text-[11px] text-ink-3">Updated {formatDistanceToNowStrict(new Date(b.generatedAt), { addSuffix: true })}<span className="hidden sm:inline"> · refreshes when your payments change</span></span>}<SourceTag source={b?.source} /></span></div>
-      {q.isLoading ? (
-        <div className="mt-4 grid gap-3"><Skeleton h={28} className="w-2/3" /><Skeleton h={16} /><Skeleton h={16} className="w-5/6" /></div>
+      <div className="flex items-center justify-between gap-3"><span className="eyebrow">Your briefing</span><span className="flex items-center gap-2">{b?.generatedAt && <span className="text-[11px] text-ink-3">Updated {formatDistanceToNowStrict(new Date(b.generatedAt), { addSuffix: true })}<span className="hidden sm:inline"> · refreshes when your payments change</span></span>}<SourceTag source={b?.source} model={b?.model} /></span></div>
+      {loading ? (
+        <div className="mt-4 grid gap-3">
+          {useLocal && <p className="text-xs text-ink-3">{local.status === 'loading' ? `Loading ${modelInfo()?.name} on your device… ${Math.round(local.progress * 100)}%` : 'Writing on your device…'}</p>}
+          <Skeleton h={28} className="w-2/3" /><Skeleton h={16} /><Skeleton h={16} className="w-5/6" />
+        </div>
       ) : q.error ? <div className="mt-3"><ErrorNote error={q.error} onRetry={q.refetch} /></div> : b && (
         <>
           <h2 id="brief-h" className="text-[1.65rem] mt-2.5 max-w-[34ch]">{b.data.headline}</h2>

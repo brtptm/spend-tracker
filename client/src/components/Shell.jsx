@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NavLink, Outlet, Link, useLocation, useNavigate } from 'react-router';
 import { AnimatePresence, motion } from 'motion/react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -9,6 +9,7 @@ import {
 } from 'react-icons/pi';
 import { api, auth, useMe, useHealth } from '../lib/api.js';
 import { Logo, SourceTag, ThemeToggle } from './ui.jsx';
+import { localAI, shouldUseLocal, onDevice, refreshCached, checkSupport } from '../lib/localAI.js';
 import PageBoundary from './PageBoundary.jsx';
 
 const NAV = [
@@ -37,7 +38,13 @@ function AskDrawer({ onClose }) {
     const question = (text ?? q).trim(); if (question.length < 3) return;
     setQ(''); setBusy(true);
     setHistory((h) => [...h, { question, pending: true }]);
-    try { const r = await api.ask(question); setHistory((h) => [...h.slice(0, -1), { question, ...r.data, source: r.source }]); }
+    try {
+      // On-device first when the user prefers it; otherwise ask the server and fall back on-device if Claude is out.
+      const L = localAI();
+      let r = L.enabled && L.prefer && L.cached[L.model] ? null : await api.ask(question);
+      if (shouldUseLocal(r?.source)) r = await onDevice('ask', question);
+      setHistory((h) => [...h.slice(0, -1), { question, ...r.data, source: r.source, model: r.model }]);
+    }
     catch (e) { setHistory((h) => [...h.slice(0, -1), { question, answer: e.message, error: true }]); }
     finally { setBusy(false); }
   }
@@ -49,12 +56,12 @@ function AskDrawer({ onClose }) {
           <button onClick={onClose} className="w-8 h-8 grid place-items-center rounded-full hover:bg-surface-2" aria-label="Close"><FiX /></button>
         </header>
         <div className="flex-1 overflow-y-auto p-5 grid content-start gap-5">
-          {!history.length && <p className="text-ink-2">Ask anything about your spending — answers use your own numbers. {!health?.ai?.enabled && <span className="text-ink-3">AI is off right now, so answers are limited.</span>}</p>}
+          {!history.length && <p className="text-ink-2">Ask anything about your spending — answers use your own numbers. {!health?.ai?.enabled && !(localAI().enabled && localAI().cached[localAI().model]) && <span className="text-ink-3">AI is off right now — turn on on-device AI in Settings, or answers stay limited.</span>}</p>}
           {history.map((h, i) => (
             <div key={i} className="grid gap-2">
               <div className="justify-self-end max-w-[85%] rounded-[18px] rounded-br-md px-4 py-2.5 text-[15px] font-medium" style={{ background: 'var(--ink)', color: 'var(--bg)' }}>{h.question}</div>
               <div className="max-w-[92%] rounded-[18px] rounded-bl-md px-4 py-3 bg-surface-2 text-sm leading-relaxed" style={h.error ? { color: 'var(--coral)' } : undefined}>
-                {h.pending ? <span className="text-ink-3">Reading your transactions…</span> : <>{h.answer}<div className="mt-2"><SourceTag source={h.source} /></div></>}
+                {h.pending ? <span className="text-ink-3">{localAI().enabled && localAI().cached[localAI().model] ? 'Thinking…' : 'Reading your transactions…'}</span> : <>{h.answer}<div className="mt-2"><SourceTag source={h.source} model={h.model} /></div></>}
               </div>
             </div>
           ))}
@@ -77,6 +84,8 @@ export default function Shell() {
   const signOut = useSignOut();
   const [ask, setAsk] = useState(false);
   const [more, setMore] = useState(false);
+  // Learn once whether the on-device model is downloaded, so answers can fall back to it.
+  useEffect(() => { if (localAI().enabled) { checkSupport(); refreshCached(); } }, []);
   const alerts = useQuery({ queryKey: ['alerts'], queryFn: api.alerts, enabled: Boolean(me?.hasData), refetchInterval: 120_000 });
   const unread = alerts.data?.unread || 0;
   const items = me?.hasData ? NAV : NAV.filter((n) => n.to === '/settings');

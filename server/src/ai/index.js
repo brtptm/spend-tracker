@@ -3,7 +3,7 @@
 // Any failure returns the engine result so the UI never waits on the model.
 import crypto from 'node:crypto';
 import { db, json } from '../db.js';
-import { askJSON, aiStatus } from './claude.js';
+import { askJSON, aiStatus, SYSTEM } from './claude.js';
 import { CATEGORIES, CATEGORY } from '../data/catalog.js';
 
 export { aiStatus };
@@ -87,17 +87,8 @@ export function contextFor(user, A, recs, profile) {
   };
 }
 
-export async function aiNarrative(user, A, recs, profile, baseInsights) {
-  const ctx = contextFor(user, A, recs, profile);
-  const total = recs.filter((r) => !r.oneTime).reduce((a, r) => a + r.savingsMonthly, 0);
-  const base = {
-    headline: `${ctx.user.firstName}, you could keep ₹${total.toLocaleString('en-IN')} more every month.`,
-    summary: `Your last 30 days came to ₹${A.s30.totalSpending.toLocaleString('en-IN')} across ${A.s30.transactionCount} payments. ${baseInsights[0]?.title || ''}`.trim(),
-    observations: baseInsights.slice(0, 3).map((i) => i.description), personality: `${profile.spenderLabel}: ${profile.patterns.peakTimes.join(' & ')} is when you spend most.`,
-  };
-  // Re-written only when the user's data changes (new/removed payments, re-categorisation).
-  return withAI('narrative', hash('narr-v2', user.id, dataFingerprint(user.id)), base, async () => {
-    const r = await askJSON(`Write the top-of-dashboard briefing for this Paytm user from their aggregated data.
+// ── Prompts (shared by Claude on the server and the on-device model in the browser) ──
+const briefingTask = (ctx) => `Write the top-of-dashboard briefing for this Paytm user from their aggregated data.
 
 Data: ${J(ctx)}
 
@@ -105,35 +96,69 @@ Return JSON:
 {"headline": "max 12 words, personal, mentions the biggest saving opportunity in ₹",
  "summary": "2 sentences on what happened in the last 30 days, with exact numbers",
  "observations": ["3 sharp, specific observations a friend would notice (patterns, times, merchants)"],
- "personality": "1 sentence describing their spending personality kindly"}`, { effort: 'low', maxTokens: 2500 });
+ "personality": "1 sentence describing their spending personality kindly"}`;
+const askTask = (ctx, question) => `Answer the user's question about their money using only this data. If the data can't answer it, say so and suggest what would.
+
+Data: ${J(ctx)}
+Question: "${question}"
+
+Return JSON: {"answer": "2-4 sentences, specific numbers, friendly", "followUps": ["3 short follow-up questions they might ask next"]}`;
+
+function briefingBase(ctx, A, recs, profile, baseInsights) {
+  const total = recs.filter((r) => !r.oneTime).reduce((a, r) => a + r.savingsMonthly, 0);
+  return {
+    headline: `${ctx.user.firstName}, you could keep ₹${total.toLocaleString('en-IN')} more every month.`,
+    summary: `Your last 30 days came to ₹${A.s30.totalSpending.toLocaleString('en-IN')} across ${A.s30.transactionCount} payments. ${baseInsights[0]?.title || ''}`.trim(),
+    observations: baseInsights.slice(0, 3).map((i) => i.description), personality: `${profile.spenderLabel}: ${profile.patterns.peakTimes.join(' & ')} is when you spend most.`,
+  };
+}
+const ASK_BASE = { answer: 'I can answer questions about your spending once AI is enabled. Meanwhile, your dashboard and deep dives have the full breakdown.', followUps: ['Where do I overspend?', 'How much do I spend on food delivery?', 'Which subscriptions should I cancel?'] };
+
+/**
+ * Everything an on-device model needs to do the same job as Claude: the same system prompt and task,
+ * the engine's fallback text, and the cache key. Numbers are computed here; the model only writes words.
+ */
+export function promptFor(kind, { user, A, recs, profile, insights: baseInsights, question }) {
+  const ctx = contextFor(user, A, recs, profile);
+  // Small on-device models paraphrase far better than they compose: give them the engine's accurate draft
+  // (briefing) or a short fact sheet (ask), with no placeholder text they could echo back.
+  const facts = J({ name: ctx.user.firstName, last30Days: ctx.last30Days, topMerchants: ctx.topMerchants.slice(0, 5), food: { deliveryOrdersPerMonth: ctx.food?.ordersPerMonth, estimatedDeliveryFeesMonthly: ctx.food?.estDeliveryFeesMonthly, averageOrder: ctx.food?.avgOrder, deliveryShareOfFoodPct: ctx.food?.deliveryShare }, subscriptions: ctx.subscriptions, peers: ctx.peers.filter((p) => p.you > p.average), peakTimes: ctx.profile.peakTimes, savings: ctx.recommendations });
+  if (kind === 'briefing') {
+    const base = briefingBase(ctx, A, recs, profile, baseInsights);
+    return { kind, system: SYSTEM, task: briefingTask(ctx), max_tokens: 700, base, cache_key: dataFingerprint(user.id),
+      task_small: `Rewrite this money briefing for ${ctx.user.firstName} so it sounds warm, personal and specific, like a friend who is good with money. Keep every rupee amount and number exactly as written. Do not add new numbers.
+
+Draft: ${J(base)}
+
+Return the same four fields: headline (one short sentence), summary (two sentences), observations (three short sentences), personality (one sentence).` };
+  }
+  return { kind, system: SYSTEM, task: askTask(ctx, question), max_tokens: 400, base: ASK_BASE, cache_key: hash('ask', user.id, ctx, question),
+    // The engine has already done the reasoning; a small model only has to pick and phrase the right finding.
+    task_small: `Key findings about ${ctx.user.firstName}'s money, most important first:
+${(baseInsights || []).slice(0, 6).map((i, n) => `${n + 1}. ${i.title}. ${i.description}${i.potentialSavings ? ` Possible saving: ₹${i.potentialSavings.toLocaleString('en-IN')} a month.` : ''}`).join('\n')}
+
+More facts: ${facts}
+
+Question: ${question}
+
+Answer in two or three friendly sentences, talking to ${ctx.user.firstName} as "you". Base the answer on the key findings above, most important first, and copy their numbers exactly — never move a number from one item to another. If nothing above answers the question, say so. Then suggest three short follow-up questions.` };
+}
+
+export async function aiNarrative(user, A, recs, profile, baseInsights) {
+  const ctx = contextFor(user, A, recs, profile);
+  const base = briefingBase(ctx, A, recs, profile, baseInsights);
+  // Re-written only when the user's data changes (new/removed payments, re-categorisation).
+  return withAI('narrative', hash('narr-v2', user.id, dataFingerprint(user.id)), base, async () => {
+    const r = await askJSON(briefingTask(ctx), { effort: 'low', maxTokens: 2500 });
     return { headline: str(r.headline, base.headline), summary: str(r.summary, base.summary), observations: arr(r.observations, base.observations).slice(0, 4), personality: str(r.personality, base.personality) };
   }, { ttl: Infinity });
 }
 
 export async function askMoney(user, A, recs, profile, question) {
   const ctx = contextFor(user, A, recs, profile);
-  const base = { answer: 'I can answer questions about your spending once AI is enabled. Meanwhile, your dashboard and deep dives have the full breakdown.', followUps: ['Where do I overspend?', 'How much do I spend on food delivery?', 'Which subscriptions should I cancel?'] };
+  const base = ASK_BASE;
   return withAI('ask', hash('ask', user.id, ctx, question), base, async () => {
-    const r = await askJSON(`Answer the user's question about their money using only this data. If the data can't answer it, say so and suggest what would.
-
-Data: ${J(ctx)}
-Question: "${question}"
-
-Return JSON: {"answer": "2-4 sentences, specific numbers, friendly", "followUps": ["3 short follow-up questions they might ask next"]}`, { effort: 'low', maxTokens: 1500 });
+    const r = await askJSON(askTask(ctx, question), { effort: 'low', maxTokens: 1500 });
     return { answer: str(r.answer, base.answer), followUps: arr(r.followUps, base.followUps).slice(0, 3) };
-  });
-}
-
-/** Partner-facing ad persona (Paytm B2B). */
-export async function aiAdStrategy(user, A, profile, offers) {
-  const base = null;
-  const ctx = { profile: { type: profile.spenderType, sensitivity: profile.sensitivity, loyalty: profile.brandLoyalty, favorites: profile.favorites }, monthly: A.s90.byCategory.map((c) => ({ id: c.id, monthly: c.monthly })), candidates: offers.slice(0, 8).map((o) => ({ id: o.adId, advertiser: o.advertiser, title: o.title, relevance: o.relevanceScore, ctr: o.expectedCTR, cpm: o.impressionValue })) };
-  return withAI('adStrategy', hash('ads', user.id, ctx), base, async () => {
-    const r = await askJSON(`You are an ad strategist. Classify this user's behaviour for relevant (never generic) offers.
-
-Data: ${J(ctx)}
-
-Return JSON: {"adPersona": "convenience_spender|deal_hunter|luxury_buyer|budget_conscious|subscription_collector", "summary": "1 sentence", "bestPlacement": "dashboard_card|notification|feed", "recommendedDiscountRange": "₹X–₹Y", "adsToAvoid": ["short"], "notes": "1 sentence on timing (use their peak times)"}`, { effort: 'low', maxTokens: 1200 });
-    return { adPersona: str(r.adPersona, profile.spenderType), summary: str(r.summary, ''), bestPlacement: str(r.bestPlacement, 'dashboard_card'), recommendedDiscountRange: str(r.recommendedDiscountRange, ''), adsToAvoid: arr(r.adsToAvoid), notes: str(r.notes, '') };
   });
 }

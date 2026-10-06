@@ -5,7 +5,7 @@ import { context, syncAlerts } from '../lib/context.js';
 import { monthlySeries, heatmap, periodRange, summarize, foodStats, WEEKDAYS } from '../engine/analytics.js';
 import { CATEGORY, CATEGORIES } from '../data/catalog.js';
 import { txnOut } from '../lib/store.js';
-import { aiNarrative, askMoney, aiStatus } from '../ai/index.js';
+import { aiNarrative, askMoney, aiStatus, promptFor } from '../ai/index.js';
 
 const r = Router();
 r.use(requireAuth);
@@ -125,6 +125,16 @@ r.get('/comparison', (req, res) => {
 });
 
 r.get('/behavioral-profile', (req, res) => res.json({ profile: context(req.user).profile }));
+
+/** Prompt for the on-device model (used when Claude is unavailable or the user prefers on-device AI). */
+r.post('/ai/prompt', (req, res) => {
+  const kind = req.body?.kind;
+  if (!['briefing', 'ask'].includes(kind)) throw new HttpError(400, 'kind must be briefing or ask.');
+  const question = String(req.body?.question || '').trim();
+  if (kind === 'ask' && (question.length < 3 || question.length > 300)) throw new HttpError(400, 'Ask a question between 3 and 300 characters.');
+  const ctx = context(req.user);
+  res.json(promptFor(kind, { user: ctx.user, A: ctx.A, recs: ctx.recs, profile: ctx.profile, insights: ctx.insights, question }));
+});
 
 r.post('/ask', async (req, res) => {
   const q = String(req.body?.question || '').trim();

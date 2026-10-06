@@ -20,7 +20,7 @@ export const aiStatus = () => {
   return { enabled: false, provider: 'engine', model: null };
 };
 
-const SYSTEM = `You are Spend Tracker's financial behaviour analyst for Indian Paytm users.
+export const SYSTEM = `You are Spend Tracker's financial behaviour analyst for Indian Paytm users.
 You read aggregated spending data and explain it like a smart, kind friend who is good with money.
 Rules:
 - Be specific: use the exact rupee amounts, merchants, counts and times you are given. Never invent numbers.

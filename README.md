@@ -96,7 +96,9 @@ curl "localhost:7101/v1/users/9876500001/behavior" -H "Authorization: Bearer $ST
 | Save money, budgets, alerts, offers (personalised first), Ask your money (Claude), CSV/PDF export | `pages/*`, `/api/*` |
 | Dark (true black) and light (porcelain) themes, mobile-first layouts | `index.css`, `components/ui.jsx` |
 
-**AI** is picked automatically (`GET /api/health`): `ANTHROPIC_API_KEY` → local Claude Code login via the Claude Agent SDK → built-in engine. Every number comes from the engine; Claude only writes language over aggregates, and any failure falls back instantly.
+**AI** is picked automatically: `ANTHROPIC_API_KEY` → local Claude Code login (Claude Agent SDK) → **on-device model in the browser** (opt-in) → built-in engine. Every number comes from the engine; the model only writes language over a ~700-token aggregate summary (never raw transactions), and any failure falls back instantly.
+
+**On-device AI (WebLLM).** Settings → On-device AI downloads a small open model once (Qwen2.5 1.5B, 869 MB, recommended — or 0.5B Lite, 278 MB; cached by the browser) and runs it on the GPU via WebGPU in a Web Worker. It writes the briefing and Ask answers when Claude is unavailable — or always, with *Prefer on-device*, so the summary never leaves the device. Safeguards: the server builds the prompt (small models get an easier "rewrite the engine's draft" task), decoding is constrained to a JSON schema, and any rupee amount not present in the input is rejected along with instruction echoes. Needs desktop Chrome/Edge or recent Safari; phones fall back to the engine.
 
 ## Honesty notes for the demo
 
