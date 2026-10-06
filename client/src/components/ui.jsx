@@ -138,3 +138,23 @@ export function PageHead({ title, sub, right }) {
 /** Staggered entrance for a list of cards — used once per page, not everywhere. */
 export const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
 export const rise = { hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } } };
+
+/**
+ * Period control: a segmented bar on wider screens; on phones a single pill
+ * that opens the native picker (familiar, thumb-friendly, never overflows).
+ */
+export function PeriodPicker({ options, value, onChange, label = 'Period' }) {
+  const current = options.find(([v]) => v === value)?.[1] || '';
+  return (
+    <>
+      <div className="hidden sm:block"><Segmented label={label} value={value} onChange={onChange} options={options} /></div>
+      <label className="sm:hidden relative inline-flex items-center gap-1.5 h-9 pl-4 pr-3 rounded-full bg-surface-2 border border-line text-[14px] font-medium">
+        <span className="text-ink-3 font-normal">Showing</span> {current}
+        <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" className="text-ink-3 ml-0.5"><path d="M3 4.5 6 7.5 9 4.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+        <select aria-label={label} value={value} onChange={(e) => onChange(e.target.value)} className="absolute inset-0 opacity-0 w-full cursor-pointer">
+          {options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+        </select>
+      </label>
+    </>
+  );
+}

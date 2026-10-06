@@ -52,7 +52,7 @@ function AskDrawer({ onClose }) {
           {!history.length && <p className="text-ink-2">Ask anything about your spending — answers use your own numbers. {!health?.ai?.enabled && <span className="text-ink-3">AI is off right now, so answers are limited.</span>}</p>}
           {history.map((h, i) => (
             <div key={i} className="grid gap-2">
-              <div className="justify-self-end max-w-[85%] rounded-[18px] rounded-br-md px-4 py-2.5 text-sm text-white" style={{ background: 'var(--link)' }}>{h.question}</div>
+              <div className="justify-self-end max-w-[85%] rounded-[18px] rounded-br-md px-4 py-2.5 text-[15px] font-medium" style={{ background: 'var(--ink)', color: 'var(--bg)' }}>{h.question}</div>
               <div className="max-w-[92%] rounded-[18px] rounded-bl-md px-4 py-3 bg-surface-2 text-sm leading-relaxed" style={h.error ? { color: 'var(--coral)' } : undefined}>
                 {h.pending ? <span className="text-ink-3">Reading your transactions…</span> : <>{h.answer}<div className="mt-2"><SourceTag source={h.source} /></div></>}
               </div>

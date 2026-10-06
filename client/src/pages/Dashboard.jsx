@@ -5,7 +5,7 @@ import { motion } from 'motion/react';
 import { FiDownload, FiChevronRight } from 'react-icons/fi';
 import { api } from '../lib/api.js';
 import { inr, inrShort, PERIODS, plural } from '../lib/format.js';
-import { Ticker, Bar, Spinner, ErrorNote, Segmented, Skeleton, SourceTag, CategoryIcon, stagger, rise } from '../components/ui.jsx';
+import { Ticker, Bar, Spinner, ErrorNote, PeriodPicker, Skeleton, SourceTag, CategoryIcon, stagger, rise } from '../components/ui.jsx';
 import { InsightCard, MiniLink, OfferCarousel } from '../components/cards.jsx';
 import { MonthlyStack } from '../components/charts.jsx';
 import Ring from '../components/three/Ring.jsx';
@@ -64,13 +64,11 @@ export default function Dashboard() {
           <div className="eyebrow">{new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
           <h1 className="text-[2.2rem] sm:text-[2.75rem] mt-1">{greeting()}{firstName ? `, ${firstName}` : ''}.</h1>
         </div>
-        <div className="flex flex-wrap items-center gap-2 min-w-0 max-w-full">
-          <Segmented label="Period" value={period} onChange={setPeriod} options={PERIODS.filter(([k]) => ['30d', 'month', 'last_month', '3m', '6m'].includes(k))} />
-          <button className="btn btn-ghost btn-sm" onClick={() => api.download('/export/pdf', 'spend-tracker-report.pdf')}><FiDownload /> Report</button>
+        <div className="flex items-center gap-2 min-w-0 max-w-full">
+          <PeriodPicker label="Period" value={period} onChange={setPeriod} options={PERIODS.filter(([k]) => ['30d', 'month', 'last_month', '3m', '6m'].includes(k))} />
+          <button className="btn btn-ghost btn-sm !h-9 !px-3 sm:!px-4" aria-label="Download report" onClick={() => api.download('/export/pdf', 'spend-tracker-report.pdf')}><FiDownload /><span className="hidden sm:inline">Report</span></button>
         </div>
       </header>
-
-      {data.carousel?.length > 0 && <OfferCarousel offers={data.carousel} />}
 
       <section className="panel !p-0 overflow-hidden grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]" aria-label="Where your money went">
         <div className="relative isolate min-h-[350px] sm:min-h-[440px] border-b lg:border-b-0 lg:border-r border-line">
@@ -107,6 +105,13 @@ export default function Dashboard() {
         <Stat label="You could keep" value={sv.monthly} tone="var(--positive)" sub={`${inrShort(sv.annual)} a year`} />
         <Stat label="Subscriptions" value={data.subscriptions.monthly} sub={`${plural(data.subscriptions.count, 'active plan')} a month`} />
       </motion.section>
+
+      {data.carousel?.length > 0 && (
+        <section className="grid gap-3" aria-label="Offers">
+          <div className="flex items-baseline justify-between px-1"><h2 className="text-lg">For you</h2><MiniLink to="/offers">All offers</MiniLink></div>
+          <OfferCarousel offers={data.carousel} />
+        </section>
+      )}
 
       <Briefing />
 

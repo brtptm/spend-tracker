@@ -27,7 +27,7 @@ export default function Offers() {
 
       {mine.length > 0 && (
         <section className="grid gap-4">
-          <div className="flex items-baseline justify-between"><h2 className="text-xl">Picked for you</h2><span className="text-sm text-ink-3">{mine.length} offers · ranked by your spending</span></div>
+          <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-0.5"><h2 className="text-xl">Picked for you</h2><span className="text-sm text-ink-3">{mine.length} offers · ranked by your spending</span></div>
           {featured && <OfferCarousel key={`${cat}-${featured.adId}`} offers={[featured]} />}
           <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">{others.map((o) => <OfferCard key={o.adId} offer={o} />)}</div>
         </section>
@@ -35,7 +35,7 @@ export default function Offers() {
 
       {rest.length > 0 && (
         <section className="grid gap-4">
-          <div className="flex items-baseline justify-between"><h2 className="text-xl">More offers</h2><span className="text-sm text-ink-3">Popular with Paytm users</span></div>
+          <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-0.5"><h2 className="text-xl">More offers</h2><span className="text-sm text-ink-3">Popular with Paytm users</span></div>
           <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">{rest.map((o) => <OfferCard key={o.adId} offer={o} />)}</div>
         </section>
       )}

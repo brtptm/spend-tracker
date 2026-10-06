@@ -117,9 +117,9 @@ function Slide({ offer, active, onRemoved }) {
   o.offer = offer;
   useImpression(ref, offer.adId, active);
   return (
-    <div ref={ref} className="relative h-full overflow-hidden rounded-[22px] p-6 sm:p-8 flex flex-col justify-between" style={{ background: `radial-gradient(120% 140% at 100% 50%, color-mix(in srgb, ${offer.color} 7%, var(--surface)) 0%, var(--surface) 50%)` }}>
+    <div ref={ref} className="relative h-full overflow-hidden rounded-[22px] p-6 sm:p-8 flex flex-col justify-between gap-1" style={{ background: `radial-gradient(120% 140% at 100% 50%, color-mix(in srgb, ${offer.color} 7%, var(--surface)) 0%, var(--surface) 50%)` }}>
       <SlideArt color={offer.color} />
-      <div className="relative flex items-start gap-3 max-w-[560px] pr-24">
+      <div className="relative flex items-start gap-3 max-w-[560px] sm:pr-24">
         <Monogram offer={offer} size={36} />
         <div className="min-w-0">
           <div className="text-[13px] text-ink-2"><span className="text-ink font-medium">{offer.advertiser}</span> · {offer.personalized ? 'Picked for how you spend' : 'Sponsored'}</div>
@@ -127,10 +127,13 @@ function Slide({ offer, active, onRemoved }) {
           <p className="text-ink-2 mt-2 text-[15px] max-w-[52ch]">{offer.description}</p>
         </div>
       </div>
-      <div className="relative mt-5 flex flex-wrap items-center gap-3">
-        <CodeButton o={o} primary />
-        <span className="text-xs text-ink-3 max-w-[46ch]">{offer.relevanceReason}</span>
-        <div className="ml-auto"><OfferMenu onPick={o.feedback} /></div>
+      <div className="relative mt-5 grid gap-3">
+        <div className="flex items-center gap-3">
+          <CodeButton o={o} primary />
+          <span className="hidden sm:block text-xs text-ink-3 max-w-[46ch]">{offer.relevanceReason}</span>
+          <div className="ml-auto"><OfferMenu onPick={o.feedback} /></div>
+        </div>
+        <span className="sm:hidden text-xs text-ink-3">{offer.relevanceReason}</span>
       </div>
     </div>
   );
@@ -153,26 +156,30 @@ export function OfferCarousel({ offers: initial, interval = 6500 }) {
     return () => clearTimeout(t);
   }, [i, paused, reduced, n, interval, go]);
   if (!n) return null;
-  const cur = offers[Math.min(i, n - 1)];
 
   return (
     <section aria-roledescription="carousel" aria-label="Offers picked for you" className="relative panel !p-0 overflow-hidden group"
       onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onFocus={() => setPaused(true)} onBlur={() => setPaused(false)}
       onKeyDown={(e) => { if (e.key === 'ArrowRight') go(1); if (e.key === 'ArrowLeft') go(-1); }}>
-      <div className="relative h-[300px] sm:h-[230px]">
-        <AnimatePresence initial={false} custom={dir} mode="popLayout">
-          <motion.div key={cur.adId} className="absolute inset-0" custom={dir}
-            initial={{ opacity: 0, x: dir * 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: dir * -40 }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            drag={n > 1 ? 'x' : false} dragConstraints={{ left: 0, right: 0 }} dragElastic={0.18}
-            onDragEnd={(_, info) => { if (info.offset.x < -60) go(1); else if (info.offset.x > 60) go(-1); }}
-            role="group" aria-roledescription="slide" aria-label={`${i + 1} of ${n}: ${cur.advertiser}`}>
-            <Slide offer={cur} active onRemoved={(id) => setOffers((list) => list.filter((x) => x.adId !== id))} />
-          </motion.div>
-        </AnimatePresence>
+      {/* All slides share one grid cell, so the panel is always as tall as the tallest slide (nothing clips). */}
+      <div className="grid">
+        {offers.map((o, k) => {
+          const on = k === Math.min(i, n - 1);
+          return (
+            <motion.div key={o.adId} className="[grid-area:1/1] min-w-0" aria-hidden={!on} inert={!on}
+              initial={false} animate={{ opacity: on ? 1 : 0, x: on ? 0 : (k < i ? -40 : 40) * dir }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              style={{ pointerEvents: on ? 'auto' : 'none', zIndex: on ? 1 : 0 }}
+              drag={on && n > 1 ? 'x' : false} dragConstraints={{ left: 0, right: 0 }} dragElastic={0.18} dragSnapToOrigin
+              onDragEnd={(_, info) => { if (info.offset.x < -60) go(1); else if (info.offset.x > 60) go(-1); }}
+              role="group" aria-roledescription="slide" aria-label={`${k + 1} of ${n}: ${o.advertiser}`}>
+              <Slide offer={o} active={on} onRemoved={(id) => setOffers((list) => list.filter((x) => x.adId !== id))} />
+            </motion.div>
+          );
+        })}
       </div>
       {n > 1 && (
         <>
-          <div className="absolute top-6 right-7 flex items-center gap-1.5" role="tablist" aria-label="Choose offer">
+          <div className="relative z-[2] flex items-center gap-1.5 px-6 pb-5 -mt-1 sm:absolute sm:top-6 sm:right-7 sm:p-0 sm:mt-0" role="tablist" aria-label="Choose offer">
             {offers.map((o, k) => (
               <button key={o.adId} role="tab" aria-selected={k === i} aria-label={`Offer ${k + 1}: ${o.advertiser}`} onClick={() => { setDir(k > i ? 1 : -1); setI(k); }}
                 className="relative h-1.5 rounded-full overflow-hidden transition-all duration-300 bg-surface-3" style={{ width: k === i ? 26 : 6 }}>
@@ -208,11 +215,15 @@ export function InsightCard({ insight, compact }) {
 export function RecommendationCard({ rec, onAccept, onDismiss, busy }) {
   const accepted = rec.status === 'accepted';
   return (
-    <article className="panel p-6 flex flex-col">
+    <article className="panel p-5 sm:p-6 flex flex-col">
       <div className="flex items-start gap-3.5">
         <CategoryIcon id={rec.category} size={16} />
-        <div className="min-w-0 flex-1"><div className="text-xs text-ink-3">{rec.merchant} · {rec.difficulty} · {rec.timeToImplement}</div><h3 className="text-[17px] mt-1 leading-snug">{rec.title}</h3></div>
-        {rec.savingsMonthly > 0 && <div className="text-right shrink-0"><div className="num text-[22px] text-positive">{inr(rec.savingsMonthly)}</div><div className="text-[11px] text-ink-3">{rec.oneTime ? 'one-time' : `a month · ${inr(rec.savingsAnnual)}/yr`}</div></div>}
+        <div className="min-w-0 flex-1">
+          <div className="text-xs text-ink-3 truncate">{rec.merchant} · {rec.difficulty} · {rec.timeToImplement}</div>
+          <h3 className="text-[17px] mt-1 leading-snug">{rec.title}</h3>
+          {rec.savingsMonthly > 0 && <div className="sm:hidden mt-1.5 flex items-baseline gap-1.5"><span className="num text-lg text-positive">{inr(rec.savingsMonthly)}</span><span className="text-[11px] text-ink-3">{rec.oneTime ? 'one-time' : `a month · ${inr(rec.savingsAnnual)}/yr`}</span></div>}
+        </div>
+        {rec.savingsMonthly > 0 && <div className="hidden sm:block text-right shrink-0"><div className="num text-[22px] text-positive">{inr(rec.savingsMonthly)}</div><div className="text-[11px] text-ink-3">{rec.oneTime ? 'one-time' : `a month · ${inr(rec.savingsAnnual)}/yr`}</div></div>}
       </div>
       <p className="text-sm text-ink-2 mt-3">{rec.description}</p>
       {rec.actionItems?.length > 0 && <ol className="mt-3 grid gap-1.5 text-sm">{rec.actionItems.map((a, i) => <li key={a} className="flex gap-2.5"><span className="text-ink-3 w-3">{i + 1}</span>{a}</li>)}</ol>}

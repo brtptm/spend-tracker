@@ -3,8 +3,8 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'motion/react';
 import { PiTrophyDuotone } from 'react-icons/pi';
 import { api } from '../lib/api.js';
-import { inr } from '../lib/format.js';
-import { Spinner, ErrorNote, PageHead, Ticker, Bar, Toast, Segmented, stagger, rise } from '../components/ui.jsx';
+import { inr, plural } from '../lib/format.js';
+import { Spinner, ErrorNote, PageHead, Ticker, Bar, Toast, Segmented } from '../components/ui.jsx';
 import { RecommendationCard } from '../components/cards.jsx';
 import { CompareBars } from '../components/charts.jsx';
 
@@ -34,14 +34,25 @@ export default function Recommendations() {
       <Toast message={toast} onDone={() => setToast('')} />
       <PageHead title="Save money" sub="Specific changes, priced from your own spending." />
       {im && (
-        <motion.section className="grid sm:grid-cols-3 gap-4" variants={stagger} initial="hidden" animate="show">
-          <motion.div variants={rise} className="panel p-6">
-            <div className="text-sm text-ink-3">You could keep</div>
-            <div className="num text-4xl text-lime-text mt-1"><Ticker value={im.potential.monthly} /></div>
-            <div className="text-sm text-ink-2 mt-1">a month · {inr(im.potential.annual)} a year</div>
-          </motion.div>
-          <motion.div variants={rise} className="panel p-6"><div className="text-sm text-ink-3">You’ve committed to</div><div className="num text-4xl mt-1"><Ticker value={im.committed.monthly} /></div><div className="text-sm text-ink-2 mt-1">{im.committed.count} changes</div></motion.div>
-          <motion.div variants={rise} className="panel p-6"><div className="text-sm text-ink-3">Saved so far vs. when you started</div><div className="num text-4xl mt-1 text-lime-text"><Ticker value={im.achieved.monthly} /></div><div className="text-sm text-ink-2 mt-1">tracked over the last 30 days</div></motion.div>
+        <motion.section className="panel p-5 sm:p-7" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }} aria-label="Savings summary">
+          <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
+            <div>
+              <div className="eyebrow">You could keep</div>
+              <div className="flex items-baseline gap-2 mt-1.5"><span className="num text-[2.6rem] sm:text-[3.2rem] leading-none text-positive"><Ticker value={im.potential.monthly} /></span><span className="text-ink-3 text-sm">/ month</span></div>
+              <div className="text-sm text-ink-2 mt-2">{inr(im.potential.annual)} a year, from {plural(recs.data.recommendations.length, 'change')}</div>
+            </div>
+            {(im.committed.count > 0 || im.achieved.monthly > 0) && <dl className="grid grid-cols-2 gap-x-8 gap-y-1 w-full sm:w-auto">
+              <div><dt className="text-xs text-ink-3">In your plan</dt><dd className="num text-xl mt-0.5">{inr(im.committed.monthly)}</dd></div>
+              <div><dt className="text-xs text-ink-3">Saved so far</dt><dd className="num text-xl mt-0.5 text-positive">{inr(im.achieved.monthly)}</dd></div>
+            </dl>}
+          </div>
+          <div className="mt-6">
+            {im.committed.count > 0 && <div className="relative h-1.5 rounded-full bg-surface-3 overflow-hidden" role="img" aria-label={`${inr(im.committed.monthly)} planned of ${inr(im.potential.monthly)} possible`}>
+              <motion.div className="absolute inset-y-0 left-0 rounded-full bg-ink/40" initial={{ width: 0 }} animate={{ width: `${Math.min(100, (im.committed.monthly / Math.max(1, im.potential.monthly)) * 100)}%` }} transition={{ duration: 0.9 }} />
+              <motion.div className="absolute inset-y-0 left-0 rounded-full bg-positive" initial={{ width: 0 }} animate={{ width: `${Math.min(100, (im.achieved.monthly / Math.max(1, im.potential.monthly)) * 100)}%` }} transition={{ duration: 0.9, delay: 0.2 }} />
+            </div>}
+            <p className={`text-xs text-ink-3 ${im.committed.count ? 'mt-2.5' : ''}`}>{im.committed.count ? `${plural(im.committed.count, 'change')} in your plan · savings tracked over the last 30 days` : 'Nothing planned yet — add a change below and we’ll track what it saves.'}</p>
+          </div>
         </motion.section>
       )}
       {im?.tracking?.length > 0 && (
@@ -55,7 +66,7 @@ export default function Recommendations() {
         </section>
       )}
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <h2 className="text-xl">Recommendations</h2>
+        <h2 className="text-xl">Changes to try</h2>
         <Segmented label="Filter" value={filter} onChange={setFilter} options={[['active', 'To try'], ['accepted', 'In progress'], ['all', 'All']]} />
       </div>
       <section className="grid md:grid-cols-2 gap-4">
