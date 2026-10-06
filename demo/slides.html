@@ -1,0 +1,1003 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Spend Tracker — Mission Brief</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%23333' stroke-width='4'/%3E%3Cpath d='M16 5a11 11 0 0 1 10.46 14.4' fill='none' stroke='%23e8c98a' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400..600&family=Rajdhani:wght@500;600;700&family=Michroma&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@6.0.2/dist/reset.css" integrity="sha384-eEwBkZrOoy1kAZn00sDVAezj2h5GAr6zv/XHy9KFt+7ios1iEkSMZObfrISpChg5" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@6.0.2/dist/reveal.css" integrity="sha384-rKClnwfQQ2b7LYSOAhRvm5m4LS7QKciQTAXBpVvr30y6oGB+ZBBXlpDnvFqlv5Eu" crossorigin="anonymous" />
+  <style>
+    :root {
+      --ink: #f3f2ee; --ink-2: #a9a8a4; --ink-3: #6f6e6b; --line: rgba(255,255,255,.09); --line-2: rgba(255,255,255,.16);
+      --gold: #e8c98a; --pos: #30d158; --neg: #ff453a; --warn: #ff9f0a;
+      --food: #5b8def; --shopping: #c97b4a; --transport: #3fa58a; --ent: #8a7fd6; --bills: #a98b3c; --personal: #cc6a8c; --p2p: #2b98c7;
+      --display: 'Rajdhani', 'Geist', ui-sans-serif, system-ui, sans-serif;
+      --sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
+      --mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+      --mark: 'Michroma', 'Geist', sans-serif;
+      --tick: rgba(255,255,255,.3);
+    }
+    html, body { background: #000; color: var(--ink); }
+    #bg { position: fixed; inset: 0; z-index: 0; display: block; width: 100vw; height: 100vh; }
+    /* Darken the reading side so text always sits on near-black, whatever the camera shows. */
+    .veil { position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background: linear-gradient(90deg, rgba(0,0,0,.72) 0%, rgba(0,0,0,.42) 38%, rgba(0,0,0,0) 66%), radial-gradient(140% 120% at 50% 50%, transparent 55%, rgba(0,0,0,.7) 100%); }
+    /* Cockpit viewport frame: four corner brackets and two readouts. */
+    .frame { position: fixed; inset: 22px; z-index: 2; pointer-events: none;
+      background:
+        linear-gradient(var(--tick), var(--tick)) left top / 26px 1px no-repeat, linear-gradient(var(--tick), var(--tick)) left top / 1px 26px no-repeat,
+        linear-gradient(var(--tick), var(--tick)) right top / 26px 1px no-repeat, linear-gradient(var(--tick), var(--tick)) right top / 1px 26px no-repeat,
+        linear-gradient(var(--tick), var(--tick)) left bottom / 26px 1px no-repeat, linear-gradient(var(--tick), var(--tick)) left bottom / 1px 26px no-repeat,
+        linear-gradient(var(--tick), var(--tick)) right bottom / 26px 1px no-repeat, linear-gradient(var(--tick), var(--tick)) right bottom / 1px 26px no-repeat; }
+    .frame .ro { position: absolute; font: 500 11px/1 var(--mono); letter-spacing: .22em; text-transform: uppercase; color: var(--ink-3); }
+    .frame .tl { left: 40px; top: 10px; } .frame .tr { right: 40px; top: 10px; color: var(--gold); }
+    .frame .bl { left: 40px; bottom: 9px; }
+    .led { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--pos); box-shadow: 0 0 8px var(--pos); margin-right: 8px; vertical-align: 1px; animation: blink 3s ease-in-out infinite; }
+    @keyframes blink { 50% { opacity: .35; } }
+
+    .reveal-viewport { background: transparent; }
+    .reveal { z-index: 1; font-family: var(--sans); font-size: 28px; color: var(--ink); font-variant-numeric: tabular-nums; }
+    .reveal .slides { text-align: left; }
+    .reveal .slides section { height: 100%; }
+    .reveal h1, .reveal h2, .reveal h3 { font-family: var(--display); color: var(--ink); letter-spacing: .005em; line-height: .98; margin: 0; text-transform: none; font-weight: 600; }
+    .reveal h1 { font-size: 150px; } .reveal h2 { font-size: 84px; } .reveal h3 { font-size: 34px; }
+    .reveal p { margin: 0; line-height: 1.5; }
+    .reveal ul, .reveal ol { padding: 0; margin: 0; list-style: none; }
+    .reveal .controls { color: var(--gold); }
+    .reveal .progress { color: var(--gold); height: 2px; }
+    .reveal .slide-number { font-family: var(--mono); font-size: 12px; letter-spacing: .2em; background: transparent; color: var(--ink-3); right: 130px; bottom: 34px; }
+
+    .eyebrow { font: 500 16px/1 var(--mono); letter-spacing: .26em; text-transform: uppercase; color: var(--gold); margin-bottom: 26px !important; display: flex; align-items: center; gap: 14px; }
+    .eyebrow::before { content: ''; width: 34px; height: 1px; background: var(--gold); box-shadow: 0 0 8px var(--gold); }
+    .mono { font-family: var(--mono); } .dim { color: var(--ink-3); } .muted { color: var(--ink-2); } .gold { color: var(--gold); } .pos { color: var(--pos); } .warn { color: var(--warn); }
+    .num { font-family: var(--display); font-weight: 600; letter-spacing: .005em; }
+    .lede { font-size: 32px; color: var(--ink-2); max-width: 34ch; margin-top: 28px !important; line-height: 1.45 !important; }
+    .stack { display: flex; flex-direction: column; justify-content: center; height: 100%; padding: 0 60px; }
+    .split { display: grid; grid-template-columns: .9fr 1.3fr; gap: 70px; align-items: center; height: 100%; padding: 0 50px; }
+    .split.even { grid-template-columns: 1fr 1fr; }
+
+    /* HUD modules: translucent glass, hairline border, registration marks. */
+    .hud { position: relative; background: rgba(8,8,11,.66); -webkit-backdrop-filter: blur(16px) saturate(140%); backdrop-filter: blur(16px) saturate(140%);
+      border: 1px solid var(--line); border-radius: 6px; box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 30px 80px -40px rgba(0,0,0,.95); }
+    .hud::before { content: ''; position: absolute; inset: 7px; pointer-events: none;
+      background:
+        linear-gradient(var(--tick), var(--tick)) left top / 9px 1px no-repeat, linear-gradient(var(--tick), var(--tick)) left top / 1px 9px no-repeat,
+        linear-gradient(var(--tick), var(--tick)) right top / 9px 1px no-repeat, linear-gradient(var(--tick), var(--tick)) right top / 1px 9px no-repeat,
+        linear-gradient(var(--tick), var(--tick)) left bottom / 9px 1px no-repeat, linear-gradient(var(--tick), var(--tick)) left bottom / 1px 9px no-repeat,
+        linear-gradient(var(--tick), var(--tick)) right bottom / 9px 1px no-repeat, linear-gradient(var(--tick), var(--tick)) right bottom / 1px 9px no-repeat; }
+    .card { padding: 30px 32px; }
+    .ix { font: 500 15px/1 var(--mono); letter-spacing: .2em; color: var(--gold); display: block; margin-bottom: 18px; }
+    .card h3 { font-size: 32px; margin-bottom: 12px; }
+    .card p { font-size: 21px; color: var(--ink-2); line-height: 1.5; }
+    .label { font: 500 13px/1.2 var(--mono); letter-spacing: .2em; text-transform: uppercase; color: var(--ink-3); }
+    .pill { font: 500 15px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); border: 1px solid var(--line-2); border-radius: 4px; padding: 12px 16px; background: rgba(8,8,11,.55); }
+    .code { font-family: var(--mono); font-size: 18px; line-height: 1.6; color: var(--ink-2); white-space: pre; }
+    .code .k { color: #9fb8ff; } .code .s { color: #e8c98a; } .code .n { color: #7ee2b8; } .code .c { color: var(--ink-3); } .code .m { color: #ff9f6b; }
+
+    /* Entry choreography: anything with .in rises into place when its slide becomes present. */
+    .reveal section .in { opacity: 0; transform: translateY(26px); }
+    .reveal section.present .in { animation: rise .95s cubic-bezier(.2,.8,.2,1) forwards; animation-delay: calc(var(--d, 0) * 130ms + 180ms); }
+    @keyframes rise { to { opacity: 1; transform: none; } }
+    .reveal .slides section .fragment.rise { opacity: 0; transform: translateY(26px); transition: opacity .7s ease, transform .8s cubic-bezier(.2,.8,.2,1); visibility: visible; }
+    .reveal .slides section .fragment.rise.visible { opacity: 1; transform: none; }
+    /* Terminal lines print one after another. */
+    .reveal section .ln { display: block; opacity: 0; }
+    .reveal section.present .ln { animation: print .01s steps(1) forwards; animation-delay: calc(var(--l, 0) * 90ms + 600ms); }
+    @keyframes print { to { opacity: 1; } }
+    .caret::after { content: '▍'; color: var(--gold); animation: blink 1s steps(1) infinite; margin-left: 2px; }
+
+    /* Screenshots: framed instrument displays with a one-time scan line. */
+    .shot { position: relative; border-radius: 6px; overflow: hidden; border: 1px solid var(--line-2); box-shadow: 0 50px 140px -40px rgba(0,0,0,1), 0 0 0 1px rgba(232,201,138,.07); background: #000; }
+    .shot img { display: block; width: 100%; height: auto; margin: 0; }
+    .shot::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(115deg, rgba(255,255,255,.07), transparent 28%); }
+    .shot .scan { position: absolute; left: 0; right: 0; height: 120px; top: -130px; pointer-events: none;
+      background: linear-gradient(180deg, transparent, rgba(232,201,138,.10) 70%, rgba(232,201,138,.55) 98%, transparent); }
+    .reveal section.present .shot .scan { animation: scan 1.6s cubic-bezier(.4,.1,.3,1) .5s 1 forwards; }
+    @keyframes scan { to { top: 105%; } }
+    .tilt-l { transform: perspective(2200px) rotateY(-9deg) rotateX(2deg); }
+    .tilt-r { transform: perspective(2200px) rotateY(9deg) rotateX(2deg); }
+    .reveal section.present .tilt-l.in { animation: tiltL 1.3s cubic-bezier(.2,.8,.2,1) forwards; animation-delay: calc(var(--d, 0) * 130ms + 200ms); }
+    @keyframes tiltL { from { opacity: 0; transform: perspective(2200px) rotateY(-24deg) rotateX(6deg) translateX(80px); } to { opacity: 1; transform: perspective(2200px) rotateY(-9deg) rotateX(2deg); } }
+
+    .bul { display: grid; gap: 18px; margin-top: 34px !important; }
+    .bul li { display: grid; grid-template-columns: 26px 1fr; gap: 14px; font-size: 25px; color: var(--ink-2); line-height: 1.4; }
+    .bul li::before { content: ''; width: 10px; height: 10px; margin-top: 12px; border: 1px solid var(--gold); transform: rotate(45deg); box-shadow: 0 0 10px rgba(232,201,138,.5); }
+    .bul b { color: var(--ink); font-weight: 600; }
+
+    /* Title */
+    .wordmark { display: flex; align-items: center; gap: 18px; font: 400 22px/1 var(--mark); letter-spacing: .2em; text-transform: uppercase; margin-bottom: 52px !important; }
+    .title h1 { font-size: 176px; line-height: .9; }
+    .title h1 .dim { color: #57575a; }
+    .pills { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 56px; }
+
+    /* Problem */
+    .reveal p.big-quote { font-family: var(--display); font-size: 82px; font-weight: 600; line-height: 1; max-width: 22ch; }
+    .three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 48px; }
+    .vpa { font: 500 17px/1.5 var(--mono); color: var(--warn); display: block; margin-bottom: 10px; }
+
+    /* Flow (insight) */
+    .flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 26px; margin-top: 64px; position: relative; }
+    .flow::before { content: ''; position: absolute; left: 4%; right: 4%; top: 50%; height: 1px; background: repeating-linear-gradient(90deg, var(--gold) 0 10px, transparent 10px 18px); opacity: .5; background-size: 200% 1px; animation: dash 3s linear infinite; }
+    @keyframes dash { to { background-position: -36px 0; } }
+    .node { padding: 26px 26px 28px; }
+    .node .val { font-size: 22px; margin-top: 14px; line-height: 1.45; }
+    .node .val.mono { font-size: 17px; color: var(--warn); }
+
+    /* Two products */
+    .duo { display: grid; grid-template-columns: 1fr 150px 1fr; align-items: stretch; margin-top: 56px; gap: 0; }
+    .duo .card ul { display: grid; gap: 12px; margin-top: 20px; }
+    .duo .card li { font-size: 22px; color: var(--ink-2); padding-left: 22px; position: relative; }
+    .duo .card li::before { content: '›'; position: absolute; left: 0; color: var(--gold); }
+    .core { display: grid; place-items: center; text-align: center; }
+    .core .orb { width: 92px; height: 92px; border-radius: 50%; border: 1px solid var(--gold); box-shadow: 0 0 40px rgba(232,201,138,.35), inset 0 0 30px rgba(232,201,138,.25); display: grid; place-items: center; font: 500 12px/1.3 var(--mono); letter-spacing: .14em; color: var(--gold); animation: pulse 3.2s ease-in-out infinite; }
+    @keyframes pulse { 50% { box-shadow: 0 0 70px rgba(232,201,138,.55), inset 0 0 40px rgba(232,201,138,.4); } }
+
+    /* Persona */
+    .persona { display: grid; grid-template-columns: 1.05fr 1fr; gap: 60px; align-items: center; height: 100%; padding: 0 50px; }
+    .facts { display: grid; gap: 14px; margin-top: 34px; }
+    .fact { display: grid; grid-template-columns: 170px 1fr; align-items: baseline; gap: 18px; padding: 14px 0; border-bottom: 1px solid var(--line); font-size: 23px; color: var(--ink-2); }
+    .fact .num { font-size: 40px; color: var(--ink); }
+    .dial { position: relative; width: 560px; height: 560px; justify-self: center; }
+    .dial svg { position: absolute; inset: 0; transform: rotate(-90deg); overflow: visible; }
+    .dial .seg { fill: none; stroke-width: 14; stroke-linecap: butt; stroke-dasharray: 0 1000; filter: drop-shadow(0 0 8px currentColor); }
+    .reveal section.present .dial .seg { animation: arc 1.6s cubic-bezier(.2,.8,.2,1) forwards; animation-delay: calc(var(--i) * 110ms + 300ms); }
+    @keyframes arc { to { stroke-dasharray: var(--len) 1000; } }
+    .dial .ticks { position: absolute; inset: -26px; border-radius: 50%;
+      background: repeating-conic-gradient(from 0deg, rgba(255,255,255,.22) 0 .25deg, transparent .25deg 3deg);
+      -webkit-mask: radial-gradient(circle, transparent 66%, #000 66.5%, #000 70%, transparent 70.5%); mask: radial-gradient(circle, transparent 66%, #000 66.5%, #000 70%, transparent 70.5%); }
+    .dial .center { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+    .dial .center .num { font-size: 78px; line-height: 1; }
+    .keep { margin-top: 18px; display: inline-flex; gap: 10px; align-items: baseline; justify-self: center; padding: 10px 18px; border-radius: 4px; background: rgba(48,209,88,.1); color: var(--pos); font-size: 22px; }
+
+    /* Screens */
+    /* Overlapping screens stay inside their column (≈840px) so they never cover the text. */
+    .screens { position: relative; height: 640px; }
+    .screens .shot { position: absolute; width: 780px; }
+    .screens .a { right: 0; top: 30px; z-index: 2; }
+    .screens .b { right: 190px; top: 300px; z-index: 1; width: 640px; }
+    .screens.three .a { right: 0; top: 0; width: 700px; }
+    .screens.three .b { right: 120px; top: 190px; width: 620px; z-index: 1; }
+    .screens.three .c { right: 260px; top: 370px; width: 570px; z-index: 0; }
+    .solo .shot { width: 100%; }
+
+    /* Chat */
+    .chat { padding: 30px; display: grid; gap: 18px; }
+    .q { justify-self: end; max-width: 80%; background: var(--ink); color: #000; border-radius: 8px 8px 2px 8px; padding: 14px 20px; font-size: 23px; font-weight: 500; }
+    .a { max-width: 92%; background: rgba(255,255,255,.05); border: 1px solid var(--line); border-radius: 8px 8px 8px 2px; padding: 18px 22px; font-size: 23px; line-height: 1.5; color: var(--ink); }
+    .a .src { display: block; margin-top: 12px; font: 500 12px/1 var(--mono); letter-spacing: .18em; text-transform: uppercase; color: var(--ink-3); }
+    .chips { display: flex; flex-wrap: wrap; gap: 10px; }
+    .chip { font-size: 17px; color: var(--ink-2); border: 1px solid var(--line-2); border-radius: 4px; padding: 8px 14px; }
+
+    /* AI chain */
+    .chain { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin-top: 50px; position: relative; }
+    .tier { padding: 26px 24px; margin-right: 34px; position: relative; }
+    .tier:not(:last-child)::after { content: '→'; position: absolute; right: -30px; top: 50%; transform: translateY(-50%); color: var(--gold); font-size: 26px; }
+    .tier .t { font-family: var(--display); font-size: 30px; font-weight: 600; margin: 12px 0 8px; }
+    .tier p { font-size: 18px; color: var(--ink-2); line-height: 1.45; }
+    .tier.engine { border-color: rgba(232,201,138,.45); box-shadow: 0 0 40px -10px rgba(232,201,138,.35); }
+    .guards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-top: 30px; }
+    .guard { padding: 20px; font-size: 19px; color: var(--ink-2); line-height: 1.4; }
+    .guard b { display: block; color: var(--ink); font-size: 21px; margin-bottom: 6px; font-weight: 600; }
+
+    /* Pipeline */
+    .pipe { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin-top: 44px; }
+    .step { padding: 22px 20px 24px; border-color: var(--line); transition: none; }
+    .step .ix { color: var(--ink-3); }
+    .step .t { font-family: var(--display); font-size: 30px; font-weight: 600; margin-bottom: 8px; }
+    .step p { font-size: 17px; color: var(--ink-2); line-height: 1.45; }
+    .reveal section.present .step { animation: lit .5s ease forwards; animation-delay: calc(var(--i) * 260ms + 500ms); }
+    .reveal section.present .step .ix { animation: litx .5s ease forwards; animation-delay: calc(var(--i) * 260ms + 500ms); }
+    @keyframes lit { to { border-color: rgba(232,201,138,.55); box-shadow: 0 0 34px -12px rgba(232,201,138,.55), inset 0 1px 0 rgba(255,255,255,.06); } }
+    @keyframes litx { to { color: var(--gold); } }
+    .term { padding: 24px 28px; margin-top: 28px; }
+    .term-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 24px; margin-top: 28px; }
+    .term-grid .term { margin-top: 0; }
+
+    /* Grids */
+    .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 50px; }
+    .tiles.four { grid-template-columns: repeat(4, 1fr); }
+    .tiles .card h3 { font-size: 30px; }
+    .stackgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 46px; }
+    .stackgrid .card { padding: 26px 28px; }
+    .stackgrid .label { margin-bottom: 14px; display: block; color: var(--gold); }
+    .stackgrid p { font-size: 21px; color: var(--ink); line-height: 1.55; }
+    .meter { height: 8px; margin-top: 18px; background: rgba(255,255,255,.07);
+      -webkit-mask: repeating-linear-gradient(90deg, #000 0 14px, transparent 14px 18px); mask: repeating-linear-gradient(90deg, #000 0 14px, transparent 14px 18px); }
+    .meter i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, rgba(232,201,138,.5), var(--gold)); }
+    .reveal section.present .meter i { animation: fill 1.4s cubic-bezier(.2,.8,.2,1) .6s forwards; }
+    @keyframes fill { to { width: var(--w); } }
+
+    /* Demo + close */
+    .demo-steps { display: grid; gap: 16px; margin-top: 40px; counter-reset: s; }
+    .demo-steps li { counter-increment: s; display: grid; grid-template-columns: 64px 1fr; align-items: center; font-size: 27px; color: var(--ink-2); }
+    .demo-steps li::before { content: counter(s, decimal-leading-zero); font: 500 16px/1 var(--mono); letter-spacing: .16em; color: var(--gold); }
+    .demo-steps b { color: var(--ink); font-weight: 600; }
+    .closing h1 { font-size: 168px; line-height: .9; }
+    .closing h1 .dim { color: #57575a; }
+    @media (prefers-reduced-motion: reduce) {
+      .reveal section .in, .reveal section .ln, .dial .seg { animation: none !important; opacity: 1 !important; transform: none !important; }
+      .dial .seg { stroke-dasharray: var(--len) 1000 !important; }
+      .meter i { width: var(--w) !important; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bg" aria-hidden="true"></canvas>
+  <div class="veil" aria-hidden="true"></div>
+  <div class="frame" aria-hidden="true">
+    <span class="ro tl"><span class="led"></span>Spend Tracker · Mission brief</span>
+    <span class="ro tr" id="sector">Sector 01</span>
+    <span class="ro bl">UPI payments in · people out</span>
+  </div>
+
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- 01 · Title -->
+      <section class="title" data-cam="hero" data-flow=".75">
+        <div class="stack">
+          <div class="wordmark in">
+            <svg width="40" height="40" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="11" fill="none" stroke="#2a2a2d" stroke-width="3.4"/><path d="M16 5a11 11 0 0 1 10.46 14.4" fill="none" stroke="#e8c98a" stroke-width="3.4" stroke-linecap="round"/></svg>
+            Spend Tracker
+          </div>
+          <h1 class="in" style="--d:1">Every rupee.<br/><span class="dim">Finally in focus.</span></h1>
+          <p class="lede in" style="--d:2">Spending intelligence for India's payment rails — UPI payments in, people out.</p>
+          <div class="pills in" style="--d:3">
+            <span class="pill">Consumer app</span><span class="pill">Partner platform</span><span class="pill">Built for Paytm</span><span class="pill gold">AI that never invents a number</span>
+          </div>
+        </div>
+        <aside class="notes">
+          Hi — we built Spend Tracker. One line: payment partners like Paytm stream UPI payments in, and Spend Tracker turns them into people — a clear picture of where every rupee goes, for the person and, with consent, for the partner. The planet behind me is a person's money; the streams pouring into it are their payments. Let's fly through it.
+        </aside>
+      </section>
+
+      <!-- 02 · Problem -->
+      <section data-cam="side" data-flow=".35">
+        <div class="stack">
+          <p class="eyebrow in">The problem</p>
+          <p class="big-quote in" style="--d:1">Billions of UPI payments a month. Almost no one knows where their money went.</p>
+          <div class="three">
+            <div class="hud card fragment rise"><span class="ix">01 · Noise</span><span class="vpa">PAYTM*SWIGGY LIMITED 4412093<br/>rzp.ola@axisbank</span><h3>Payments are unreadable</h3><p>Statements read like serial numbers, so nobody looks.</p></div>
+            <div class="hud card fragment rise"><span class="ix">02 · Blindness</span><h3>History, not insight</h3><p>Apps list what you paid. None tell you 77 deliveries a month cost ≈₹3,400 in fees alone.</p></div>
+            <div class="hud card fragment rise"><span class="ix">03 · Waste</span><h3>Offers miss</h3><p>Partners hold the data but can't read it — so offers are generic, and ignored.</p></div>
+          </div>
+        </div>
+        <aside class="notes">
+          UPI made paying effortless — and invisible. Three things fail. One: the raw data is noise — cryptic payee names and UPI IDs. Two: apps show history, not insight. Three: partners hold the richest spending data in the country but can't read it, so offers are generic. Click through the three cards.
+        </aside>
+      </section>
+
+      <!-- 03 · Insight -->
+      <section data-cam="close" data-flow=".55">
+        <div class="stack">
+          <p class="eyebrow in">Our insight</p>
+          <h2 class="in" style="--d:1">The gap isn't data.<br/><span class="dim">It's understanding.</span></h2>
+          <div class="flow">
+            <div class="hud node fragment rise"><span class="label">Raw payment</span><div class="val mono">PAYTM*SWIGGY LIMITED 4412093 · ₹349</div></div>
+            <div class="hud node fragment rise"><span class="label">Understood</span><div class="val"><b>Swiggy</b> · Food delivery<br/><span class="gold">97% confidence</span></div></div>
+            <div class="hud node fragment rise"><span class="label">A person</span><div class="val"><b>Convenience spender</b><br/>77 deliveries a month · peaks 8–9 pm</div></div>
+            <div class="hud node fragment rise"><span class="label">Action</span><div class="val"><span class="pos">Keep ₹16,700 a month</span><br/>and an offer that actually fits</div></div>
+          </div>
+        </div>
+        <aside class="notes">
+          Every payment goes on a journey: from a cryptic string, to a merchant and category with a confidence score, to a living profile of the person, to an action — money they can keep, and an offer that fits. Every step is deterministic and explainable.
+        </aside>
+      </section>
+
+      <!-- 04 · Two products -->
+      <section data-cam="top" data-flow=".6">
+        <div class="stack">
+          <p class="eyebrow in">What we built</p>
+          <h2 class="in" style="--d:1">Two products. One engine.</h2>
+          <div class="duo">
+            <div class="hud card in" style="--d:2"><span class="ix">For people</span><h3>A money app worth opening</h3>
+              <ul><li>Orbital spend dial, categories, merchants</li><li>Daily AI briefing and "Ask your money"</li><li>Save money · budgets · alerts</li><li>Offers ranked by how you actually spend</li></ul></div>
+            <div class="core in" style="--d:3"><div class="orb">ONE<br/>ENGINE</div></div>
+            <div class="hud card in" style="--d:4"><span class="ix">For partners</span><h3>A spending platform</h3>
+              <ul><li>Ingestion API: webhooks and batches</li><li>Read the person behind a phone number</li><li>Integration Portal and live developer docs</li><li>Spend-based ad campaigns and revenue</li></ul></div>
+          </div>
+        </div>
+        <aside class="notes">
+          Two products on one engine. People get a premium money app. Partners like Paytm get a platform: push payments in, read clean profiles out, run campaigns — all through one consented, auditable pipeline.
+        </aside>
+      </section>
+
+      <!-- 05 · Meet Rohan -->
+      <section data-cam="far" data-flow=".4">
+        <div class="persona">
+          <div>
+            <p class="eyebrow in">Meet Rohan</p>
+            <h2 class="in" style="--d:1;font-size:70px">32 · Bengaluru<br/><span class="dim">Convenience spender</span></h2>
+            <div class="facts">
+              <div class="fact in" style="--d:2"><span class="num"><span class="count" data-to="77">0</span></span><span>delivery orders a month — biryani 30 times</span></div>
+              <div class="fact in" style="--d:3"><span class="num">2×</span><span>streaming plans he pays for together — Netflix + Hotstar</span></div>
+              <div class="fact in" style="--d:4"><span class="num warn">₹486</span><span>a Swiggy charge made twice, minutes apart</span></div>
+              <div class="fact in" style="--d:5"><span class="num">1:12<span style="font-size:24px"> am</span></span><span>a ₹38,990 laptop, bought at night</span></div>
+            </div>
+          </div>
+          <div style="display:grid;justify-items:center">
+            <div class="dial in" style="--d:1">
+              <div class="ticks"></div>
+              <svg viewBox="0 0 560 560" aria-hidden="true">
+                <!-- r = 159.15 → circumference 1000, so dash lengths are per-mille -->
+                <circle class="seg" cx="280" cy="280" r="159.15" style="--i:0;--len:446;color:var(--shopping);stroke:var(--shopping)" stroke-dashoffset="0"/>
+                <circle class="seg" cx="280" cy="280" r="159.15" style="--i:1;--len:256;color:var(--food);stroke:var(--food)" stroke-dashoffset="-450"/>
+                <circle class="seg" cx="280" cy="280" r="159.15" style="--i:2;--len:86;color:var(--p2p);stroke:var(--p2p)" stroke-dashoffset="-710"/>
+                <circle class="seg" cx="280" cy="280" r="159.15" style="--i:3;--len:76;color:var(--transport);stroke:var(--transport)" stroke-dashoffset="-800"/>
+                <circle class="seg" cx="280" cy="280" r="159.15" style="--i:4;--len:66;color:var(--ent);stroke:var(--ent)" stroke-dashoffset="-880"/>
+                <circle class="seg" cx="280" cy="280" r="159.15" style="--i:5;--len:36;color:var(--bills);stroke:var(--bills)" stroke-dashoffset="-950"/>
+                <circle class="seg" cx="280" cy="280" r="159.15" style="--i:6;--len:10;color:var(--personal);stroke:var(--personal)" stroke-dashoffset="-989"/>
+              </svg>
+              <div class="center">
+                <span class="label">Spent · last 30 days</span>
+                <span class="num" style="margin-top:12px">₹<span class="count" data-to="107868" data-inr>0</span></span>
+                <span class="dim" style="font-size:19px;margin-top:8px">165 payments</span>
+              </div>
+            </div>
+            <div class="keep in" style="--d:6">You could keep <span class="num" style="font-size:34px">₹16,700</span> a month · ₹2L a year</div>
+          </div>
+        </div>
+        <aside class="notes">
+          This is Rohan, one of our three demo personas. 77 deliveries a month, two overlapping streaming plans, a duplicate charge he never noticed, and a laptop bought at 1 a.m. Spend Tracker found ₹16,700 a month he could keep — about two lakh a year — each change priced and specific.
+        </aside>
+      </section>
+
+      <!-- 06 · Dashboard -->
+      <section data-cam="side" data-flow=".3">
+        <div class="split">
+          <div>
+            <p class="eyebrow in">Overview</p>
+            <h2 class="in" style="--d:1">Your money,<br/>at a glance.</h2>
+            <ul class="bul">
+              <li class="in" style="--d:2"><span><b>Orbital spend dial</b> with the change vs your previous period</span></li>
+              <li class="in" style="--d:3"><span><b>Every category</b> with its own delta and a power-cell meter</span></li>
+              <li class="in" style="--d:4"><span><b>Where it went</b> — merchants, not UPI IDs</span></li>
+              <li class="in" style="--d:5"><span><b>A daily briefing</b> written from your own numbers</span></li>
+            </ul>
+          </div>
+          <div class="solo"><div class="shot tilt-l in" style="--d:2"><img src="assets/dashboard.jpeg" alt="Spend Tracker overview dashboard" /><div class="scan"></div></div></div>
+        </div>
+        <aside class="notes">
+          The overview. The dial shows the last 30 days by category with the change versus the previous period; each category has its own delta; "where it went" shows merchants instead of UPI IDs. Below it sits a daily briefing written from Rohan's own numbers.
+        </aside>
+      </section>
+
+      <!-- 07 · Deep dives -->
+      <section data-cam="far" data-flow=".3">
+        <div class="split">
+          <div>
+            <p class="eyebrow in">Deep dives</p>
+            <h2 class="in" style="--d:1">The patterns behind the totals.</h2>
+            <ul class="bul">
+              <li class="in" style="--d:2"><span><b>Sub-categories & merchants</b> — Swiggy vs Zomato, delivery fees</span></li>
+              <li class="in" style="--d:3"><span><b>When you spend</b> — a weekday × hour star map</span></li>
+              <li class="in" style="--d:4"><span><b>Peers, anomalies, subscriptions</b> — spikes, duplicates, late nights</span></li>
+            </ul>
+          </div>
+          <div class="screens">
+            <div class="shot a in" style="--d:2"><img src="assets/category.jpeg" alt="Food & Dining deep dive" /><div class="scan"></div></div>
+            <div class="shot b in" style="--d:4"><img src="assets/trends.jpeg" alt="Trends with monthly columns and a weekday-hour star map" /></div>
+          </div>
+        </div>
+        <aside class="notes">
+          Tap any category and you get the patterns behind the total: sub-categories, which apps you prefer, what delivery fees really cost, when you spend — a weekday by hour star map — how you compare with similar people, and anomalies like duplicate charges.
+        </aside>
+      </section>
+
+      <!-- 08 · Save money & budgets -->
+      <section data-cam="side" data-flow=".3">
+        <div class="split">
+          <div>
+            <p class="eyebrow in">Save money · Budgets</p>
+            <h2 class="in" style="--d:1">Specific changes.<br/><span class="dim">Priced in rupees.</span></h2>
+            <ul class="bul">
+              <li class="in" style="--d:2"><span><b>₹16,700 a month</b> across ten concrete changes Rohan can tick off</span></li>
+              <li class="in" style="--d:3"><span><b>Budgets with a pace line</b> — "₹178/day for the rest of the month"</span></li>
+              <li class="in" style="--d:4"><span><b>Alerts</b> before you overspend, not after</span></li>
+            </ul>
+          </div>
+          <div class="screens">
+            <div class="shot a in" style="--d:2"><img src="assets/save.jpeg" alt="Save money page" /><div class="scan"></div></div>
+            <div class="shot b in" style="--d:4"><img src="assets/budget.jpeg" alt="Budgets with power-cell meters" /></div>
+          </div>
+        </div>
+        <aside class="notes">
+          Insight only matters if it changes something. Save money lists specific, priced changes — cook twice a week, drop the overlapping streaming plan — that add up to ₹16,700 a month. Budgets show a pace line, so you know what you can spend per day for the rest of the month.
+        </aside>
+      </section>
+
+      <!-- 09 · Offers -->
+      <section data-cam="hero" data-flow=".45">
+        <div class="split">
+          <div>
+            <p class="eyebrow in">Offers that fit</p>
+            <h2 class="in" style="--d:1">Ranked by how<br/>you actually spend.</h2>
+            <div class="hud card in" style="--d:2;margin-top:34px">
+              <span class="label">Swiggy One · 95% match</span>
+              <h3 style="margin-top:14px">Free delivery for 3 months</h3>
+              <p>Because 77 orders a month pay ≈₹45 in fees each. <span class="pos">Saves ≈ ₹1,900.</span></p>
+            </div>
+            <p class="muted in" style="--d:3;margin-top:22px;font-size:22px">Every offer shows <b style="color:var(--ink)">why</b> it was picked. Turn personalisation off and you get general offers.</p>
+          </div>
+          <div class="solo"><div class="shot tilt-l in" style="--d:2"><img src="assets/offers.jpeg" alt="Personalised offers" /><div class="scan"></div></div></div>
+        </div>
+        <aside class="notes">
+          Offers are ranked by behaviour, not demographics. Rohan sees Swiggy One first because his fees make it worth ₹1,900 to him — and the card says so. That reason is what makes people trust, and click, an offer.
+        </aside>
+      </section>
+
+      <!-- 10 · Ask your money -->
+      <section data-cam="close" data-flow=".35">
+        <div class="split even">
+          <div>
+            <p class="eyebrow in">Ask your money</p>
+            <h2 class="in" style="--d:1">Questions in.<br/><span class="dim">Your numbers out.</span></h2>
+            <p class="lede in" style="--d:2">Plain-language answers grounded in your own spending — plus a daily briefing that refreshes only when your payments change.</p>
+          </div>
+          <div class="hud chat in" style="--d:2">
+            <div class="q">How much do delivery fees cost me?</div>
+            <div class="a">About <b>₹3,400 a month</b> — 77 delivery orders at roughly ₹45 in fees each. Most of them land between <b>8 and 9 pm</b>.<span class="src">From your last 30 days</span></div>
+            <div class="q">Which subscriptions should I cancel?</div>
+            <div class="a">You pay for <b>Netflix and Disney+ Hotstar</b> together — ₹948 a month. Keeping one saves up to ₹649.<span class="src">From your subscriptions</span></div>
+            <div class="chips"><span class="chip">Where am I overspending?</span><span class="chip">What did I spend on Uber?</span></div>
+          </div>
+        </div>
+        <aside class="notes">
+          Ask your money: questions in plain language, answers built from your own aggregates. The briefing on the dashboard works the same way and is cached on a fingerprint of your data, so it only regenerates when your payments change.
+        </aside>
+      </section>
+
+      <!-- 11 · AI architecture -->
+      <section data-cam="top" data-flow=".5" data-ring="1">
+        <div class="stack">
+          <p class="eyebrow in">AI that can't invent money</p>
+          <h2 class="in" style="--d:1">The engine does the maths.<br/><span class="dim">The model only writes the words.</span></h2>
+          <div class="chain">
+            <div class="hud tier in" style="--d:2"><span class="ix">Tier 1</span><div class="t">Cloud model</div><p>Best writing, when it's available and you allow it.</p></div>
+            <div class="hud tier in" style="--d:3"><span class="ix">Tier 2</span><div class="t">Server model</div><p>Qwen2.5 1.5B inside our Node process (llama.cpp). No third party.</p></div>
+            <div class="hud tier in" style="--d:4"><span class="ix">Tier 3</span><div class="t">On-device</div><p>The same model on your GPU via WebGPU. Nothing leaves the browser.</p></div>
+            <div class="hud tier engine in" style="--d:5"><span class="ix">Always</span><div class="t">Deterministic engine</div><p>Every number, every time. Instant fallback for any failure.</p></div>
+          </div>
+          <div class="guards">
+            <div class="hud guard fragment rise"><b>Aggregates only</b>A ~700-token summary — never raw transactions.</div>
+            <div class="hud guard fragment rise"><b>Schema decoding</b>Small models can only emit valid JSON.</div>
+            <div class="hud guard fragment rise"><b>Number grounding</b>Any ₹ figure not in the input is rejected.</div>
+            <div class="hud guard fragment rise"><b>Echo rejection</b>Prompt instructions never reach the user.</div>
+            <div class="hud guard fragment rise"><b>Never stuck</b>Every tier falls back to the next, instantly.</div>
+          </div>
+        </div>
+        <aside class="notes">
+          This is the part we're proudest of. Every number comes from a deterministic engine. Models only write language over a small aggregate summary. Four tiers: a cloud model, a small open model running inside our own server, the same model on the user's GPU in the browser, and the engine. Small models are guarded: schema-constrained decoding, every rupee figure must exist in the input, and instruction echoes are rejected. The demo cannot break.
+        </aside>
+      </section>
+
+      <!-- 12 · Privacy -->
+      <section data-cam="far" data-flow=".25">
+        <div class="stack">
+          <p class="eyebrow in">Private by design</p>
+          <h2 class="in" style="--d:1">Your money is not the product.<br/><span class="dim">Your consent is the switch.</span></h2>
+          <div class="tiles four">
+            <div class="hud card fragment rise"><span class="ix">01</span><h3>Prefer on-device</h3><p>One toggle and AI runs only in your browser. Your summary never leaves the device.</p></div>
+            <div class="hud card fragment rise"><span class="ix">02</span><h3>Consent per partner</h3><p>Partners read you only if you allow it. Off means their API gets a 403.</p></div>
+            <div class="hud card fragment rise"><span class="ix">03</span><h3>Right to erasure</h3><p>DPDP-ready deletion, from the app or the partner's API.</p></div>
+            <div class="hud card fragment rise"><span class="ix">04</span><h3>Yours to take</h3><p>CSV and PDF export of everything, anytime.</p></div>
+          </div>
+        </div>
+        <aside class="notes">
+          Privacy is a switch the user holds. On-device mode keeps AI in the browser. Partner access is per partner and consent-gated — switch it off and the partner API returns 403 for you. Erasure and export are built in.
+        </aside>
+      </section>
+
+      <!-- 13 · Pipeline -->
+      <section data-cam="close" data-flow="1" data-burst="1">
+        <div class="stack">
+          <p class="eyebrow in">The partner pipeline</p>
+          <h2 class="in" style="--d:1">Messy UPI in. Clean people out.</h2>
+          <div class="pipe">
+            <div class="hud step" style="--i:0"><span class="ix">01</span><div class="t">Validate</div><p>Types, ranges, codes like <span class="mono">invalid_vpa</span></p></div>
+            <div class="hud step" style="--i:1"><span class="ix">02</span><div class="t">Normalise</div><p>"₹1,249.50", +91, <span class="mono">PAYTM*</span> prefixes</p></div>
+            <div class="hud step" style="--i:2"><span class="ix">03</span><div class="t">Identify</div><p>By phone — UPI IDs change, phones don't</p></div>
+            <div class="hud step" style="--i:3"><span class="ix">04</span><div class="t">De-dupe</div><p>By your id and UPI RRN; status updates</p></div>
+            <div class="hud step" style="--i:4"><span class="ix">05</span><div class="t">Filter</div><p>Credits, self-transfers, ₹1 penny drops</p></div>
+            <div class="hud step" style="--i:5"><span class="ix">06</span><div class="t">Categorise</div><p>Catalog → MCC → keywords → P2P, with confidence</p></div>
+          </div>
+          <div class="term-grid">
+            <div class="hud term code"><span class="ln c" style="--l:0"># one payment, as it settles</span><span class="ln" style="--l:1"><span class="k">POST</span> /v1/events</span><span class="ln" style="--l:2">{ <span class="s">"phone"</span>: <span class="n">"+91 98765 00009"</span>, <span class="s">"amount"</span>: <span class="n">"₹349"</span>,</span><span class="ln" style="--l:3">  <span class="s">"payee_vpa"</span>: <span class="n">"swiggy.payu@hdfcbank"</span>,</span><span class="ln" style="--l:4">  <span class="s">"payee_name"</span>: <span class="n">"PAYTM*SWIGGY LIMITED 4412093"</span> }</span></div>
+            <div class="hud term code"><span class="ln m" style="--l:6">202 Accepted</span><span class="ln" style="--l:7"><span class="s">"merchant"</span>: <span class="n">"Swiggy"</span>,</span><span class="ln" style="--l:8"><span class="s">"category"</span>: <span class="n">"food"</span>,</span><span class="ln" style="--l:9"><span class="s">"subcategory"</span>: <span class="n">"food_delivery"</span>,</span><span class="ln caret" style="--l:10"><span class="s">"confidence"</span>: <span class="n">0.97</span></span></div>
+          </div>
+        </div>
+        <aside class="notes">
+          The pipeline is deterministic — no AI. Validate, normalise, identify the user by phone, de-duplicate, drop junk like self-transfers and penny drops, then categorise using a merchant catalog, about sixty MCC codes, keywords and person-to-person heuristics, each with a confidence score. Webhooks for single payments; batches of up to a thousand, idempotent.
+        </aside>
+      </section>
+
+      <!-- 14 · Read API -->
+      <section data-cam="side" data-flow=".9">
+        <div class="split even">
+          <div>
+            <p class="eyebrow in">Read the person behind the phone</p>
+            <h2 class="in" style="--d:1">One call.<br/><span class="dim">A whole customer.</span></h2>
+            <ul class="bul">
+              <li class="in" style="--d:2"><span><b>Behaviour</b> — spender type, preferred apps, peak times</span></li>
+              <li class="in" style="--d:3"><span><b>Summary, categories, merchants, monthly report</b></span></li>
+              <li class="in" style="--d:4"><span><b>Segments</b> for audiences · <b>offers</b> with impression-to-conversion events</span></li>
+            </ul>
+          </div>
+          <div class="hud term code in" style="--d:2;font-size:19px"><span class="ln c" style="--l:0">GET /v1/users/9876500001/behavior</span><span class="ln" style="--l:1">{</span><span class="ln" style="--l:2">  <span class="s">"spender_label"</span>: <span class="n">"Convenience spender"</span>,</span><span class="ln" style="--l:3">  <span class="s">"monthly_spend"</span>: <span class="n">70883</span>,</span><span class="ln" style="--l:4">  <span class="s">"preferred_apps"</span>: food_delivery →</span><span class="ln" style="--l:5">     <span class="n">Swiggy 58%</span> · <span class="n">Zomato 42%</span></span><span class="ln" style="--l:6">  <span class="s">"peak_hours"</span>: [<span class="n">"20:00–21:00"</span>, <span class="n">"13:00–14:00"</span>],</span><span class="ln" style="--l:7">  <span class="s">"delivery_orders_per_month"</span>: <span class="n">77</span>,</span><span class="ln" style="--l:8">  <span class="s">"top_dish"</span>: <span class="n">"Biryani"</span>,</span><span class="ln" style="--l:9">  <span class="s">"subscriptions"</span>: { <span class="s">"count"</span>: <span class="n">5</span>, <span class="s">"monthly"</span>: <span class="n">4478</span> }</span><span class="ln caret" style="--l:10">}</span></div>
+        </div>
+        <aside class="notes">
+          Once payments are in, a partner can read the person behind a phone number — with consent. Behaviour includes spender type, which apps they prefer per sub-category, peak hours, delivery habits and subscriptions. Summaries, merchants, monthly reports and audience segments are one call each.
+        </aside>
+      </section>
+
+      <!-- 15 · Portal -->
+      <section data-cam="far" data-flow=".7">
+        <div class="split">
+          <div>
+            <p class="eyebrow in">Integration Portal</p>
+            <h2 class="in" style="--d:1">Mission control<br/>for partners.</h2>
+            <ul class="bul">
+              <li class="in" style="--d:2"><span><b>API keys</b> — scoped, shown once, revocable</span></li>
+              <li class="in" style="--d:3"><span><b>Deliveries</b> — every batch with per-item outcomes</span></li>
+              <li class="in" style="--d:4"><span><b>Send a test event</b> and watch it categorise</span></li>
+              <li class="in" style="--d:5"><span><b>Ad revenue</b> — CPM, CPC and CPA campaigns</span></li>
+              <li class="in" style="--d:6"><span><b>Live docs</b> generated from the server's own spec</span></li>
+            </ul>
+          </div>
+          <div class="screens three">
+            <div class="shot a in" style="--d:2"><img src="assets/portal.jpeg" alt="Integration Portal overview" /><div class="scan"></div></div>
+            <div class="shot b in" style="--d:4"><img src="assets/deliveries.jpeg" alt="Deliveries" /></div>
+            <div class="shot c in" style="--d:6"><img src="assets/revenue.jpeg" alt="Ad revenue" /></div>
+          </div>
+        </div>
+        <aside class="notes">
+          Partners get mission control: create scoped keys, watch every delivery with per-item outcomes, fire a test event and watch it get categorised, see users and ad revenue by pricing model. The developer docs are generated from the same spec the server validates with, so they can't drift.
+        </aside>
+      </section>
+
+      <!-- 16 · Security -->
+      <section data-cam="top" data-flow=".4">
+        <div class="stack">
+          <p class="eyebrow in">Security model</p>
+          <h2 class="in" style="--d:1">Built like it handles money.<br/><span class="dim">Because it does.</span></h2>
+          <div class="tiles">
+            <div class="hud card fragment rise"><span class="ix">Keys</span><h3>Scoped & hashed</h3><p><span class="mono">stk_live_…</span>, stored as SHA-256, six scopes, shown once.</p></div>
+            <div class="hud card fragment rise"><span class="ix">Tenancy</span><h3>Strict isolation</h3><p>Partners see only their own users; other phones are a 404.</p></div>
+            <div class="hud card fragment rise"><span class="ix">Batches</span><h3>Idempotent</h3><p>≤1,000 per batch, atomic, safe to replay with an Idempotency-Key.</p></div>
+            <div class="hud card fragment rise"><span class="ix">Traffic</span><h3>Rate-limited</h3><p>Per key, with an X-Request-Id on every response.</p></div>
+            <div class="hud card fragment rise"><span class="ix">Consent</span><h3>Per partner</h3><p>Anyone can withdraw; only the person or onboarding partner grants.</p></div>
+            <div class="hud card fragment rise"><span class="ix">Sessions</span><h3>Separated</h3><p>Portal and app use different token audiences. Demo shortcuts are off in production.</p></div>
+          </div>
+        </div>
+        <aside class="notes">
+          Security is designed in: scoped, hashed keys shown once; strict tenant isolation; idempotent atomic batches; per-key rate limits with request IDs; consent per partner; and separate session audiences for the portal and the app.
+        </aside>
+      </section>
+
+      <!-- 17 · Business -->
+      <section data-cam="hero" data-flow=".55">
+        <div class="stack">
+          <p class="eyebrow in">Why it wins</p>
+          <h2 class="in" style="--d:1">Everyone gets something real.</h2>
+          <div class="stackgrid">
+            <div class="hud card in" style="--d:2"><span class="label">People</span><p>Free. Clarity, alerts and savings — <span class="pos">₹16,700 a month</span> for Rohan.</p><div class="meter"><i style="--w:92%"></i></div></div>
+            <div class="hud card in" style="--d:3"><span class="label">Paytm</span><p>A reason to open the app daily, and new ad revenue from offers people want — CPM, CPC, CPA.</p><div class="meter"><i style="--w:78%"></i></div></div>
+            <div class="hud card in" style="--d:4"><span class="label">Merchants</span><p>Reach people by real behaviour — a 95% match beats a broad blast.</p><div class="meter"><i style="--w:70%"></i></div></div>
+          </div>
+        </div>
+        <aside class="notes">
+          It works for everyone. People get clarity and savings for free. Paytm gets daily engagement and a new revenue line from offers people actually want. Merchants reach customers by real behaviour instead of broad targeting.
+        </aside>
+      </section>
+
+      <!-- 18 · Stack -->
+      <section data-cam="side" data-flow=".35">
+        <div class="stack">
+          <p class="eyebrow in">How it's built</p>
+          <h2 class="in" style="--d:1">Production-shaped, laptop-sized.</h2>
+          <div class="stackgrid">
+            <div class="hud card in" style="--d:2"><span class="label">Client</span><p>React 19 · Vite 8 · Tailwind 4 · Motion · Recharts · three.js · WebLLM in a Web Worker</p></div>
+            <div class="hud card in" style="--d:3"><span class="label">Server</span><p>Node 24 · Express 5 · built-in SQLite · JWT · Helmet · rate limits · OpenAPI</p></div>
+            <div class="hud card in" style="--d:4"><span class="label">AI</span><p>Cloud model → Qwen2.5 1.5B via node-llama-cpp (Metal / CUDA / CPU) → on-device → engine</p></div>
+          </div>
+          <div class="pills in" style="--d:5;margin-top:30px"><span class="pill">One command: pnpm run setup</span><span class="pill">One port in production</span><span class="pill">Tested pipeline & guards</span><span class="pill">Mobile-first · dark & light</span></div>
+        </div>
+        <aside class="notes">
+          The stack is modern and boring in the right places: React 19 and Vite on the client, Node 24 with Express 5 and the built-in SQLite on the server. The server model runs in-process through llama.cpp — no Ollama, no external service. One command sets everything up; production is a single port.
+        </aside>
+      </section>
+
+      <!-- 19 · Next -->
+      <section data-cam="far" data-flow=".3">
+        <div class="stack">
+          <p class="eyebrow in">What's next</p>
+          <h2 class="in" style="--d:1">Beyond UPI.</h2>
+          <div class="tiles four">
+            <div class="hud card fragment rise"><span class="ix">01</span><h3>Account Aggregator</h3><p>Cards and bank accounts, consent-based, alongside UPI.</p></div>
+            <div class="hud card fragment rise"><span class="ix">02</span><h3>Real-time nudges</h3><p>"That's your third order today" — at payment time.</p></div>
+            <div class="hud card fragment rise"><span class="ix">03</span><h3>Bharat languages</h3><p>Hindi and regional briefings, and WhatsApp delivery.</p></div>
+            <div class="hud card fragment rise"><span class="ix">04</span><h3>Merchant self-serve</h3><p>Brands build behaviour-based campaigns in the portal.</p></div>
+          </div>
+        </div>
+        <aside class="notes">
+          Next: bring in cards and bank accounts through the Account Aggregator framework, nudge at the moment of payment, brief people in their own language, and let merchants build behaviour-based campaigns themselves.
+        </aside>
+      </section>
+
+      <!-- 20 · Live demo -->
+      <section data-cam="close" data-flow=".8">
+        <div class="stack">
+          <p class="eyebrow in">Live demo</p>
+          <h2 class="in" style="--d:1">Let me show you.</h2>
+          <ol class="demo-steps">
+            <li class="in" style="--d:2"><span><b>Continue with Paytm</b> as Rohan — phone and OTP</span></li>
+            <li class="in" style="--d:3"><span><b>Overview</b> → Food & Dining → the delivery-fee truth</span></li>
+            <li class="in" style="--d:4"><span><b>Ask your money</b> and <b>Save money</b></span></li>
+            <li class="in" style="--d:5"><span><b>Portal</b> → send a raw UPI payment → watch it become Swiggy</span></li>
+          </ol>
+        </div>
+        <aside class="notes">
+          Switch to the browser now — follow the demo script in PITCH.md.
+        </aside>
+      </section>
+
+      <!-- 21 · Close -->
+      <section class="closing" data-cam="hero" data-flow=".9">
+        <div class="stack">
+          <div class="wordmark in">
+            <svg width="40" height="40" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="11" fill="none" stroke="#2a2a2d" stroke-width="3.4"/><path d="M16 5a11 11 0 0 1 10.46 14.4" fill="none" stroke="#e8c98a" stroke-width="3.4" stroke-linecap="round"/></svg>
+            Spend Tracker
+          </div>
+          <h1 class="in" style="--d:1">Every rupee.<br/><span class="dim">Finally in focus.</span></h1>
+          <p class="lede in" style="--d:2">Thank you. Questions?</p>
+        </div>
+        <aside class="notes">
+          Every rupee, finally in focus — for the person, and for the partner who serves them. Thank you. Pause, then questions.
+        </aside>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@6.0.2/dist/reveal.js" integrity="sha384-UilXW7W77EPIY5TmQGBrjhBPcfX40NqGwuIC8DGs6OeGTCxKy36B+DiOXtfqgk9S" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@6.0.2/dist/plugin/notes.js" integrity="sha384-XUVoTb/UbE06yoCUaqswCPKSUvPq3q4heijGsemnUSS/JEgW1lNnK0rKlNwjuz7O" crossorigin="anonymous"></script>
+  <script>
+    Reveal.initialize({
+      hash: true, width: 1600, height: 900, margin: 0.04, center: false,
+      controls: true, progress: true, slideNumber: 'c/t', transition: 'fade', transitionSpeed: 'slow',
+      backgroundTransition: 'none', plugins: [RevealNotes],
+    });
+
+    // Count-ups (Indian digit grouping where asked) each time a slide is shown.
+    function countUp(root) {
+      root.querySelectorAll('.count').forEach((el) => {
+        const to = Number(el.dataset.to), inr = el.hasAttribute('data-inr'), start = performance.now();
+        const fmt = (v) => (inr ? Math.round(v).toLocaleString('en-IN') : String(Math.round(v)));
+        const tick = (t) => { const p = Math.min(1, (t - start - 300) / 1500); const e = p <= 0 ? 0 : 1 - Math.pow(1 - p, 3); el.textContent = fmt(to * e); if (p < 1) requestAnimationFrame(tick); };
+        requestAnimationFrame(tick);
+      });
+    }
+    const sector = document.getElementById('sector');
+    const onSlide = (e) => { countUp(e.currentSlide); sector.textContent = `Sector ${String(e.indexh + 1).padStart(2, '0')}`; };
+    Reveal.on('ready', onSlide);
+    Reveal.on('slidechanged', onSlide);
+  </script>
+
+  <script type="importmap">
+    {
+      "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.min.js" },
+      "integrity": {
+        "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.min.js": "sha384-EU5UWigB3OuXjAXooUegndJSqYber3YSJHDoMZs6rV96yY/ol/B4W8logw4CKWkA",
+        "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.core.js": "sha384-mdKeCwPEcbDvzaxwhm+MVuLoMou+E7jQqrs4tmu/n8HBYPGI1kZt0MkJxlMR4zFM"
+      }
+    }
+  </script>
+  <!--
+    three.js: one continuous deep-space scene for the whole deck. A back-lit planet (a person's money) wears an
+    orbital ring split into the app's category colours; UPI payments stream in from deep space as comets.
+    Each slide sets a camera preset (data-cam) and stream intensity (data-flow); the camera orbits between them.
+  -->
+  <script type="module">
+    import * as THREE from 'three';
+
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const canvas = document.getElementById('bg');
+    let renderer;
+    try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' }); }
+    catch { canvas.remove(); throw new Error('WebGL unavailable'); }
+    const DPR = Math.min(devicePixelRatio || 1, 1.75);
+    renderer.setPixelRatio(DPR);
+    renderer.setClearColor(0x000000, 1);
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 9000);
+    const rnd = (seed) => () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+    const r = rnd(20261007);
+
+    const LIGHT = new THREE.Vector3(-0.62, 0.42, -0.66).normalize(); // the sun sits behind the planet (re-aimed every frame)
+    const RIM = new THREE.Color('#f3e6c8');
+    const CATS = [['#c97b4a', .45], ['#5b8def', .26], ['#2b98c7', .09], ['#3fa58a', .08], ['#8a7fd6', .07], ['#a98b3c', .04], ['#cc6a8c', .01]];
+
+    // ── Nebula sky: warped fbm dust along the galactic plane, dark lanes, warm toward the sun ──
+    const sky = new THREE.Mesh(new THREE.SphereGeometry(6000, 48, 32), new THREE.ShaderMaterial({
+      side: THREE.BackSide, depthWrite: false,
+      uniforms: { uBand: { value: new THREE.Vector3(0, 1, 0).applyEuler(new THREE.Euler(0.42, 0.15, -0.62)) }, uLight: { value: LIGHT } },
+      vertexShader: `varying vec3 vDir; void main(){ vDir = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+      fragmentShader: `
+        uniform vec3 uBand; uniform vec3 uLight; varying vec3 vDir;
+        float hash(vec3 p){ p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
+        float noise(vec3 x){ vec3 i = floor(x), f = fract(x); f = f*f*(3.0-2.0*f);
+          return mix(mix(mix(hash(i), hash(i+vec3(1,0,0)), f.x), mix(hash(i+vec3(0,1,0)), hash(i+vec3(1,1,0)), f.x), f.y),
+                     mix(mix(hash(i+vec3(0,0,1)), hash(i+vec3(1,0,1)), f.x), mix(hash(i+vec3(0,1,1)), hash(i+vec3(1,1,1)), f.x), f.y), f.z); }
+        float fbm(vec3 p){ float a = 0.5, s = 0.0; for (int i = 0; i < 5; i++){ s += a * noise(p); p = p * 2.03 + 7.1; a *= 0.5; } return s; }
+        void main(){
+          vec3 d = normalize(vDir);
+          float band = exp(-pow(dot(d, uBand) / 0.34, 2.0));
+          float n = fbm(d * 2.6 + fbm(d * 1.4) * 1.3);
+          float dust = smoothstep(0.33, 0.86, n);
+          float lane = smoothstep(0.55, 0.75, fbm(d * 5.0 + 3.0));
+          vec3 indigo = vec3(0.07, 0.085, 0.21), plum = vec3(0.15, 0.06, 0.16), ember = vec3(0.24, 0.15, 0.07);
+          vec3 col = mix(indigo, plum, smoothstep(0.3, 0.8, fbm(d * 1.7 + 11.0)));
+          col = mix(col, ember, pow(max(dot(d, uLight), 0.0), 4.0) * 0.9);
+          float k = dust * (0.42 + band * 1.25) * (1.0 - lane * 0.6);
+          gl_FragColor = vec4(col * k, 1.0);
+        }`,
+    }));
+    sky.renderOrder = -1;
+    scene.add(sky);
+
+    // ── Stars: deep shell + Milky Way band, twinkling ──
+    const starCount = 13000, bandCount = 17000, total = starCount + bandCount;
+    const sPos = new Float32Array(total * 3), sSize = new Float32Array(total), sPhase = new Float32Array(total), sCol = new Float32Array(total * 3);
+    const warm = new THREE.Color('#fff1dc'), white = new THREE.Color('#ffffff'), pale = new THREE.Color('#e3e9f7');
+    const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(0.42, 0.15, -0.62));
+    const v = new THREE.Vector3();
+    for (let i = 0; i < total; i++) {
+      const inBand = i >= starCount;
+      if (!inBand) {
+        const u = r() * 2 - 1, th = r() * Math.PI * 2, rad = 700 + Math.pow(r(), 0.6) * 2800;
+        v.set(Math.sqrt(1 - u * u) * Math.cos(th), u, Math.sqrt(1 - u * u) * Math.sin(th)).multiplyScalar(rad);
+        sSize[i] = 0.6 + Math.pow(r(), 6) * 2.8;
+      } else {
+        const th = r() * Math.PI * 2, g = (r() + r() + r() - 1.5) * 0.11, rad = 2200 + r() * 1200;
+        v.set(Math.cos(th), g, Math.sin(th)).multiplyScalar(rad).applyQuaternion(q);
+        sSize[i] = 0.32 + r() * 0.5;
+      }
+      sPos.set([v.x, v.y, v.z], i * 3); sPhase[i] = r();
+      const c = inBand ? (r() < 0.5 ? warm : pale) : (r() < 0.75 ? white : r() < 0.6 ? warm : pale);
+      const k = inBand ? 0.4 + r() * 0.32 : 0.62 + r() * 0.38;
+      sCol.set([c.r * k, c.g * k, c.b * k], i * 3);
+    }
+    const sg = new THREE.BufferGeometry();
+    sg.setAttribute('position', new THREE.BufferAttribute(sPos, 3));
+    sg.setAttribute('aSize', new THREE.BufferAttribute(sSize, 1));
+    sg.setAttribute('aPhase', new THREE.BufferAttribute(sPhase, 1));
+    sg.setAttribute('aColor', new THREE.BufferAttribute(sCol, 3));
+    const starMat = new THREE.ShaderMaterial({
+      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+      uniforms: { uTime: { value: 0 }, uPR: { value: DPR } },
+      vertexShader: `
+        attribute float aSize; attribute float aPhase; attribute vec3 aColor; uniform float uTime; uniform float uPR;
+        varying vec3 vColor; varying float vA;
+        void main(){ vec4 mv = modelViewMatrix * vec4(position, 1.0); gl_Position = projectionMatrix * mv;
+          gl_PointSize = max(1.2 * uPR, aSize * uPR * (2600.0 / -mv.z));
+          vA = 0.76 + 0.24 * sin(uTime * (0.35 + fract(aPhase * 7.13) * 0.9) + aPhase * 6.2831); vColor = aColor; }`,
+      fragmentShader: `varying vec3 vColor; varying float vA;
+        void main(){ float d = length(gl_PointCoord - 0.5); float c = smoothstep(0.5, 0.0, d); c *= c; if (c < 0.01) discard; gl_FragColor = vec4(vColor, c * vA); }`,
+    });
+    const stars = new THREE.Points(sg, starMat);
+    scene.add(stars);
+
+    // ── Sun behind the planet (only visible past the limb) ──
+    const glowTex = (() => {
+      const c = document.createElement('canvas'); c.width = c.height = 256; const g = c.getContext('2d');
+      const grd = g.createRadialGradient(128, 128, 0, 128, 128, 128);
+      grd.addColorStop(0, 'rgba(255,248,232,1)'); grd.addColorStop(.12, 'rgba(255,226,170,.55)'); grd.addColorStop(.4, 'rgba(232,180,110,.12)'); grd.addColorStop(1, 'rgba(0,0,0,0)');
+      g.fillStyle = grd; g.fillRect(0, 0, 256, 256); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+    })();
+    const sun = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+    sun.position.copy(LIGHT).multiplyScalar(2400); sun.scale.setScalar(900);
+    scene.add(sun);
+
+    // ── Planet: near-black, back-lit, champagne limb + atmosphere ──
+    const PV = `varying vec3 vN; varying vec3 vV; varying vec3 vP;
+      void main(){ vec4 wp = modelMatrix * vec4(position, 1.0); vN = normalize(mat3(modelMatrix) * normal); vV = normalize(cameraPosition - wp.xyz); vP = position; gl_Position = projectionMatrix * viewMatrix * wp; }`;
+    const planet = new THREE.Mesh(new THREE.SphereGeometry(10, 128, 128), new THREE.ShaderMaterial({
+      uniforms: { uLight: { value: LIGHT }, uRim: { value: RIM }, uTime: { value: 0 } },
+      vertexShader: PV,
+      fragmentShader: `
+        uniform vec3 uLight; uniform vec3 uRim; uniform float uTime; varying vec3 vN; varying vec3 vV; varying vec3 vP;
+        float hash(vec3 p){ return fract(sin(dot(p, vec3(12.9898, 78.233, 37.719))) * 43758.5453); }
+        float noise(vec3 p){ vec3 i = floor(p), f = fract(p); f = f*f*(3.0-2.0*f);
+          return mix(mix(mix(hash(i), hash(i+vec3(1,0,0)), f.x), mix(hash(i+vec3(0,1,0)), hash(i+vec3(1,1,0)), f.x), f.y),
+                     mix(mix(hash(i+vec3(0,0,1)), hash(i+vec3(1,0,1)), f.x), mix(hash(i+vec3(0,1,1)), hash(i+vec3(1,1,1)), f.x), f.y), f.z); }
+        void main(){
+          vec3 n = normalize(vN), v = normalize(vV); float ndl = dot(n, normalize(uLight));
+          vec3 p = vP / 10.0;
+          float bands = noise(vec3(p.x * 3.0, p.y * 11.0 + uTime * 0.015, p.z * 3.0)) * 0.6 + noise(p * 9.0) * 0.4;
+          float day = smoothstep(-0.05, 0.6, ndl);
+          vec3 surface = vec3(0.007) + vec3(0.05, 0.043, 0.036) * day * (0.55 + bands * 0.9);
+          float fres = pow(1.0 - max(dot(n, v), 0.0), 4.0);
+          float limb = fres * smoothstep(-0.05, 0.7, ndl);
+          float crescent = pow(max(ndl, 0.0), 5.0) * fres * 0.8;
+          gl_FragColor = vec4(surface + uRim * (limb * 1.4 + crescent), 1.0);
+        }`,
+    }));
+    const atmo = new THREE.Mesh(new THREE.SphereGeometry(10.7, 96, 96), new THREE.ShaderMaterial({
+      side: THREE.BackSide, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+      uniforms: { uLight: { value: LIGHT }, uRim: { value: RIM } },
+      vertexShader: PV,
+      fragmentShader: `uniform vec3 uLight; uniform vec3 uRim; varying vec3 vN; varying vec3 vV;
+        void main(){ vec3 n = normalize(vN), v = normalize(vV); float d = -dot(n, v);
+          float glow = pow(smoothstep(0.0, 0.36, d), 2.2); float lit = smoothstep(-0.25, 0.7, dot(n, normalize(uLight)));
+          gl_FragColor = vec4(uRim, glow * (0.12 + lit) * 0.5); }`,
+    }));
+    scene.add(planet, atmo);
+
+    // ── Orbital spend ring: category arcs, glow, dial ticks and node dots (the app's dial, in orbit) ──
+    const ringTilt = new THREE.Group(); ringTilt.rotation.set(-1.22, 0.12, 0.28); scene.add(ringTilt);
+    const ring = new THREE.Group(); ringTilt.add(ring);
+    const RR = 17.5, GAP = 0.035; let a0 = 0;
+    const arcMats = [];
+    const dotGeo = new THREE.SphereGeometry(0.2, 12, 12), dotMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    CATS.forEach(([hex, share]) => {
+      const arc = Math.max(0.02, share * Math.PI * 2 - GAP);
+      const col = new THREE.Color(hex);
+      const core = new THREE.Mesh(new THREE.TorusGeometry(RR, 0.13, 8, Math.max(8, Math.round(arc * 60)), arc), new THREE.MeshBasicMaterial({ color: col.clone().multiplyScalar(1.15) }));
+      const haloMat = new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.16, depthWrite: false, blending: THREE.AdditiveBlending });
+      const halo = new THREE.Mesh(new THREE.TorusGeometry(RR, 0.6, 8, Math.max(8, Math.round(arc * 60)), arc), haloMat);
+      core.rotation.z = halo.rotation.z = a0;
+      const dot = new THREE.Mesh(dotGeo, dotMat); dot.position.set(Math.cos(a0) * RR, Math.sin(a0) * RR, 0);
+      ring.add(core, halo, dot); arcMats.push(haloMat);
+      a0 += share * Math.PI * 2;
+    });
+    const tickPts = [];
+    for (let i = 0; i < 240; i++) {
+      const a = (i / 240) * Math.PI * 2, long = i % 20 === 0, r1 = RR + 1.6, r2 = r1 + (long ? 1.1 : 0.45);
+      tickPts.push(Math.cos(a) * r1, Math.sin(a) * r1, 0, Math.cos(a) * r2, Math.sin(a) * r2, 0);
+    }
+    const tg = new THREE.BufferGeometry(); tg.setAttribute('position', new THREE.Float32BufferAttribute(tickPts, 3));
+    const ticks = new THREE.LineSegments(tg, new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.22 }));
+    ringTilt.add(ticks);
+    const innerRing = new THREE.Mesh(new THREE.TorusGeometry(RR - 2.2, 0.02, 4, 256), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.12 }));
+    ringTilt.add(innerRing);
+
+    // ── Payment streams: comets falling from deep space onto the planet (4 trailing points each) ──
+    const COMETS = 1100, TRAIL = 5, PN = COMETS * TRAIL;
+    const pStart = new Float32Array(PN * 3), pSeed = new Float32Array(PN), pLag = new Float32Array(PN), pCol = new Float32Array(PN * 3);
+    for (let i = 0; i < COMETS; i++) {
+      const u = r() * 2 - 1, th = r() * Math.PI * 2, rad = 70 + r() * 150;
+      const sx = Math.sqrt(1 - u * u) * Math.cos(th) * rad, sy = u * rad * 0.7, sz = Math.sqrt(1 - u * u) * Math.sin(th) * rad;
+      const seed = r();
+      const c = new THREE.Color(CATS[Math.floor(Math.pow(r(), 1.6) * CATS.length)][0]).lerp(new THREE.Color('#ffffff'), 0.25);
+      for (let j = 0; j < TRAIL; j++) {
+        const k = i * TRAIL + j;
+        pStart.set([sx, sy, sz], k * 3); pSeed[k] = seed; pLag[k] = j; pCol.set([c.r, c.g, c.b], k * 3);
+      }
+    }
+    const pg = new THREE.BufferGeometry();
+    pg.setAttribute('position', new THREE.BufferAttribute(pStart, 3));
+    pg.setAttribute('aSeed', new THREE.BufferAttribute(pSeed, 1));
+    pg.setAttribute('aLag', new THREE.BufferAttribute(pLag, 1));
+    pg.setAttribute('aColor', new THREE.BufferAttribute(pCol, 3));
+    const streamMat = new THREE.ShaderMaterial({
+      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+      uniforms: { uTime: { value: 0 }, uFlow: { value: 0.5 }, uPR: { value: DPR } },
+      vertexShader: `
+        attribute float aSeed; attribute float aLag; attribute vec3 aColor; uniform float uTime; uniform float uFlow; uniform float uPR;
+        varying vec3 vColor; varying float vA;
+        void main(){
+          float speed = 0.045 + fract(aSeed * 13.7) * 0.05;
+          float p = fract(uTime * speed + aSeed - aLag * 0.0055);
+          float e = p * p * (3.0 - 2.0 * p);
+          vec3 s = position; vec3 target = normalize(s) * 10.8;
+          vec3 side = normalize(cross(s, vec3(0.0, 1.0, 0.0)) + vec3(0.0001));
+          vec3 pos = mix(s, target, e) + side * sin(p * 3.14159) * length(s) * 0.16;
+          vec4 mv = modelViewMatrix * vec4(pos, 1.0); gl_Position = projectionMatrix * mv;
+          float head = 1.0 - aLag / 5.0;
+          gl_PointSize = (1.2 + 2.6 * head) * uPR * (75.0 / -mv.z);
+          // Only a share of comets fly at low flow; all of them at full flow.
+          float live = step(fract(aSeed * 91.7), uFlow);
+          vA = smoothstep(0.0, 0.12, p) * (1.0 - smoothstep(0.9, 1.0, p)) * head * live;
+          vColor = aColor;
+        }`,
+      fragmentShader: `varying vec3 vColor; varying float vA;
+        void main(){ float d = length(gl_PointCoord - 0.5); float c = smoothstep(0.5, 0.0, d); if (c * vA < 0.01) discard; gl_FragColor = vec4(vColor, c * vA); }`,
+    });
+    const stream = new THREE.Points(pg, streamMat);
+    scene.add(stream);
+
+    // ── Shooting stars ──
+    const shootGeo = new THREE.BufferGeometry();
+    shootGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3));
+    shootGeo.setAttribute('color', new THREE.BufferAttribute(new Float32Array([1, 0.97, 0.9, 0, 0, 0]), 3));
+    const shootMat = new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false });
+    const shootLine = new THREE.Line(shootGeo, shootMat); scene.add(shootLine);
+    const shoot = { life: 0, t: 0, p: new THREE.Vector3(), vel: new THREE.Vector3() };
+
+    // ── Camera rig: presets per slide, orbiting a little further with every slide ──
+    const PRESETS = {
+      hero:  { d: 80,  h: 9,  ox: 33, oy: 13 },
+      side:  { d: 92,  h: 16, ox: 36, oy: 13 },
+      close: { d: 40,  h: 4,  ox: 13, oy: 5 },
+      far:   { d: 165, h: 44, ox: 52, oy: 20 },
+      top:   { d: 66,  h: 46, ox: 20, oy: 8 },
+    };
+    const slides = [...document.querySelectorAll('.reveal .slides > section')];
+    const state = { th: 0, d: 64, h: 9, ox: 20, oy: 7, flow: 0.6, ring: 0 };
+    let goal = { ...state };
+    function setGoal(i) {
+      const s = slides[i] || slides[0];
+      const p = PRESETS[s.dataset.cam] || PRESETS.hero;
+      goal = { th: 0.55 + i * 0.36, ...p, flow: Number(s.dataset.flow ?? 0.5), ring: s.dataset.ring ? 1 : 0 };
+      if (s.dataset.burst) burst = 1;
+    }
+    let burst = 0, px = 0, py = 0, tpx = 0, tpy = 0;
+    addEventListener('pointermove', (e) => { tpx = e.clientX / innerWidth - 0.5; tpy = e.clientY / innerHeight - 0.5; });
+    // The module may load after Reveal's 'ready' has fired, so sync to the current slide now as well.
+    const start = () => { setGoal(Reveal.getIndices().h || 0); Object.assign(state, goal); };
+    if (Reveal.isReady()) start(); else Reveal.on('ready', start);
+    Reveal.on('slidechanged', (e) => { setGoal(e.indexh); if (reduced) { Object.assign(state, goal); requestAnimationFrame(frame); } });
+
+    function resize() { renderer.setSize(innerWidth, innerHeight, false); camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); }
+    addEventListener('resize', resize); resize();
+
+    const UP = new THREE.Vector3(0, 1, 0), fwd = new THREE.Vector3(), right = new THREE.Vector3(), upv = new THREE.Vector3(), look = new THREE.Vector3(), tmp = new THREE.Vector3();
+    const clock = new THREE.Timer();
+    function frame(ts) {
+      clock.update(ts);
+      const dt = Math.min(clock.getDelta(), 0.05), t = clock.getElapsed();
+      const k = reduced ? 1 : Math.min(1, dt * 1.25);
+      for (const key of ['th', 'd', 'h', 'ox', 'oy', 'flow', 'ring']) state[key] += (goal[key] - state[key]) * k;
+      px += (tpx - px) * Math.min(1, dt * 2); py += (tpy - py) * Math.min(1, dt * 2);
+
+      // Orbit position, then aim beside the planet so it sits right-of-centre behind the content.
+      const th = state.th + (reduced ? 0 : Math.sin(t * 0.05) * 0.04);
+      camera.position.set(Math.sin(th) * state.d, state.h, Math.cos(th) * state.d);
+      fwd.copy(camera.position).multiplyScalar(-1).normalize();
+      right.crossVectors(fwd, UP).normalize(); upv.crossVectors(right, fwd).normalize();
+      camera.position.addScaledVector(right, px * 3).addScaledVector(upv, -py * 2);
+      look.set(0, 0, 0).addScaledVector(right, -state.ox).addScaledVector(upv, state.oy);
+      camera.lookAt(look);
+      // Keep the sun behind the planet's upper-left limb from every angle, so it always wears a lit crescent.
+      LIGHT.copy(fwd).multiplyScalar(0.55).addScaledVector(right, -0.62).addScaledVector(upv, 0.55).normalize();
+      sun.position.copy(LIGHT).multiplyScalar(2400);
+
+      ring.rotation.z = t * 0.035;
+      arcMats.forEach((m) => { m.opacity = 0.12 + state.ring * (0.16 + Math.sin(t * 2.2) * 0.08); });
+      planet.rotation.y = t * 0.012;
+      planet.material.uniforms.uTime.value = t;
+      stars.rotation.y = t * 0.002; sky.rotation.y = t * 0.002;
+      starMat.uniforms.uTime.value = t;
+      burst *= Math.pow(0.35, dt);
+      streamMat.uniforms.uTime.value = t * (1 + burst * 2.5);
+      streamMat.uniforms.uFlow.value = Math.min(1, state.flow + burst * 0.4);
+
+
+      // Shooting star now and then, crossing the far sky.
+      if (!reduced) {
+        if (shoot.life <= 0 && Math.random() < dt * 0.18) {
+          shoot.life = 1.1; shoot.t = 0;
+          shoot.p.copy(camera.position).addScaledVector(fwd, 900).addScaledVector(right, (Math.random() - 0.2) * 700).addScaledVector(upv, 150 + Math.random() * 250);
+          shoot.vel.copy(right).multiplyScalar(-1).addScaledVector(upv, -0.45).normalize().multiplyScalar(1100);
+        }
+        if (shoot.life > 0) {
+          shoot.t += dt; shoot.life -= dt; shoot.p.addScaledVector(shoot.vel, dt);
+          const tail = tmp.copy(shoot.p).addScaledVector(shoot.vel, -0.09);
+          const a = shootGeo.attributes.position.array; a.set([shoot.p.x, shoot.p.y, shoot.p.z, tail.x, tail.y, tail.z]);
+          shootGeo.attributes.position.needsUpdate = true;
+          shootMat.opacity = Math.sin(Math.PI * Math.min(1, shoot.t / 1.1)) * 0.9;
+        } else shootMat.opacity = 0;
+      }
+
+      renderer.render(scene, camera);
+      if (!reduced) requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden && !reduced) clock.reset(); });
+  </script>
+</body>
+</html>
