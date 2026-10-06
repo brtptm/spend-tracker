@@ -152,7 +152,7 @@
       background: repeating-conic-gradient(from 0deg, rgba(255,255,255,.22) 0 .25deg, transparent .25deg 3deg);
       -webkit-mask: radial-gradient(circle, transparent 66%, #000 66.5%, #000 70%, transparent 70.5%); mask: radial-gradient(circle, transparent 66%, #000 66.5%, #000 70%, transparent 70.5%); }
     .dial .center { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
-    .dial .center .num { font-size: 78px; line-height: 1; }
+    .dial .center .num { font-size: 60px; line-height: 1; letter-spacing: 0; }
     .keep { margin-top: 18px; display: inline-flex; gap: 10px; align-items: baseline; justify-self: center; padding: 10px 18px; border-radius: 4px; background: rgba(48,209,88,.1); color: var(--pos); font-size: 22px; }
 
     /* Screens */
@@ -233,7 +233,7 @@
   <div class="frame" aria-hidden="true">
     <span class="ro tl"><span class="led"></span>Spend Tracker · Mission brief</span>
     <span class="ro tr" id="sector">Sector 01</span>
-    <span class="ro bl">UPI payments in · people out</span>
+    <span class="ro bl">Spending intelligence for UPI</span>
   </div>
 
   <div class="reveal">
@@ -247,13 +247,13 @@
             Spend Tracker
           </div>
           <h1 class="in" style="--d:1">Every rupee.<br/><span class="dim">Finally in focus.</span></h1>
-          <p class="lede in" style="--d:2">Spending intelligence for India's payment rails — UPI payments in, people out.</p>
+          <p class="lede in" style="--d:2">Spending intelligence for India's payment rails — see where every rupee goes, and keep more of it.</p>
           <div class="pills in" style="--d:3">
             <span class="pill">Consumer app</span><span class="pill">Partner platform</span><span class="pill">Built for Paytm</span><span class="pill gold">AI that never invents a number</span>
           </div>
         </div>
         <aside class="notes">
-          Hi — we built Spend Tracker. One line: payment partners like Paytm stream UPI payments in, and Spend Tracker turns them into people — a clear picture of where every rupee goes, for the person and, with consent, for the partner. The planet behind me is a person's money; the streams pouring into it are their payments. Let's fly through it.
+          Hi — we built Spend Tracker. One line: payment partners like Paytm stream UPI payments in, and Spend Tracker turns them into a clear picture of where every rupee goes, for the person and, with consent, for the partner. The planet behind me is a person's money; the streams pouring into it are their payments. Let's fly through it.
         </aside>
       </section>
 
@@ -433,7 +433,7 @@
       </section>
 
       <!-- 10 · Ask your money -->
-      <section data-cam="close" data-zone="1440,130,120" data-flow=".35">
+      <section data-cam="close" data-zone="1475,92,78" data-flow=".35">
         <div class="split even">
           <div>
             <p class="eyebrow in">Ask your money</p>
@@ -498,7 +498,7 @@
       <section data-cam="close" data-zone="1445,120,115" data-flow="1" data-burst="1">
         <div class="stack">
           <p class="eyebrow in">The partner pipeline</p>
-          <h2 class="in" style="--d:1">Messy UPI in. Clean people out.</h2>
+          <h2 class="in" style="--d:1">Messy UPI in. Clear insight out.</h2>
           <div class="pipe">
             <div class="hud step" style="--i:0"><span class="ix">01</span><div class="t">Validate</div><p>Types, ranges, codes like <span class="mono">invalid_vpa</span></p></div>
             <div class="hud step" style="--i:1"><span class="ix">02</span><div class="t">Normalise</div><p>"₹1,249.50", +91, <span class="mono">PAYTM*</span> prefixes</p></div>
@@ -518,7 +518,7 @@
       </section>
 
       <!-- 14 · Read API -->
-      <section data-cam="side" data-zone="1460,115,105" data-flow=".9">
+      <section data-cam="side" data-zone="1475,92,80" data-flow=".9">
         <div class="split even">
           <div>
             <p class="eyebrow in">Read the person behind the phone</p>

@@ -27,7 +27,7 @@ The deck needs internet for fonts and the CDN scripts. It respects *reduce motio
 
 India makes billions of UPI payments a month, and almost nobody knows where their money went. Statements read like serial numbers (`PAYTM*SWIGGY LIMITED 4412093`). Apps show history, not insight. Partners hold the data but can't read it, so their offers are generic.
 
-Spend Tracker turns raw UPI payments into people. A deterministic pipeline validates, normalises, de-duplicates, filters and categorises every payment with a confidence score, then builds a living profile per phone number. People get a premium app that shows them where every rupee goes and how to keep more of it. Partners get a consented API, an Integration Portal and offers people actually want. AI writes the words, but it never invents a number.
+Spend Tracker turns raw UPI payments into clear spending insight. A deterministic pipeline validates, normalises, de-duplicates, filters and categorises every payment with a confidence score, then builds a living profile per phone number. People get a premium app that shows them where every rupee goes and how to keep more of it. Partners get a consented API, an Integration Portal and offers people actually want. AI writes the words, but it never invents a number.
 
 ---
 
@@ -35,7 +35,7 @@ Spend Tracker turns raw UPI payments into people. A deterministic pipeline valid
 
 | # | Slide | Time | What to say |
 |---|---|---|---|
-| 1 | **Every rupee. Finally in focus.** | 0:00 | "We built Spend Tracker: UPI payments in, people out. The planet is a person's money; the comets are their payments." |
+| 1 | **Every rupee. Finally in focus.** | 0:00 | "We built Spend Tracker: it shows people where every rupee goes, and helps them keep more of it. The planet is a person's money; the comets are their payments." |
 | 2 | **The problem** | 0:15 | "UPI made paying invisible. The data is noise, apps show history not insight, and partners can't read what they hold." *(click the three cards)* |
 | 3 | **Our insight** | 0:35 | "The gap isn't data, it's understanding. A cryptic string becomes Swiggy at 97% confidence, then a convenience spender, then ₹16,700 a month he can keep." *(click through the flow)* |
 | 4 | **Two products, one engine** | 0:50 | "A money app for people, a platform for partners, one deterministic engine underneath." |
@@ -45,7 +45,7 @@ Spend Tracker turns raw UPI payments into people. A deterministic pipeline valid
 | 10 | **Ask your money** | 1:50 | "Plain-language questions, answered from his own numbers." |
 | 11 | **AI that can't invent money** | 2:00 | "The engine does the maths; models only write words. There are four tiers: a cloud model, a small open model on our own server, the same model on the user's GPU, and the engine. Every rupee figure is checked against the input." |
 | 12 | **Private by design** | 2:20 | "On-device mode, consent per partner, erasure and export." |
-| 13 | **Pipeline** | 2:30 | "Messy UPI in, clean people out. Six deterministic steps, idempotent batches of up to 1,000." |
+| 13 | **Pipeline** | 2:30 | "Messy UPI in, clear insight out. Six deterministic steps, idempotent batches of up to 1,000." |
 | 14–16 | **Read API · Portal · Security** | 2:40 | "One call gives a whole customer. Mission control for partners. Scoped hashed keys and tenant isolation." One sentence each. |
 | 17–19 | **Why it wins · Stack · Next** | 2:50 | People save, Paytm earns, merchants reach the right customers. Then **"Let me show you."** |
 | 20 | **Live demo** | 3:00 | Switch to the browser and follow the script below. |
