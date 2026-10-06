@@ -54,15 +54,26 @@ export function MonthlyStack({ months, height = 280, keys = ORDER }) {
   const present = keys.filter((k) => months.some((m) => m[k] > 0));
   const data = months.map((m) => ({ ...m, label: m.partial ? `${m.label}*` : m.label, _total: present.reduce((s, k) => s + (m[k] || 0), 0) }));
   const avg = avgOf(data.filter((m) => !m.partial).map((m) => m._total));
+  // One continuous column per month: only the outermost ends are rounded,
+  // categories are separated by hairline seams, and a horizontal sheen runs
+  // across every segment so the stack reads as a single glass cylinder.
+  const ends = data.map((m) => { const nz = present.filter((k) => m[k] > 0); return { bottom: nz[0], top: nz[nz.length - 1] }; });
+  const roundedRect = (x, y, w, h, rt, rb) => `M${x},${y + rt} a${rt},${rt} 0 0 1 ${rt},${-rt} h${w - 2 * rt} a${rt},${rt} 0 0 1 ${rt},${rt} v${h - rt - rb} a${rb},${rb} 0 0 1 ${-rb},${rb} h${-(w - 2 * rb)} a${rb},${rb} 0 0 1 ${-rb},${-rb} z`;
   const capsule = (k) => (p) => {
     const { x, y, width, height: h0, index } = p;
-    if (!h0 || h0 < 1) return null;
-    const h = Math.max(1, h0 - 3), r = Math.min(6, width / 2, h / 2);
+    if (!h0 || h0 < 0.5) return null;
+    const isTop = ends[index]?.top === k, isBottom = ends[index]?.bottom === k;
+    const seam = isTop ? 0 : 1; // 1px gap above every segment except the top one
+    const h = Math.max(0.5, h0 - seam), y1 = y + seam;
+    const R = Math.min(width / 2, 4);
+    const rt = isTop ? Math.min(R, h / (isBottom ? 2 : 1)) : 0, rb = isBottom ? Math.min(R, h / (isTop ? 2 : 1)) : 0;
+    const d = roundedRect(x, y1, width, h, rt, rb);
     const dim = hover != null && hover !== index, partial = data[index]?.partial;
     return (
       <g opacity={dim ? 0.3 : 1} style={{ transition: 'opacity .2s' }}>
-        <rect x={x} y={y + 1.5} width={width} height={h} rx={r} fill={partial ? `url(#mgp-${k})` : `url(#mg-${k})`} />
-        <rect x={x + 0.5} y={y + 2} width={width - 1} height={Math.max(0, h - 1)} rx={r} fill="none" stroke={CAT_COLORS[k]} strokeOpacity={partial ? 0.7 : 0.45} strokeDasharray={partial ? '3 3' : undefined} />
+        <path d={d} fill={CAT_COLORS[k]} fillOpacity={partial ? 0.6 : 0.82} />
+        {partial && <path d={d} fill="url(#mg-hatch)" />}
+        <path d={d} fill="url(#mg-sheen)" />
       </g>
     );
   };
@@ -76,7 +87,14 @@ export function MonthlyStack({ months, height = 280, keys = ORDER }) {
         <ResponsiveContainer>
           <BarChart data={data} margin={{ top: 24, right: 0, left: 0, bottom: 0 }} barCategoryGap="30%"
             onMouseMove={(s) => setHover(s?.activeTooltipIndex ?? null)} onMouseLeave={() => setHover(null)}>
-            <defs>{present.map((k) => [<Glass key={k} id={`mg-${k}`} color={CAT_COLORS[k]} />, <Glass key={`${k}p`} id={`mgp-${k}`} color={CAT_COLORS[k]} top={0.35} bottom={0.08} />])}</defs>
+            <defs>
+              {/* Cylindrical sheen: lit left edge, matte middle, shaded right edge. */}
+              <linearGradient id="mg-sheen" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stopColor="#fff" stopOpacity=".28" /><stop offset=".18" stopColor="#fff" stopOpacity=".08" />
+                <stop offset=".55" stopColor="#000" stopOpacity="0" /><stop offset="1" stopColor="#000" stopOpacity=".32" />
+              </linearGradient>
+              <pattern id="mg-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="2.5" height="6" fill="#000" fillOpacity=".45" /></pattern>
+            </defs>
             <CartesianGrid {...grid} />
             <XAxis dataKey="label" {...axis} />
             <YAxis {...axis} width={48} tickFormatter={inrShort} tickCount={4} />
@@ -197,7 +215,7 @@ export function SimpleBars({ data, dataKey = 'amount', xKey = 'label', color = '
   const gid = `sb-${String(color).replace(/\W/g, '')}`;
   const capsule = ({ x, y, width, height: h, index }) => {
     if (!h || h < 1) return null;
-    const lit = hover != null ? hover === index : index === peak, r = Math.min(width / 2, h / 2);
+    const lit = hover != null ? hover === index : index === peak, r = Math.min(4, width / 2, h / 2);
     return (
       <g opacity={lit ? 1 : 0.45} style={{ transition: 'opacity .2s' }}>
         <rect x={x} y={y} width={width} height={h} rx={r} fill={`url(#${gid})`} />
